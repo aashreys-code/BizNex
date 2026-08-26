@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { FileText, MapPin, IndianRupee, Loader2, Download, Copy } from 'lucide-react'
 import { generateBusinessPlan } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -28,21 +29,29 @@ const businessTypes = [
 
 export default function BusinessPlan() {
   const { profile } = useAuth()
-  const [businessType, setBusinessType] = useState('')
-  const [budget, setBudget] = useState('')
-  const [location, setLocation] = useState(profile?.district || '')
+  const { business, isComplete } = useBusiness()
+  const [businessType, setBusinessType] = useState(business?.businessType || '')
+  const [budget, setBudget] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
+  const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState('')
   const [copied, setCopied] = useState(false)
 
+  useEffect(() => {
+    if (isComplete && !plan && !loading) handleGenerate()
+  }, [isComplete])
+
   async function handleGenerate() {
-    if (!businessType || !budget || !location) return
+    const type = businessType || business?.businessType || ''
+    const bud = budget || (business?.investmentAmount ? String(business.investmentAmount) : '')
+    const loc = location || business?.location || ''
+    if (!type || !bud || !loc) return
     setLoading(true)
     try {
       const result = await generateBusinessPlan({
-        businessType,
-        budget: Number(budget),
-        location,
+        businessType: type,
+        budget: Number(bud),
+        location: loc,
       })
       setPlan(result)
     } catch (err) {
@@ -100,7 +109,7 @@ export default function BusinessPlan() {
             />
           </div>
           <div className="mt-4">
-            <Button onClick={handleGenerate} loading={loading} disabled={!businessType || !budget || !location}>
+            <Button onClick={handleGenerate} loading={loading}>
               <FileText size={18} />
               Generate Business Plan
             </Button>

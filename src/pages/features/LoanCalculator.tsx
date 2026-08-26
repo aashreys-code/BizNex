@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Calculator, IndianRupee, Loader2 } from 'lucide-react'
 import {
@@ -6,6 +6,7 @@ import {
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
 import { calculateLoan } from '../../lib/ai'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -24,22 +25,30 @@ interface LoanResult {
 const COLORS = ['#22c55e', '#f97316', '#3b82f6']
 
 export default function LoanCalculator() {
-  const [monthlyIncome, setMonthlyIncome] = useState('')
-  const [existingLoans, setExistingLoans] = useState('')
-  const [businessType, setBusinessType] = useState('')
-  const [investmentRequirement, setInvestmentRequirement] = useState('')
+  const { business, isComplete } = useBusiness()
+  const [monthlyIncome, setMonthlyIncome] = useState(business?.monthlyIncome ? String(business.monthlyIncome) : '')
+  const [existingLoans, setExistingLoans] = useState(business?.existingLoans ? String(business.existingLoans) : '')
+  const [businessType, setBusinessType] = useState(business?.businessType || '')
+  const [investmentRequirement, setInvestmentRequirement] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<LoanResult | null>(null)
 
+  useEffect(() => {
+    if (isComplete && !result && !loading) handleCalculate()
+  }, [isComplete])
+
   async function handleCalculate() {
-    if (!monthlyIncome || !businessType || !investmentRequirement) return
+    const inc = monthlyIncome || (business?.monthlyIncome ? String(business.monthlyIncome) : '')
+    const type = businessType || business?.businessType || ''
+    const req = investmentRequirement || (business?.investmentAmount ? String(business.investmentAmount) : '')
+    if (!inc || !type || !req) return
     setLoading(true)
     try {
       const data = await calculateLoan({
-        monthlyIncome: Number(monthlyIncome),
-        existingLoans: Number(existingLoans) || 0,
-        businessType,
-        investmentRequirement: Number(investmentRequirement),
+        monthlyIncome: Number(inc),
+        existingLoans: Number(existingLoans || business?.existingLoans || 0),
+        businessType: type,
+        investmentRequirement: Number(req),
       })
       setResult(data)
     } catch (err) {
@@ -114,7 +123,7 @@ export default function LoanCalculator() {
             />
           </div>
           <div className="mt-4">
-            <Button onClick={handleCalculate} loading={loading} disabled={!monthlyIncome || !businessType || !investmentRequirement}>
+            <Button onClick={handleCalculate} loading={loading}>
               <Calculator size={18} />
               Calculate Eligibility
             </Button>

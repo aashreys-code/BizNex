@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import Dashboard from './pages/Dashboard'
+import BusinessProfile from './pages/BusinessProfile'
 import MarketAnalysis from './pages/features/MarketAnalysis'
 import BusinessPlan from './pages/features/BusinessPlan'
 import SchemeFinder from './pages/features/SchemeFinder'
@@ -72,6 +73,16 @@ export default function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <Dashboard />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/business-profile"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <BusinessProfile />
             </DashboardLayout>
           </ProtectedRoute>
         }

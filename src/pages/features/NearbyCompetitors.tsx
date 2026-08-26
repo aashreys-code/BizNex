@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
@@ -8,6 +8,7 @@ import {
   BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
 import { findNearbyBusinesses } from '../../lib/ai'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { ScrollReveal, GlowCard, CountUp } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
@@ -151,14 +152,19 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
 
 export default function NearbyCompetitors() {
   const { profile } = useAuth()
-  const [businessType, setBusinessType] = useState('')
-  const [location, setLocation] = useState(profile?.district || '')
-  const [radius, setRadius] = useState('10')
+  const { business, isComplete } = useBusiness()
+  const [businessType, setBusinessType] = useState(business?.businessType || '')
+  const [location, setLocation] = useState(business?.location || profile?.district || '')
+  const [radius, setRadius] = useState(business?.radius ? String(business.radius) : '10')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<CompetitorResult | null>(null)
   const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null)
   const [filterType, setFilterType] = useState('All')
   const [downloading, setDownloading] = useState(false)
+
+  useEffect(() => {
+    if (isComplete && !result && !loading) handleSearch()
+  }, [isComplete])
 
   const downloadReport = useCallback(() => {
     if (!result) return
@@ -318,13 +324,15 @@ export default function NearbyCompetitors() {
   }, [result, filterType, businessType, location])
 
   async function handleSearch() {
-    if (!businessType || !location) return
+    const type = businessType || business?.businessType || ''
+    const loc = location || business?.location || ''
+    if (!type || !loc) return
     setLoading(true)
     try {
       const data = await findNearbyBusinesses({
-        businessType,
-        location,
-        radius: Number(radius) || 10,
+        businessType: type,
+        location: loc,
+        radius: Number(radius || business?.radius || 10),
       })
       setResult(data)
       setSelectedCompetitor(null)

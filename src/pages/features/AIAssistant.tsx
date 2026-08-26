@@ -3,6 +3,7 @@ import { motion } from 'motion/react'
 import { MessageSquare, Send, Mic, Volume2, Globe, Loader2 } from 'lucide-react'
 import { chatWithAI } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Card from '../../components/ui/Card'
 
@@ -31,6 +32,7 @@ const quickPrompts = [
 
 export default function AIAssistant() {
   const { profile } = useAuth()
+  const { business } = useBusiness()
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -41,7 +43,7 @@ export default function AIAssistant() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [language, setLanguage] = useState(profile?.language || 'English')
+  const [language, setLanguage] = useState(business?.preferredLanguage || profile?.language || 'English')
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -122,7 +124,7 @@ export default function AIAssistant() {
               className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-primary-500/50"
             >
               {languages.map((lang) => (
-                <option key={lang.code} value={lang.code} className="bg-navy-900">
+                <option key={lang.code} value={lang.code} className="bg-charcoal-900">
                   {lang.label}
                 </option>
               ))}

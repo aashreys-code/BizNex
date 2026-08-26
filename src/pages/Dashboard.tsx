@@ -1,88 +1,35 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
-  TrendingUp,
-  FileText,
-  Search,
-  Calculator,
-  MessageSquare,
-  MapPin,
-  DollarSign,
-  Upload,
-  Clock,
-  ArrowRight,
+  TrendingUp, FileText, Search, Calculator, MessageSquare,
+  MapPin, DollarSign, Upload, ArrowRight, Building2,
+  CheckCircle2, AlertCircle, Store, BarChart3, Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useBusiness } from '../contexts/BusinessContext'
 import { ScrollReveal, CountUp, GlowCard } from '../components/react-bits'
+import Button from '../components/ui/Button'
+import Card from '../components/ui/Card'
 
-const quickActions = [
-  {
-    icon: TrendingUp,
-    title: 'Market Analysis',
-    description: 'Analyze demand, competition & revenue for your business idea',
-    path: '/market-analysis',
-    color: 'from-green-500 to-emerald-500',
-  },
-  {
-    icon: FileText,
-    title: 'Business Plan',
-    description: 'Generate a comprehensive business plan in minutes',
-    path: '/business-plan',
-    color: 'from-blue-500 to-cyan-500',
-  },
-  {
-    icon: Search,
-    title: 'Scheme Finder',
-    description: 'Find government schemes you are eligible for',
-    path: '/scheme-finder',
-    color: 'from-purple-500 to-violet-500',
-  },
-  {
-    icon: Calculator,
-    title: 'Loan Calculator',
-    description: 'Check your loan eligibility and EMI estimates',
-    path: '/loan-calculator',
-    color: 'from-orange-500 to-amber-500',
-  },
-  {
-    icon: MessageSquare,
-    title: 'AI Assistant',
-    description: 'Chat with our AI advisor in your language',
-    path: '/ai-assistant',
-    color: 'from-pink-500 to-rose-500',
-  },
-  {
-    icon: MapPin,
-    title: 'Local Insights',
-    description: 'Explore data about your area and opportunities',
-    path: '/insights',
-    color: 'from-teal-500 to-cyan-500',
-  },
-  {
-    icon: DollarSign,
-    title: 'Funding Advisor',
-    description: 'Get personalized funding structure recommendations',
-    path: '/funding-advisor',
-    color: 'from-indigo-500 to-blue-500',
-  },
-  {
-    icon: Upload,
-    title: 'Document Verification',
-    description: 'Upload and verify your business documents',
-    path: '/document-verification',
-    color: 'from-red-500 to-orange-500',
-  },
-  {
-    icon: MapPin,
-    title: 'Nearby Competitors',
-    description: 'Find similar businesses, compare demand & popularity',
-    path: '/nearby-competitors',
-    color: 'from-violet-500 to-purple-600',
-  },
+const featureLinks = [
+  { icon: TrendingUp, title: 'Market Analysis', path: '/market-analysis', color: 'from-green-500 to-emerald-500' },
+  { icon: FileText, title: 'Business Plan', path: '/business-plan', color: 'from-blue-500 to-cyan-500' },
+  { icon: Search, title: 'Scheme Finder', path: '/scheme-finder', color: 'from-purple-500 to-violet-500' },
+  { icon: Calculator, title: 'Loan Calculator', path: '/loan-calculator', color: 'from-orange-500 to-amber-500' },
+  { icon: MessageSquare, title: 'AI Assistant', path: '/ai-assistant', color: 'from-pink-500 to-rose-500' },
+  { icon: MapPin, title: 'Local Insights', path: '/insights', color: 'from-teal-500 to-cyan-500' },
+  { icon: DollarSign, title: 'Funding Advisor', path: '/funding-advisor', color: 'from-indigo-500 to-blue-500' },
+  { icon: Upload, title: 'Documents', path: '/document-verification', color: 'from-red-500 to-orange-500' },
+  { icon: Store, title: 'Competitors', path: '/nearby-competitors', color: 'from-violet-500 to-purple-600' },
 ]
 
 export default function Dashboard() {
   const { profile } = useAuth()
+  const { business, isComplete } = useBusiness()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   return (
     <div className="space-y-8">
@@ -103,76 +50,177 @@ export default function Dashboard() {
             <div className="flex gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-400">
-                  <CountUp to={3} />
+                  <CountUp to={isComplete ? 9 : 0} />
                 </div>
-                <p className="text-xs text-gray-400">Reports</p>
+                <p className="text-xs text-gray-400">Features Ready</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-accent-400">
-                  <CountUp to={5} />
+                  <CountUp to={isComplete ? 1 : 0} />
                 </div>
-                <p className="text-xs text-gray-400">Ideas Analyzed</p>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">
-                  <CountUp to={2} />
-                </div>
-                <p className="text-xs text-gray-400">Schemes Applied</p>
+                <p className="text-xs text-gray-400">Profile</p>
               </div>
             </div>
           </div>
         </div>
       </ScrollReveal>
 
-      {/* Quick Actions */}
+      {/* Business Profile Status */}
+      {!isComplete ? (
+        <ScrollReveal delay={0.1}>
+          <Card className="p-6 border border-amber-500/20 bg-amber-500/5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
+                <AlertCircle size={24} className="text-amber-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-white mb-1">Set Up Your Business Profile</h3>
+                <p className="text-sm text-gray-400">
+                  Enter your business details once — all 9 features will automatically use this data.
+                  No more re-entering information on every page!
+                </p>
+              </div>
+              <Link to="/business-profile">
+                <Button>
+                  <Building2 size={16} />
+                  Set Up Profile
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </ScrollReveal>
+      ) : (
+        <ScrollReveal delay={0.1}>
+          <Card className="p-6 border border-moss-400/20 bg-moss-400/5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-moss-400/20 flex items-center justify-center shrink-0">
+                <CheckCircle2 size={24} className="text-moss-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-white mb-1">Business Profile Active</h3>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {[
+                    business?.businessType,
+                    business?.location,
+                    business?.investmentAmount ? `₹${business.investmentAmount.toLocaleString('en-IN')}` : null,
+                    business?.category,
+                  ].filter(Boolean).map((tag, i) => (
+                    <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <Link to="/business-profile">
+                <Button variant="ghost" size="sm">
+                  Edit Profile
+                </Button>
+              </Link>
+            </div>
+          </Card>
+        </ScrollReveal>
+      )}
+
+      {/* Auto Analysis Cards */}
+      {isComplete && mounted && (
+        <div>
+          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+            <Sparkles size={20} className="text-moss-400" />
+            Your Business Insights
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                icon: TrendingUp, label: 'Market Demand', value: '7/10',
+                sub: `${business?.businessType} in ${business?.location?.split(',')[0]}`,
+                color: 'text-green-400', path: '/market-analysis',
+              },
+              {
+                icon: Search, label: 'Eligible Schemes', value: '5+',
+                sub: `${business?.category} category · ₹${(business?.investmentAmount || 0).toLocaleString('en-IN')}`,
+                color: 'text-purple-400', path: '/scheme-finder',
+              },
+              {
+                icon: Calculator, label: 'Loan Eligible', value: `₹${business?.investmentAmount ? (business.investmentAmount * 2).toLocaleString('en-IN') : '—'}`,
+                sub: `${business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : 'Add income for estimate'}`,
+                color: 'text-orange-400', path: '/loan-calculator',
+              },
+              {
+                icon: DollarSign, label: 'Funding Plan', value: `${business?.investmentAmount ? Math.round(business.investmentAmount * 0.3 / 1000) : 0}K own`,
+                sub: `${business?.investmentAmount ? `${Math.round(business.investmentAmount * 0.7 / 1000)}K loan + subsidy` : 'Add costs for plan'}`,
+                color: 'text-blue-400', path: '/funding-advisor',
+              },
+              {
+                icon: Store, label: 'Nearby Competitors', value: '5 found',
+                sub: `${business?.radius || 10} km radius · ${business?.location?.split(',')[0]}`,
+                color: 'text-violet-400', path: '/nearby-competitors',
+              },
+              {
+                icon: MapPin, label: 'Local Insights', value: business?.location?.split(',')[0] || '—',
+                sub: 'Population, demand trends, opportunities',
+                color: 'text-teal-400', path: '/insights',
+              },
+            ].map((card, i) => (
+              <ScrollReveal key={i} delay={i * 0.05}>
+                <Link to={card.path}>
+                  <GlowCard className="h-full group cursor-pointer p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <card.icon size={20} className={card.color} />
+                      <ArrowRight size={14} className="text-gray-600 group-hover:text-white transition-colors" />
+                    </div>
+                    <p className="text-xs text-gray-400 mb-1">{card.label}</p>
+                    <p className={`text-xl font-bold ${card.color} mb-1`}>{card.value}</p>
+                    <p className="text-xs text-gray-500">{card.sub}</p>
+                  </GlowCard>
+                </Link>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Feature Links */}
       <div>
-        <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {quickActions.map((action, i) => (
-            <ScrollReveal key={i} delay={i * 0.05}>
+        <h2 className="text-xl font-semibold text-white mb-4">All Features</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {featureLinks.map((action, i) => (
+            <ScrollReveal key={i} delay={i * 0.03}>
               <Link to={action.path}>
-                <GlowCard className="h-full group cursor-pointer">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <action.icon size={24} className="text-white" />
+                <div className="glass rounded-xl p-4 group hover:bg-white/5 transition-all duration-200 cursor-pointer h-full">
+                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                    <action.icon size={20} className="text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-primary-400 transition-colors">
+                  <p className="text-sm font-medium text-white group-hover:text-moss-400 transition-colors">
                     {action.title}
-                  </h3>
-                  <p className="text-sm text-gray-400 mb-3">{action.description}</p>
-                  <div className="flex items-center gap-1 text-sm text-primary-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Get Started <ArrowRight size={14} />
-                  </div>
-                </GlowCard>
+                  </p>
+                </div>
               </Link>
             </ScrollReveal>
           ))}
         </div>
       </div>
 
-      {/* Recent Activity */}
+      {/* Quick Actions Row */}
       <ScrollReveal>
-        <div className="glass rounded-2xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-            <Clock size={20} className="text-gray-400" />
-            Recent Activity
-          </h2>
-          <div className="space-y-3">
-            {[
-              { action: 'Analyzed dairy farm business in Anantapur', time: '2 hours ago', icon: TrendingUp },
-              { action: 'Generated business plan for textile shop', time: '1 day ago', icon: FileText },
-              { action: 'Found 3 eligible government schemes', time: '2 days ago', icon: Search },
-            ].map((activity, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors">
-                <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center">
-                  <activity.icon size={16} className="text-primary-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-300">{activity.action}</p>
-                  <p className="text-xs text-gray-500">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-3">
+          <Link to="/ai-assistant">
+            <Button variant="secondary" size="sm">
+              <MessageSquare size={14} />
+              Chat with AI
+            </Button>
+          </Link>
+          <Link to="/scheme-finder">
+            <Button variant="secondary" size="sm">
+              <Search size={14} />
+              Find Schemes
+            </Button>
+          </Link>
+          <Link to="/nearby-competitors">
+            <Button variant="secondary" size="sm">
+              <BarChart3 size={14} />
+              View Competitors
+            </Button>
+          </Link>
         </div>
       </ScrollReveal>
     </div>

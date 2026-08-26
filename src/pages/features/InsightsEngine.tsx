@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { MapPin, Loader2, Users, BookOpen, TrendingUp, Building2 } from 'lucide-react'
 import {
@@ -7,6 +7,7 @@ import {
 } from 'recharts'
 import { getInsights } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -29,15 +30,21 @@ const COLORS = ['#22c55e', '#f97316', '#3b82f6', '#8b5cf6']
 
 export default function InsightsEngine() {
   const { profile } = useAuth()
-  const [location, setLocation] = useState(profile?.district || '')
+  const { business, isComplete } = useBusiness()
+  const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<InsightData | null>(null)
 
+  useEffect(() => {
+    if (isComplete && !result && !loading) handleSearch()
+  }, [isComplete])
+
   async function handleSearch() {
-    if (!location) return
+    const loc = location || business?.location || ''
+    if (!loc) return
     setLoading(true)
     try {
-      const data = await getInsights(location)
+      const data = await getInsights(loc)
       setResult(data)
     } catch (err) {
       console.error(err)
@@ -81,7 +88,7 @@ export default function InsightsEngine() {
                 icon={<MapPin size={18} />}
               />
             </div>
-            <Button onClick={handleSearch} loading={loading} disabled={!location}>
+            <Button onClick={handleSearch} loading={loading}>
               <MapPin size={18} />
               Get Insights
             </Button>

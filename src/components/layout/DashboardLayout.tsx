@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   LayoutDashboard, TrendingUp, FileText, Search, Calculator,
-  MessageSquare, MapPin, DollarSign, Upload, Shield,
+  MessageSquare, MapPin, DollarSign, Upload, Shield, Building2,
   Menu, X, LogOut, Sun, Moon,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
@@ -20,6 +20,7 @@ const navItems = [
   { path: '/funding-advisor', label: 'Funding Advisor', icon: DollarSign },
   { path: '/document-verification', label: 'Documents', icon: Upload },
   { path: '/nearby-competitors', label: 'Competitors', icon: MapPin },
+  { path: '/business-profile', label: 'Business Profile', icon: Building2 },
 ]
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

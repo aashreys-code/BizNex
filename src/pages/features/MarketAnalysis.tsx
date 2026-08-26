@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { TrendingUp, MapPin, IndianRupee, Loader2, Download } from 'lucide-react'
 import {
@@ -7,6 +7,7 @@ import {
 } from 'recharts'
 import { analyzeMarket } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -34,20 +35,30 @@ interface MarketResult {
 
 export default function MarketAnalysis() {
   const { profile } = useAuth()
-  const [businessIdea, setBusinessIdea] = useState('')
-  const [location, setLocation] = useState(profile?.district || '')
-  const [investmentAmount, setInvestmentAmount] = useState('')
+  const { business, isComplete } = useBusiness()
+  const [businessIdea, setBusinessIdea] = useState(business?.businessDescription || business?.businessType || '')
+  const [location, setLocation] = useState(business?.location || profile?.district || '')
+  const [investmentAmount, setInvestmentAmount] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<MarketResult | null>(null)
 
+  useEffect(() => {
+    if (isComplete && !result && !loading) {
+      handleAnalyze()
+    }
+  }, [isComplete])
+
   async function handleAnalyze() {
-    if (!businessIdea || !location || !investmentAmount) return
+    const idea = businessIdea || business?.businessType || ''
+    const loc = location || business?.location || ''
+    const invest = investmentAmount || (business?.investmentAmount ? String(business.investmentAmount) : '')
+    if (!idea || !loc || !invest) return
     setLoading(true)
     try {
       const data = await analyzeMarket({
-        businessIdea,
-        location,
-        investmentAmount: Number(investmentAmount),
+        businessIdea: idea,
+        location: loc,
+        investmentAmount: Number(invest),
       })
       setResult(data)
     } catch (err) {
@@ -101,7 +112,7 @@ export default function MarketAnalysis() {
             />
           </div>
           <div className="mt-4">
-            <Button onClick={handleAnalyze} loading={loading} disabled={!businessIdea || !location || !investmentAmount}>
+            <Button onClick={handleAnalyze} loading={loading}>
               <TrendingUp size={18} />
               Analyze Market
             </Button>

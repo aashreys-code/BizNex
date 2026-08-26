@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock } from 'lucide-react'
 import { findSchemes } from '../../lib/ai'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -20,25 +21,30 @@ interface Scheme {
 }
 
 export default function SchemeFinder() {
-  const [age, setAge] = useState('')
-  const [gender, setGender] = useState('')
-  const [businessType, setBusinessType] = useState('')
-  const [income, setIncome] = useState('')
-  const [investmentNeeded, setInvestmentNeeded] = useState('')
-  const [category, setCategory] = useState('')
+  const { business, isComplete } = useBusiness()
+  const [age, setAge] = useState(business?.age ? String(business.age) : '')
+  const [gender, setGender] = useState(business?.gender?.toLowerCase() || '')
+  const [businessType, setBusinessType] = useState(business?.businessType || '')
+  const [income, setIncome] = useState(business?.monthlyIncome ? String(business.monthlyIncome * 12) : '')
+  const [investmentNeeded, setInvestmentNeeded] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
+  const [category, setCategory] = useState(business?.category?.toLowerCase() || '')
   const [loading, setLoading] = useState(false)
   const [schemes, setSchemes] = useState<Scheme[]>([])
+
+  useEffect(() => {
+    if (isComplete && schemes.length === 0 && !loading) handleFind()
+  }, [isComplete])
 
   async function handleFind() {
     setLoading(true)
     try {
       const result = await findSchemes({
-        age: Number(age),
-        gender,
-        businessType,
-        income: Number(income),
-        investmentNeeded: Number(investmentNeeded),
-        category,
+        age: Number(age || business?.age || 30),
+        gender: gender || business?.gender || 'Male',
+        businessType: businessType || business?.businessType || '',
+        income: Number(income || (business?.monthlyIncome ? business.monthlyIncome * 12 : 200000)),
+        investmentNeeded: Number(investmentNeeded || business?.investmentAmount || 500000),
+        category: category || business?.category || 'General',
       })
       setSchemes(result.schemes)
     } catch (err) {
@@ -128,7 +134,7 @@ export default function SchemeFinder() {
             />
           </div>
           <div className="mt-4">
-            <Button onClick={handleFind} loading={loading} disabled={!age || !gender || !businessType}>
+            <Button onClick={handleFind} loading={loading}>
               <Search size={18} />
               Find Eligible Schemes
             </Button>

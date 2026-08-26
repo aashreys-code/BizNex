@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { DollarSign, Loader2, IndianRupee, Landmark, Gift } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 import { getFundingAdvice } from '../../lib/ai'
+import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -21,22 +22,31 @@ interface FundingResult {
 }
 
 export default function FundingAdvisor() {
-  const [businessType, setBusinessType] = useState('')
-  const [totalCost, setTotalCost] = useState('')
-  const [workingCapital, setWorkingCapital] = useState('')
-  const [equipmentCost, setEquipmentCost] = useState('')
+  const { business, isComplete } = useBusiness()
+  const [businessType, setBusinessType] = useState(business?.businessType || '')
+  const [totalCost, setTotalCost] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
+  const [workingCapital, setWorkingCapital] = useState(business?.workingCapital ? String(business.workingCapital) : '')
+  const [equipmentCost, setEquipmentCost] = useState(business?.equipmentCost ? String(business.equipmentCost) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<FundingResult | null>(null)
 
+  useEffect(() => {
+    if (isComplete && !result && !loading) handleGetAdvice()
+  }, [isComplete])
+
   async function handleGetAdvice() {
-    if (!businessType || !totalCost || !workingCapital || !equipmentCost) return
+    const type = businessType || business?.businessType || ''
+    const cost = totalCost || (business?.investmentAmount ? String(business.investmentAmount) : '')
+    const wc = workingCapital || (business?.workingCapital ? String(business.workingCapital) : '')
+    const ec = equipmentCost || (business?.equipmentCost ? String(business.equipmentCost) : '')
+    if (!type || !cost || !wc || !ec) return
     setLoading(true)
     try {
       const data = await getFundingAdvice({
-        businessType,
-        totalCost: Number(totalCost),
-        workingCapital: Number(workingCapital),
-        equipmentCost: Number(equipmentCost),
+        businessType: type,
+        totalCost: Number(cost),
+        workingCapital: Number(wc),
+        equipmentCost: Number(ec),
       })
       setResult(data)
     } catch (err) {
@@ -103,7 +113,7 @@ export default function FundingAdvisor() {
             />
           </div>
           <div className="mt-4">
-            <Button onClick={handleGetAdvice} loading={loading} disabled={!businessType || !totalCost || !workingCapital || !equipmentCost}>
+            <Button onClick={handleGetAdvice} loading={loading}>
               <DollarSign size={18} />
               Get Funding Advice
             </Button>
