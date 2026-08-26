@@ -238,8 +238,8 @@ export default function LandingPage() {
               { icon: Shield, title: 'Scheme Awareness Gap', desc: '₹3 lakh crore in government schemes go unutilized annually due to lack of awareness.' },
               { icon: Users, title: 'Language Barriers', desc: 'Most digital tools are in English, excluding 90% of rural entrepreneurs.' },
             ].map((item, i) => (
-              <ScrollReveal key={i} delay={i * 0.15}>
-                <GlowCard className="text-center p-8">
+              <ScrollReveal key={i} delay={i * 0.15} className="h-full">
+                <GlowCard className="text-center p-8 h-full flex flex-col items-center justify-center">
                   <div className="w-16 h-16 rounded-2xl bg-moss-400/10 border border-moss-400/20 flex items-center justify-center mx-auto mb-4">
                     <item.icon size={28} className="text-moss-400" />
                   </div>
@@ -398,8 +398,8 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {schemes.map((scheme, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
-                <GlowCard className="text-center p-6">
+              <ScrollReveal key={i} delay={i * 0.1} className="h-full">
+                <GlowCard className="text-center p-6 h-full">
                   <h3 className="text-lg font-bold text-white mb-2">{scheme.name}</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
