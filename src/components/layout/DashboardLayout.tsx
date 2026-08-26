@@ -1,10 +1,10 @@
-import { useState, ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState, useRef, useEffect, ReactNode } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
   LayoutDashboard, TrendingUp, FileText, Search, Calculator,
   MessageSquare, MapPin, DollarSign, Upload, Shield, Building2,
-  Menu, X, LogOut, Sun, Moon,
+  Menu, X, LogOut, Sun, Moon, User, ChevronDown,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -26,8 +26,24 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
+  const navigate = useNavigate()
   const { profile, signOut } = useAuth()
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const userName = profile?.name || 'User'
+  const userInitial = userName[0]?.toUpperCase() || 'U'
   const { isDark, toggleTheme } = useTheme()
   const { profiles, activeId, business, setActiveId } = useBusiness()
 
@@ -156,14 +172,59 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           <div className="flex-1" />
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-medium text-white">{profile?.name || 'User'}</p>
-              <p className="text-xs text-gray-500">{profile?.district}, {profile?.state}</p>
-            </div>
-            <div className="w-9 h-9 rounded-xl bg-charcoal-800 border border-moss-400/30 flex items-center justify-center text-moss-400 font-semibold text-sm">
-              {profile?.name?.[0] || 'U'}
-            </div>
+
+          {/* User Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl hover:bg-white/5 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-xl bg-moss-400/20 border border-moss-400/30 flex items-center justify-center text-moss-400 font-bold text-sm">
+                {userInitial}
+              </div>
+              <span className="text-sm font-medium text-white hidden sm:block">{userName}</span>
+              <ChevronDown size={14} className={`text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full mt-2 w-56 glass-dark rounded-xl border border-white/10 shadow-xl overflow-hidden"
+                >
+                  <div className="p-3 border-b border-white/5">
+                    <p className="text-sm font-medium text-white">{userName}</p>
+                    <p className="text-xs text-gray-500 truncate">{profile?.email}</p>
+                  </div>
+                  <div className="p-1.5">
+                    <button
+                      onClick={() => { setDropdownOpen(false); navigate('/profile') }}
+                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <User size={16} />
+                      Profile
+                    </button>
+                    <button
+                      onClick={() => { setDropdownOpen(false); navigate('/business-profile') }}
+                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
+                    >
+                      <Building2 size={16} />
+                      Business Profiles
+                    </button>
+                    <button
+                      onClick={() => { setDropdownOpen(false); signOut() }}
+                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </header>
 
