@@ -1,16 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 export interface BusinessProfile {
+  id: string
+  name: string // user-given label like "My Grocery Store"
   // Personal
   age: number
   gender: string
-  category: string // General / SC / ST / OBC / Minority / Women
+  category: string
 
   // Business
   businessType: string
   businessDescription: string
-  location: string // district, state
-  radius: number // search radius in km for competitors
+  location: string
+  radius: number
 
   // Financial
   investmentAmount: number
@@ -21,59 +23,62 @@ export interface BusinessProfile {
 
   // Preferences
   preferredLanguage: string
+  createdAt: string
 }
 
 interface BusinessContextType {
-  business: BusinessProfile | null
+  profiles: BusinessProfile[]
+  activeId: string | null
+  business: BusinessProfile | null // currently active profile
   isComplete: boolean
-  setBusiness: (data: BusinessProfile) => void
-  clearBusiness: () => void
+  addProfile: (data: Omit<BusinessProfile, 'id' | 'createdAt'>) => BusinessProfile
+  updateProfile: (id: string, data: Partial<BusinessProfile>) => void
+  deleteProfile: (id: string) => void
+  setActiveId: (id: string) => void
 }
 
-const DEFAULT: BusinessProfile = {
-  age: 30,
-  gender: 'Male',
-  category: 'General',
-  businessType: '',
-  businessDescription: '',
-  location: '',
-  radius: 10,
-  investmentAmount: 0,
-  monthlyIncome: 0,
-  existingLoans: 0,
-  workingCapital: 0,
-  equipmentCost: 0,
-  preferredLanguage: 'English',
+const STORAGE_KEY = 'bizpulse_business_profiles'
+const ACTIVE_KEY = 'bizpulse_active_profile'
+
+function generateId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 }
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined)
 
-const STORAGE_KEY = 'bizpulse_business_profile'
-
 export function BusinessProvider({ children }: { children: ReactNode }) {
-  const [business, setBusinessState] = useState<BusinessProfile | null>(() => {
+  const [profiles, setProfiles] = useState<BusinessProfile[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? JSON.parse(stored) : null
+      return stored ? JSON.parse(stored) : []
     } catch {
-      return null
+      return []
     }
   })
 
+  const [activeId, setActiveIdState] = useState<string | null>(() => {
+    return localStorage.getItem(ACTIVE_KEY)
+  })
+
+  // Persist profiles
   useEffect(() => {
-    if (business) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(business))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles))
+  }, [profiles])
+
+  // Persist active ID
+  useEffect(() => {
+    if (activeId) localStorage.setItem(ACTIVE_KEY, activeId)
+    else localStorage.removeItem(ACTIVE_KEY)
+  }, [activeId])
+
+  // Auto-select first profile if none active
+  useEffect(() => {
+    if (profiles.length > 0 && !profiles.find((p) => p.id === activeId)) {
+      setActiveIdState(profiles[0].id)
     }
-  }, [business])
+  }, [profiles, activeId])
 
-  function setBusiness(data: BusinessProfile) {
-    setBusinessState(data)
-  }
-
-  function clearBusiness() {
-    setBusinessState(null)
-    localStorage.removeItem(STORAGE_KEY)
-  }
+  const business = profiles.find((p) => p.id === activeId) ?? null
 
   const isComplete = Boolean(
     business &&
@@ -82,8 +87,50 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     business.investmentAmount > 0
   )
 
+  function addProfile(data: Omit<BusinessProfile, 'id' | 'createdAt'>): BusinessProfile {
+    const newProfile: BusinessProfile = {
+      ...data,
+      id: generateId(),
+      createdAt: new Date().toISOString(),
+    }
+    setProfiles((prev) => [...prev, newProfile])
+    setActiveIdState(newProfile.id)
+    return newProfile
+  }
+
+  function updateProfile(id: string, data: Partial<BusinessProfile>) {
+    setProfiles((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...data } : p))
+    )
+  }
+
+  function deleteProfile(id: string) {
+    setProfiles((prev) => {
+      const next = prev.filter((p) => p.id !== id)
+      if (activeId === id) {
+        setActiveIdState(next.length > 0 ? next[0].id : null)
+      }
+      return next
+    })
+  }
+
+  function setActiveId(id: string) {
+    setActiveIdState(id)
+  }
+
   return (
-    <BusinessContext.Provider value={{ business, isComplete, setBusiness, clearBusiness }}>
+    <BusinessContext.Provider
+      value={{
+        profiles,
+        activeId,
+        business,
+        isComplete,
+        addProfile,
+        updateProfile,
+        deleteProfile,
+        setActiveId,
+      }}
+    >
       {children}
     </BusinessContext.Provider>
   )
@@ -96,5 +143,3 @@ export function useBusiness() {
   }
   return context
 }
-
-export { DEFAULT }

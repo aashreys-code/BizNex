@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import {
   TrendingUp, FileText, Search, Calculator, MessageSquare,
   MapPin, DollarSign, Upload, ArrowRight, Building2,
-  CheckCircle2, AlertCircle, Store, BarChart3, Sparkles,
+  CheckCircle2, Store, BarChart3, Sparkles, Plus,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness } from '../contexts/BusinessContext'
@@ -26,10 +25,7 @@ const featureLinks = [
 
 export default function Dashboard() {
   const { profile } = useAuth()
-  const { business, isComplete } = useBusiness()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
+  const { profiles, business, isComplete } = useBusiness()
 
   return (
     <div className="space-y-8">
@@ -50,60 +46,62 @@ export default function Dashboard() {
             <div className="flex gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary-400">
-                  <CountUp to={isComplete ? 9 : 0} />
+                  <CountUp to={profiles.length} />
                 </div>
-                <p className="text-xs text-gray-400">Features Ready</p>
+                <p className="text-xs text-gray-400">Profiles</p>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-accent-400">
-                  <CountUp to={isComplete ? 1 : 0} />
+                  <CountUp to={isComplete ? 9 : 0} />
                 </div>
-                <p className="text-xs text-gray-400">Profile</p>
+                <p className="text-xs text-gray-400">Features Ready</p>
               </div>
             </div>
           </div>
         </div>
       </ScrollReveal>
 
-      {/* Business Profile Status */}
-      {!isComplete ? (
+      {/* No profiles — show create prompt */}
+      {profiles.length === 0 && (
         <ScrollReveal delay={0.1}>
-          <Card className="p-6 border border-amber-500/20 bg-amber-500/5">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0">
-                <AlertCircle size={24} className="text-amber-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">Set Up Your Business Profile</h3>
-                <p className="text-sm text-gray-400">
-                  Enter your business details once — all 9 features will automatically use this data.
-                  No more re-entering information on every page!
-                </p>
-              </div>
-              <Link to="/business-profile">
-                <Button>
-                  <Building2 size={16} />
-                  Set Up Profile
-                </Button>
-              </Link>
-            </div>
+          <Card className="p-8 text-center">
+            <Building2 size={48} className="text-gray-600 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-white mb-2">Create Your First Business Profile</h3>
+            <p className="text-gray-400 mb-6 max-w-md mx-auto">
+              Add a business profile to unlock all features — market analysis, schemes,
+              loan calculator, competitors, and more.
+            </p>
+            <Link to="/business-profile">
+              <Button>
+                <Plus size={16} />
+                Create Business Profile
+              </Button>
+            </Link>
           </Card>
         </ScrollReveal>
-      ) : (
+      )}
+
+      {/* Active profile info */}
+      {business && (
         <ScrollReveal delay={0.1}>
-          <Card className="p-6 border border-moss-400/20 bg-moss-400/5">
+          <Card className="p-5 border border-moss-400/20 bg-moss-400/5">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-moss-400/20 flex items-center justify-center shrink-0">
                 <CheckCircle2 size={24} className="text-moss-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-white mb-1">Business Profile Active</h3>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-lg font-semibold text-white">{business.name}</h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-moss-400/20 text-moss-400 font-medium">
+                    Active
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
                   {[
-                    business?.businessType,
-                    business?.location,
-                    business?.investmentAmount ? `₹${business.investmentAmount.toLocaleString('en-IN')}` : null,
-                    business?.category,
+                    business.businessType,
+                    business.location,
+                    business.investmentAmount ? `₹${business.investmentAmount.toLocaleString('en-IN')}` : null,
+                    business.category,
                   ].filter(Boolean).map((tag, i) => (
                     <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
                       {tag}
@@ -112,9 +110,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Link to="/business-profile">
-                <Button variant="ghost" size="sm">
-                  Edit Profile
-                </Button>
+                <Button variant="ghost" size="sm">Manage Profiles</Button>
               </Link>
             </div>
           </Card>
@@ -122,11 +118,11 @@ export default function Dashboard() {
       )}
 
       {/* Auto Analysis Cards */}
-      {isComplete && mounted && (
+      {isComplete && (
         <div>
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
             <Sparkles size={20} className="text-moss-400" />
-            Your Business Insights
+            Quick Insights for {business?.name}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
@@ -137,12 +133,12 @@ export default function Dashboard() {
               },
               {
                 icon: Search, label: 'Eligible Schemes', value: '5+',
-                sub: `${business?.category} category · ₹${(business?.investmentAmount || 0).toLocaleString('en-IN')}`,
+                sub: `${business?.category} category`,
                 color: 'text-purple-400', path: '/scheme-finder',
               },
               {
                 icon: Calculator, label: 'Loan Eligible', value: `₹${business?.investmentAmount ? (business.investmentAmount * 2).toLocaleString('en-IN') : '—'}`,
-                sub: `${business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : 'Add income for estimate'}`,
+                sub: business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : 'Add income for estimate',
                 color: 'text-orange-400', path: '/loan-calculator',
               },
               {
@@ -152,12 +148,12 @@ export default function Dashboard() {
               },
               {
                 icon: Store, label: 'Nearby Competitors', value: '5 found',
-                sub: `${business?.radius || 10} km radius · ${business?.location?.split(',')[0]}`,
+                sub: `${business?.radius || 10} km radius`,
                 color: 'text-violet-400', path: '/nearby-competitors',
               },
               {
                 icon: MapPin, label: 'Local Insights', value: business?.location?.split(',')[0] || '—',
-                sub: 'Population, demand trends, opportunities',
+                sub: 'Population, demand, opportunities',
                 color: 'text-teal-400', path: '/insights',
               },
             ].map((card, i) => (
@@ -200,7 +196,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Actions Row */}
+      {/* Quick Actions */}
       <ScrollReveal>
         <div className="flex flex-wrap gap-3">
           <Link to="/ai-assistant">

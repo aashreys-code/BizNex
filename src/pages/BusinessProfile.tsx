@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'motion/react'
+import { motion, AnimatePresence } from 'motion/react'
 import {
-  User, Briefcase, MapPin, IndianRupee, Globe, ArrowRight,
-  CheckCircle2, Building2, Landmark, TrendingUp,
+  User, Briefcase, MapPin, IndianRupee, ArrowRight,
+  CheckCircle2, Building2, Landmark, TrendingUp, Plus,
+  Trash2, Edit3, ArrowLeft,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
-import { useBusiness, BusinessProfile as BP, DEFAULT } from '../contexts/BusinessContext'
+import { useBusiness, BusinessProfile as BP } from '../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../components/react-bits'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -51,59 +52,219 @@ const businessTypes = [
   'Other',
 ]
 
-const steps = [
-  { icon: User, label: 'Personal' },
-  { icon: Briefcase, label: 'Business' },
-  { icon: IndianRupee, label: 'Financial' },
-  { icon: CheckCircle2, label: 'Review' },
-]
+const EMPTY: Omit<BP, 'id' | 'createdAt'> = {
+  name: '',
+  age: 30,
+  gender: 'Male',
+  category: 'General',
+  businessType: '',
+  businessDescription: '',
+  location: '',
+  radius: 10,
+  investmentAmount: 0,
+  monthlyIncome: 0,
+  existingLoans: 0,
+  workingCapital: 0,
+  equipmentCost: 0,
+  preferredLanguage: 'English',
+}
+
+type View = 'list' | 'create' | 'edit'
 
 export default function BusinessProfilePage() {
   const { profile } = useAuth()
-  const { business, setBusiness } = useBusiness()
+  const { profiles, activeId, business, addProfile, updateProfile, deleteProfile, setActiveId } = useBusiness()
   const navigate = useNavigate()
+  const [view, setView] = useState<View>('list')
   const [step, setStep] = useState(0)
-  const [form, setForm] = useState<BP>(
-    business || {
-      ...DEFAULT,
-      location: profile?.district && profile?.state
-        ? `${profile.district}, ${profile.state}`
-        : '',
-    }
-  )
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [form, setForm] = useState<Omit<BP, 'id' | 'createdAt'>>({
+    ...EMPTY,
+    location: profile?.district && profile?.state
+      ? `${profile.district}, ${profile.state}`
+      : '',
+  })
 
-  function update<K extends keyof BP>(key: K, value: BP[K]) {
+  function update<K extends keyof Omit<BP, 'id' | 'createdAt'>>(key: K, value: Omit<BP, 'id' | 'createdAt'>[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  function canNext() {
-    if (step === 0) return form.age > 0 && form.gender && form.category
-    if (step === 1) return form.businessType && form.location
-    if (step === 2) return form.investmentAmount > 0
-    return true
+  function startCreate() {
+    setForm({
+      ...EMPTY,
+      location: profile?.district && profile?.state
+        ? `${profile.district}, ${profile.state}`
+        : '',
+    })
+    setEditingId(null)
+    setStep(0)
+    setView('create')
+  }
+
+  function startEdit(p: BP) {
+    setForm({
+      name: p.name,
+      age: p.age,
+      gender: p.gender,
+      category: p.category,
+      businessType: p.businessType,
+      businessDescription: p.businessDescription,
+      location: p.location,
+      radius: p.radius,
+      investmentAmount: p.investmentAmount,
+      monthlyIncome: p.monthlyIncome,
+      existingLoans: p.existingLoans,
+      workingCapital: p.workingCapital,
+      equipmentCost: p.equipmentCost,
+      preferredLanguage: p.preferredLanguage,
+    })
+    setEditingId(p.id)
+    setStep(0)
+    setView('edit')
+  }
+
+  function handleDelete(id: string) {
+    deleteProfile(id)
+    toast.success('Profile deleted')
   }
 
   function handleSave() {
-    setBusiness(form)
-    toast.success('Business profile saved!')
-    navigate('/dashboard')
+    if (!form.name.trim()) {
+      toast.error('Please enter a profile name')
+      return
+    }
+    if (editingId) {
+      updateProfile(editingId, form)
+      toast.success('Profile updated!')
+    } else {
+      addProfile(form)
+      toast.success('Profile created!')
+    }
+    setView('list')
   }
 
-  const investStr = form.investmentAmount ? `₹${form.investmentAmount.toLocaleString('en-IN')}` : '—'
-  const monthlyStr = form.monthlyIncome ? `₹${form.monthlyIncome.toLocaleString('en-IN')}` : '—'
+  function canNext() {
+    if (step === 0) return form.name.trim().length > 0
+    if (step === 1) return form.age > 0 && form.gender && form.category
+    if (step === 2) return form.businessType && form.location
+    if (step === 3) return form.investmentAmount > 0
+    return true
+  }
+
+  // Profile list view
+  if (view === 'list') {
+    return (
+      <div className="space-y-8 max-w-4xl mx-auto">
+        <ScrollReveal>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-moss-400 to-green-600 flex items-center justify-center">
+                <Building2 size={24} className="text-charcoal-950" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-white">Business Profiles</h1>
+                <p className="text-gray-400 text-sm">
+                  Manage multiple businesses — switch between them anytime
+                </p>
+              </div>
+            </div>
+            <Button onClick={startCreate}>
+              <Plus size={16} />
+              New Profile
+            </Button>
+          </div>
+        </ScrollReveal>
+
+        {profiles.length === 0 ? (
+          <ScrollReveal delay={0.1}>
+            <Card className="p-12 text-center">
+              <Building2 size={48} className="text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-white mb-2">No Business Profiles Yet</h3>
+              <p className="text-gray-400 mb-6">
+                Create your first business profile to unlock all features.
+              </p>
+              <Button onClick={startCreate}>
+                <Plus size={16} />
+                Create First Profile
+              </Button>
+            </Card>
+          </ScrollReveal>
+        ) : (
+          <div className="space-y-3">
+            {profiles.map((p, i) => (
+              <ScrollReveal key={p.id} delay={i * 0.05}>
+                <div
+                  className={`glass rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all duration-200 ${
+                    activeId === p.id
+                      ? 'border border-moss-400/30 bg-moss-400/5'
+                      : 'hover:bg-white/5'
+                  }`}
+                  onClick={() => setActiveId(p.id)}
+                >
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
+                    activeId === p.id
+                      ? 'bg-moss-400/20 text-moss-400'
+                      : 'bg-white/5 text-gray-400'
+                  }`}>
+                    <Building2 size={20} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-semibold truncate">{p.name}</p>
+                      {activeId === p.id && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-moss-400/20 text-moss-400 font-medium">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-400 truncate">
+                      {p.businessType} · {p.location} · ₹{p.investmentAmount.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); startEdit(p) }}
+                      className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(p.id) }}
+                      className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Create / Edit form view
+  const isEdit = view === 'edit'
+  const steps = [
+    { icon: User, label: 'Profile' },
+    { icon: User, label: 'Personal' },
+    { icon: Briefcase, label: 'Business' },
+    { icon: IndianRupee, label: 'Financial' },
+  ]
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
       {/* Header */}
       <ScrollReveal>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-moss-400 to-green-600 flex items-center justify-center">
-            <Building2 size={24} className="text-charcoal-950" />
-          </div>
+          <button onClick={() => setView('list')} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+            <ArrowLeft size={20} />
+          </button>
           <div>
-            <h1 className="text-2xl font-bold text-white">Business Profile</h1>
+            <h1 className="text-2xl font-bold text-white">{isEdit ? 'Edit Profile' : 'New Profile'}</h1>
             <p className="text-gray-400 text-sm">
-              Enter your details once — all features will use this data automatically
+              {isEdit ? 'Update your business details' : 'Enter your business details — all features will use this data'}
             </p>
           </div>
         </div>
@@ -140,15 +301,33 @@ export default function BusinessProfilePage() {
         </div>
       </ScrollReveal>
 
-      {/* Form Steps */}
+      {/* Steps */}
       <motion.div
         key={step}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
       >
-        {/* Step 0: Personal */}
         {step === 0 && (
+          <Card className="p-6 space-y-5">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Building2 size={20} className="text-moss-400" />
+              Profile Name
+            </h2>
+            <Input
+              label="Give this business a name"
+              placeholder="e.g., My Grocery Store, Dairy Farm, Tailoring Shop"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+              icon={<Building2 size={18} />}
+            />
+            <p className="text-xs text-gray-500">
+              This helps you identify the profile when switching between businesses.
+            </p>
+          </Card>
+        )}
+
+        {step === 1 && (
           <Card className="p-6 space-y-5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <User size={20} className="text-moss-400" />
@@ -185,8 +364,7 @@ export default function BusinessProfilePage() {
           </Card>
         )}
 
-        {/* Step 1: Business */}
-        {step === 1 && (
+        {step === 2 && (
           <Card className="p-6 space-y-5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <Briefcase size={20} className="text-moss-400" />
@@ -198,15 +376,6 @@ export default function BusinessProfilePage() {
               onChange={(e) => update('businessType', e.target.value)}
               options={businessTypes.map((b) => ({ value: b, label: b }))}
             />
-            {form.businessType === 'Other' && (
-              <Input
-                label="Custom Business Type"
-                placeholder="Describe your business"
-                value={form.businessType === 'Other' ? '' : form.businessType}
-                onChange={(e) => update('businessType', e.target.value)}
-                icon={<Briefcase size={18} />}
-              />
-            )}
             <TextArea
               label="Business Description (optional)"
               placeholder="Describe your business idea, target customers, what makes it unique..."
@@ -233,16 +402,12 @@ export default function BusinessProfilePage() {
           </Card>
         )}
 
-        {/* Step 2: Financial */}
-        {step === 2 && (
+        {step === 3 && (
           <Card className="p-6 space-y-5">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <IndianRupee size={20} className="text-moss-400" />
               Financial Details
             </h2>
-            <p className="text-sm text-gray-400">
-              These values help us calculate loan eligibility, funding structure, and market analysis.
-            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Input
                 label="Total Investment Amount (₹)"
@@ -289,74 +454,27 @@ export default function BusinessProfilePage() {
             />
           </Card>
         )}
-
-        {/* Step 3: Review */}
-        {step === 3 && (
-          <Card className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <CheckCircle2 size={20} className="text-moss-400" />
-              Review Your Profile
-            </h2>
-            <div className="space-y-3">
-              {[
-                { label: 'Business Type', value: form.businessType },
-                { label: 'Location', value: form.location },
-                { label: 'Category', value: form.category },
-                { label: 'Age', value: `${form.age} years` },
-                { label: 'Gender', value: form.gender },
-                { label: 'Language', value: form.preferredLanguage },
-                { label: 'Investment', value: investStr },
-                { label: 'Monthly Income', value: monthlyStr },
-                { label: 'Existing Loans', value: form.existingLoans ? `₹${form.existingLoans.toLocaleString('en-IN')}` : 'None' },
-                { label: 'Working Capital', value: form.workingCapital ? `₹${form.workingCapital.toLocaleString('en-IN')}` : '—' },
-                { label: 'Equipment Cost', value: form.equipmentCost ? `₹${form.equipmentCost.toLocaleString('en-IN')}` : '—' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-xl glass">
-                  <span className="text-sm text-gray-400">{item.label}</span>
-                  <span className="text-sm text-white font-medium">{item.value}</span>
-                </div>
-              ))}
-            </div>
-            {form.businessDescription && (
-              <div className="p-3 rounded-xl glass">
-                <p className="text-xs text-gray-400 mb-1">Business Description</p>
-                <p className="text-sm text-gray-300">{form.businessDescription}</p>
-              </div>
-            )}
-            <div className="p-4 rounded-xl bg-moss-400/5 border border-moss-400/20">
-              <p className="text-sm text-moss-400 font-medium mb-1">What happens next?</p>
-              <p className="text-xs text-gray-400">
-                All features — Market Analysis, Business Plan, Scheme Finder, Loan Calculator,
-                AI Assistant, Insights, Funding Advisor, and Competitors — will automatically
-                use this data. No need to re-enter details on each page!
-              </p>
-            </div>
-          </Card>
-        )}
       </motion.div>
 
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
-          disabled={step === 0}
+          onClick={() => step === 0 ? setView('list') : setStep((s) => s - 1)}
         >
-          Back
+          <ArrowLeft size={16} />
+          {step === 0 ? 'Back to List' : 'Back'}
         </Button>
         <div className="flex gap-3">
           {step < 3 ? (
-            <Button
-              onClick={() => setStep((s) => Math.min(3, s + 1))}
-              disabled={!canNext()}
-            >
+            <Button onClick={() => setStep((s) => Math.min(3, s + 1))} disabled={!canNext()}>
               Next
               <ArrowRight size={16} />
             </Button>
           ) : (
             <Button onClick={handleSave}>
               <CheckCircle2 size={16} />
-              Save & Go to Dashboard
+              {isEdit ? 'Save Changes' : 'Create Profile'}
             </Button>
           )}
         </div>

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,6 +29,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const { profile, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
+  const { profiles, activeId, business, setActiveId } = useBusiness()
 
   return (
     <div className="min-h-screen bg-charcoal-950 flex">
@@ -90,6 +92,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </Link>
             )}
           </nav>
+
+          {/* Active Profile */}
+          {profiles.length > 0 && (
+            <div className="px-3 py-2 border-t border-white/5">
+              <p className="text-xs text-gray-500 mb-2 px-1">Active Business</p>
+              <select
+                value={activeId || ''}
+                onChange={(e) => setActiveId(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-moss-400/50 cursor-pointer"
+                style={{ colorScheme: 'dark' }}
+              >
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id} className="bg-charcoal-900">
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Bottom */}
           <div className="p-3 border-t border-white/5 space-y-1">
