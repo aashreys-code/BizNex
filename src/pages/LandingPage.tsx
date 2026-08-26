@@ -335,12 +335,12 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, i) => (
               <ScrollReveal key={i} delay={i * 0.1} className="h-full">
-                <GlowCard className="h-full">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                <GlowCard className="h-full p-6">
+                  <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-5`}>
                     <feature.icon size={24} className="text-white" />
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-400">{feature.description}</p>
+                  <h3 className="text-lg font-semibold text-white mb-3">{feature.title}</h3>
+                  <p className="text-sm text-gray-400 leading-relaxed">{feature.description}</p>
                 </GlowCard>
               </ScrollReveal>
             ))}
