@@ -29,13 +29,14 @@ export default function GlowCard({
       ref={divRef}
       className={`relative overflow-hidden rounded-2xl transition-all duration-300 ${className}`}
       style={{
-        background: 'rgba(255, 255, 255, 0.05)',
+        background: 'var(--bg-card)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        border: isHovered ? '1px solid rgba(43, 238, 52, 0.2)' : '1px solid rgba(255, 255, 255, 0.1)',
+        border: isHovered ? '1px solid var(--accent)' : '1px solid var(--border-strong)',
         boxShadow: isHovered
-          ? '0 8px 32px 0 rgba(43, 238, 52, 0.08), inset 0 1px 1px 0 rgba(255, 255, 255, 0.08)'
-          : '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.05)',
+          ? `0 8px 32px 0 var(--accent-dim), inset 0 1px 1px 0 var(--bg-card)`
+          : `0 8px 32px 0 var(--shadow), inset 0 1px 1px 0 var(--bg-card)`,
+        transition: 'all 0.3s',
       }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}

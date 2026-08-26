@@ -48,7 +48,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { profiles, activeId, business, setActiveId } = useBusiness()
 
   return (
-    <div className="min-h-screen bg-charcoal-950 flex">
+    <div className="min-h-screen flex" style={{ background: 'var(--bg-primary)' }}>
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 w-64 glass-dark border-r border-white/5 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:z-auto ${
