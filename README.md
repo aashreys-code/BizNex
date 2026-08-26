@@ -1,4 +1,4 @@
-# GramVikas AI 🌾
+# BizPulse 🌾
 
 **Hyper-Local Business Advisory & Financial Structuring Assistant for Rural India**
 
@@ -22,7 +22,7 @@ Rural India has 63 million MSMEs, but most lack access to:
 
 ## 💡 Our Solution
 
-GramVikas AI is an AI-driven multilingual platform that acts as a **virtual business consultant** for:
+BizPulse is an AI-driven multilingual platform that acts as a **virtual business consultant** for:
 - Rural micro-entrepreneurs
 - Self-Help Groups (SHGs)
 - Women entrepreneurs
@@ -82,7 +82,7 @@ GramVikas AI is an AI-driven multilingual platform that acts as a **virtual busi
 ## 📁 Project Structure
 
 ```
-gramvikas-ai/
+bizpulse/
 ├── public/
 │   └── favicon.svg
 ├── src/
@@ -162,8 +162,8 @@ gramvikas-ai/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-team/gramvikas-ai.git
-cd gramvikas-ai
+git clone https://github.com/your-team/bizpulse.git
+cd bizpulse
 ```
 
 2. **Install dependencies**
@@ -262,5 +262,4 @@ MIT License - See LICENSE file for details
 - [Supabase](https://supabase.com) for the backend infrastructure
 - [Tailwind CSS](https://tailwindcss.com) for styling
 - [Recharts](https://recharts.org) for data visualization
-- Government of India for scheme documentation
-"# BizPulse" 
+- Government of India for scheme documentation 

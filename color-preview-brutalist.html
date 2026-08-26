@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BizPulse — Brutalism Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --vulcanico: #FF4103;
+      --vulcanico-dark: #CC3402;
+      --noturno: #001621;
+      --noturno-mid: #001E2E;
+      --noturno-light: #002A3D;
+      --white: #F0F0F0;
+      --pure-white: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--noturno);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── Brutalist Utilities ── */
+    .border-x { border-left: 3px solid var(--vulcanico); border-right: 3px solid var(--vulcanico); }
+    .border-b { border-bottom: 3px solid var(--vulcanico); }
+    .border-t { border-top: 3px solid var(--vulcanico); }
+    .border-r { border-right: 3px solid var(--vulcanico); }
+    .border-full { border: 3px solid var(--vulcanico); }
+    .border-white { border-color: var(--white); }
+    .bg-orange { background: var(--vulcanico); color: var(--noturno); }
+    .bg-dark { background: var(--noturno); color: var(--white); }
+    .uppercase { text-transform: uppercase; }
+    .mono { font-family: 'Space Mono', monospace; }
+    .font-display { font-family: 'Poppins', system-ui, sans-serif; }
+
+    /* ── Navbar ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      background: var(--noturno);
+      border-bottom: 3px solid var(--vulcanico);
+    }
+    .nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 64px;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 16px;
+      font-family: 'Space Mono', monospace;
+      border: 3px solid var(--vulcanico);
+    }
+    .logo-text {
+      font-size: 22px; font-weight: 900; letter-spacing: -1px;
+      text-transform: uppercase;
+    }
+    .logo-text .biz { color: var(--white); }
+    .logo-text .pulse { color: var(--vulcanico); }
+    .nav-links { display: flex; gap: 0; list-style: none; }
+    .nav-links li { border-left: 2px solid var(--noturno-light); }
+    .nav-links li:first-child { border-left: none; }
+    .nav-links a {
+      color: var(--white); text-decoration: none; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1px; padding: 20px 20px;
+      transition: background 0.15s, color 0.15s;
+      font-family: 'Space Mono', monospace;
+    }
+    .nav-links a:hover { background: var(--vulcanico); color: var(--noturno); }
+    .nav-cta {
+      background: var(--vulcanico); color: var(--noturno); border: 3px solid var(--vulcanico);
+      padding: 10px 24px; font-weight: 900; font-size: 12px;
+      text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+      font-family: 'Space Mono', monospace; transition: all 0.15s;
+    }
+    .nav-cta:hover {
+      background: var(--white); border-color: var(--white); color: var(--noturno);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding-top: 64px;
+      border-bottom: 3px solid var(--vulcanico);
+    }
+    #particles {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 1;
+    }
+    .hero-content {
+      position: relative; z-index: 2; text-align: center; max-width: 1000px; padding: 0 24px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--noturno-light);
+      border: 2px solid var(--vulcanico);
+      padding: 8px 20px; font-size: 11px; color: var(--vulcanico);
+      margin-bottom: 40px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2px;
+      font-family: 'Space Mono', monospace;
+    }
+    .badge-dot {
+      width: 8px; height: 8px; background: var(--vulcanico);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; } 50% { opacity: 0; }
+    }
+    .hero h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(40px, 7vw, 80px); font-weight: 900; line-height: 1.0;
+      margin-bottom: 28px; letter-spacing: -2px;
+      text-transform: uppercase;
+    }
+    .hero h1 .highlight {
+      color: var(--vulcanico);
+      display: inline;
+    }
+    .hero p {
+      font-size: 16px; color: rgba(240,240,240,0.6); max-width: 600px; margin: 0 auto 48px;
+      line-height: 1.7; text-transform: none;
+    }
+    .hero-buttons { display: flex; gap: 0; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--vulcanico); color: var(--noturno); border: 3px solid var(--vulcanico);
+      padding: 18px 40px; font-weight: 900; font-size: 14px;
+      text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+      font-family: 'Space Mono', monospace; transition: all 0.15s;
+    }
+    .btn-primary:hover {
+      background: var(--white); border-color: var(--white);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--white);
+      border: 3px solid var(--white);
+      padding: 18px 40px; font-weight: 900; font-size: 14px;
+      text-transform: uppercase; letter-spacing: 1px; cursor: pointer;
+      font-family: 'Space Mono', monospace; transition: all 0.15s;
+    }
+    .btn-secondary:hover {
+      background: var(--white); color: var(--noturno);
+    }
+
+    /* ── Stats ── */
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      max-width: 900px; margin: 60px auto 0;
+      border: 3px solid var(--vulcanico);
+    }
+    .stat-card {
+      padding: 28px; text-align: center; transition: all 0.15s;
+      border-right: 2px solid var(--vulcanico);
+    }
+    .stat-card:last-child { border-right: none; }
+    .stat-card:hover { background: var(--vulcanico); color: var(--noturno); }
+    .stat-card:hover .stat-value { color: var(--noturno); text-shadow: none; }
+    .stat-card:hover .stat-label { color: rgba(0,22,33,0.6); }
+    .stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 32px; font-weight: 700; color: var(--vulcanico);
+      text-shadow: 0 0 30px rgba(255, 65, 3, 0.3);
+    }
+    .stat-label { font-size: 11px; color: rgba(240,240,240,0.5); margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── Section Common ── */
+    .section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 48px; font-weight: 900; margin-bottom: 16px;
+      text-transform: uppercase; letter-spacing: -1px;
+    }
+    .section-title .accent { color: var(--vulcanico); }
+    .section-subtitle {
+      font-size: 14px; color: rgba(240,240,240,0.5); max-width: 600px;
+      margin: 0 auto; line-height: 1.6;
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* ── Problem ── */
+    .problem-section {
+      border-top: 3px solid var(--vulcanico);
+      border-bottom: 3px solid var(--vulcanico);
+      background: var(--noturno-mid);
+    }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .problem-card {
+      padding: 40px; transition: all 0.15s;
+      border-right: 2px solid rgba(255,65,3,0.2);
+    }
+    .problem-card:last-child { border-right: none; }
+    .problem-card:hover { background: rgba(255,65,3,0.05); }
+    .problem-icon {
+      width: 56px; height: 56px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 24px; font-weight: 900;
+      font-family: 'Space Mono', monospace;
+      border: 2px solid var(--vulcanico);
+    }
+    .problem-card h3 {
+      font-size: 18px; font-weight: 900; margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .problem-card p { font-size: 14px; color: rgba(240,240,240,0.5); line-height: 1.6; }
+
+    /* ── Solution ── */
+    .solution-section { border-bottom: 3px solid var(--vulcanico); }
+    .solution-card {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+      border: 3px solid var(--vulcanico);
+    }
+    .solution-left { padding: 48px; border-right: 3px solid var(--vulcanico); }
+    .solution-check { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+    .check-icon {
+      width: 22px; height: 22px; flex-shrink: 0; margin-top: 2px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 12px;
+      font-family: 'Space Mono', monospace;
+    }
+    .solution-check span { color: rgba(240,240,240,0.7); font-size: 14px; }
+
+    .chat-demo {
+      background: var(--noturno);
+      padding: 28px; position: relative;
+    }
+    .chat-demo::before {
+      content: 'LIVE CHAT'; position: absolute; top: 0; right: 0;
+      background: var(--vulcanico); color: var(--noturno);
+      padding: 4px 12px; font-size: 10px; font-weight: 900;
+      font-family: 'Space Mono', monospace; letter-spacing: 1px;
+    }
+    .chat-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .chat-avatar {
+      width: 32px; height: 32px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900;
+      font-family: 'Space Mono', monospace;
+    }
+    .chat-header span { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Space Mono', monospace; }
+    .chat-bubble-user {
+      background: rgba(255,65,3,0.1);
+      border: 2px solid rgba(255,65,3,0.2);
+      padding: 12px 16px; max-width: 80%; margin-bottom: 12px; margin-left: auto;
+    }
+    .chat-bubble-ai {
+      background: var(--noturno-light);
+      border: 2px solid rgba(255,65,3,0.1);
+      padding: 12px 16px; max-width: 80%; margin-bottom: 12px;
+    }
+    .chat-bubble p { font-size: 13px; color: rgba(240,240,240,0.7); line-height: 1.5; }
+    .lang-tags { display: flex; gap: 0; margin-top: 16px; }
+    .lang-tag {
+      font-size: 10px; padding: 5px 12px;
+      background: var(--noturno-light); color: var(--vulcanico);
+      border: 1px solid rgba(255,65,3,0.2);
+      font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* ── Features ── */
+    .features-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      border: 3px solid var(--vulcanico);
+    }
+    .feature-card {
+      padding: 32px; transition: all 0.15s; position: relative;
+      border-right: 2px solid rgba(255,65,3,0.15);
+      border-bottom: 2px solid rgba(255,65,3,0.15);
+    }
+    .feature-card:nth-child(4n) { border-right: none; }
+    .feature-card:nth-child(n+5) { border-bottom: none; }
+    .feature-card:hover { background: rgba(255,65,3,0.08); }
+    .feature-card::after {
+      content: attr(data-num);
+      position: absolute; top: 12px; right: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; color: rgba(255,65,3,0.3); font-weight: 700;
+    }
+    .feature-icon {
+      width: 48px; height: 48px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      border: 2px solid var(--vulcanico);
+    }
+    .feature-icon svg { width: 22px; height: 22px; stroke: var(--noturno); fill: none; stroke-width: 2.2; stroke-linecap: square; stroke-linejoin: miter; }
+    .feature-card h3 {
+      font-size: 14px; font-weight: 900; margin-bottom: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .feature-card p { font-size: 12px; color: rgba(240,240,240,0.45); line-height: 1.6; }
+
+    /* ── How It Works ── */
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      border: 3px solid var(--vulcanico);
+    }
+    .step-card { text-align: center; padding: 40px 24px; border-right: 2px solid rgba(255,65,3,0.15); position: relative; }
+    .step-card:last-child { border-right: none; }
+    .step-number {
+      width: 60px; height: 60px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-family: 'Space Mono', monospace;
+      font-size: 24px; font-weight: 700;
+      border: 3px solid var(--vulcanico);
+    }
+    .step-card h3 {
+      font-size: 14px; font-weight: 900; margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .step-card p { font-size: 12px; color: rgba(240,240,240,0.45); line-height: 1.5; }
+
+    /* ── Schemes ── */
+    .schemes-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+      border: 3px solid var(--vulcanico);
+    }
+    .scheme-card {
+      padding: 28px; text-align: center; transition: all 0.15s;
+      border-right: 2px solid rgba(255,65,3,0.15);
+      border-bottom: 2px solid rgba(255,65,3,0.15);
+    }
+    .scheme-card:nth-child(3n) { border-right: none; }
+    .scheme-card:nth-child(n+4) { border-bottom: none; }
+    .scheme-card:hover { background: rgba(255,65,3,0.08); }
+    .scheme-card h4 {
+      font-size: 14px; font-weight: 900; margin-bottom: 14px;
+      text-transform: uppercase; letter-spacing: 1px; color: var(--vulcanico);
+      font-family: 'Space Mono', monospace;
+    }
+    .scheme-detail { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; font-family: 'Space Mono', monospace; }
+    .scheme-detail .label { color: rgba(240,240,240,0.4); }
+    .scheme-detail .value { color: var(--white); font-weight: 700; }
+
+    /* ── Testimonials ── */
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 3px solid var(--vulcanico); }
+    .testimonial-card { padding: 32px; transition: all 0.15s; border-right: 2px solid rgba(255,65,3,0.15); }
+    .testimonial-card:last-child { border-right: none; }
+    .testimonial-card:hover { background: rgba(255,65,3,0.05); }
+    .stars { display: flex; gap: 2px; margin-bottom: 16px; }
+    .star { color: var(--vulcanico); font-size: 14px; font-family: 'Space Mono', monospace; }
+    .testimonial-card .quote {
+      font-size: 13px; color: rgba(240,240,240,0.6); line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar {
+      width: 40px; height: 40px;
+      background: var(--vulcanico); color: var(--noturno);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 14px;
+      font-family: 'Space Mono', monospace;
+    }
+    .author-name { font-size: 13px; font-weight: 700; }
+    .author-role { font-size: 11px; color: rgba(240,240,240,0.4); font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Team ── */
+    .team-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 3px solid var(--vulcanico); }
+    .team-card { text-align: center; padding: 28px 12px; border-right: 2px solid rgba(255,65,3,0.15); transition: all 0.15s; }
+    .team-card:last-child { border-right: none; }
+    .team-card:hover { background: var(--vulcanico); }
+    .team-card:hover .team-avatar { background: var(--noturno); color: var(--vulcanico); border-color: var(--noturno); }
+    .team-card:hover h4 { color: var(--noturno); }
+    .team-card:hover p { color: rgba(0,22,33,0.6); }
+    .team-avatar {
+      width: 64px; height: 64px;
+      background: var(--noturno-light); color: var(--vulcanico);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px; font-weight: 900;
+      font-family: 'Space Mono', monospace;
+      border: 2px solid rgba(255,65,3,0.3);
+    }
+    .team-card h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .team-card p { font-size: 10px; color: rgba(240,240,240,0.4); font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── CTA ── */
+    .cta-section { border-top: 3px solid var(--vulcanico); }
+    .cta-card {
+      max-width: 1100px; margin: 0 auto;
+      padding: 0; text-align: center;
+      border: 3px solid var(--vulcanico);
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 300px;
+    }
+    .cta-left {
+      background: var(--vulcanico); color: var(--noturno);
+      padding: 60px 48px; display: flex; flex-direction: column; justify-content: center;
+    }
+    .cta-left h2 {
+      font-family: 'Poppins', sans-serif; font-size: 36px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: -1px; line-height: 1.1;
+    }
+    .cta-left p { font-size: 14px; color: rgba(0,22,33,0.6); margin-top: 12px; }
+    .cta-right {
+      background: var(--noturno-mid);
+      padding: 60px 48px; display: flex; flex-direction: column; justify-content: center;
+      align-items: center; gap: 16px;
+    }
+    .cta-right .btn-primary { width: 100%; max-width: 300px; }
+    .cta-right .btn-secondary { width: 100%; max-width: 300px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 3px solid var(--vulcanico);
+      background: var(--noturno-mid);
+    }
+    .footer-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0;
+    }
+    .footer-brand {
+      padding: 40px; border-right: 2px solid rgba(255,65,3,0.15);
+    }
+    .footer-brand p { color: rgba(240,240,240,0.4); font-size: 12px; line-height: 1.6; margin-top: 12px; font-family: 'Space Mono', monospace; }
+    .footer-col {
+      padding: 40px; border-right: 2px solid rgba(255,65,3,0.15);
+    }
+    .footer-col:last-child { border-right: none; }
+    .footer-col h4 {
+      color: var(--vulcanico); font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 2px; margin-bottom: 16px;
+      font-family: 'Space Mono', monospace;
+    }
+    .footer-col a {
+      display: block; color: rgba(240,240,240,0.4); font-size: 12px; text-decoration: none;
+      margin-bottom: 10px; transition: color 0.15s;
+      font-family: 'Space Mono', monospace;
+    }
+    .footer-col a:hover { color: var(--vulcanico); }
+    .footer-bottom {
+      border-top: 3px solid var(--vulcanico);
+      padding: 20px 40px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-bottom p { color: rgba(240,240,240,0.3); font-size: 11px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+    .footer-bottom .heart { color: var(--vulcanico); }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat-card:nth-child(2) { border-right: none; }
+      .solution-card { grid-template-columns: 1fr; }
+      .solution-left { border-right: none; border-bottom: 3px solid var(--vulcanico); }
+      .problem-grid, .schemes-grid, .testimonials-grid { grid-template-columns: 1fr; }
+      .problem-card, .scheme-card, .testimonial-card { border-right: none; border-bottom: 2px solid rgba(255,65,3,0.15); }
+      .problem-card:last-child, .scheme-card:nth-child(n+4), .testimonial-card:last-child { border-bottom: none; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .feature-card:nth-child(2n) { border-right: none; }
+      .feature-card:nth-child(n+7) { border-bottom: none; }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); }
+      .step-card:nth-child(2n) { border-right: none; }
+      .team-grid { grid-template-columns: repeat(3, 1fr); }
+      .team-card:nth-child(3n) { border-right: none; }
+      .nav-links { display: none; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .footer-brand, .footer-col { border-right: none; border-bottom: 2px solid rgba(255,65,3,0.15); }
+      .footer-col:last-child { border-bottom: none; }
+      .cta-card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar ── -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="#">
+        <div class="logo-icon">BP</div>
+        <span class="logo-text"><span class="biz">Biz</span><span class="pulse">Pulse</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#schemes">Schemes</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+      <button class="nav-cta">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <canvas id="particles"></canvas>
+    <div class="hero-content">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        AI-Powered Business Intelligence
+      </div>
+      <h1>Empowering Rural India with <span class="highlight">Smart Business</span> Intelligence</h1>
+      <p>Your virtual business consultant for evaluating opportunities, analyzing markets, and accessing government funding — all in your local language.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary">Start Free →</button>
+        <button class="btn-secondary">Watch Demo</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card"><div class="stat-value">50K+</div><div class="stat-label">Businesses Analyzed</div></div>
+        <div class="stat-card"><div class="stat-value">100K+</div><div class="stat-label">Schemes Recommended</div></div>
+        <div class="stat-card"><div class="stat-value">5K+</div><div class="stat-label">Villages Covered</div></div>
+        <div class="stat-card"><div class="stat-value">6</div><div class="stat-label">Languages Supported</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Problem ── -->
+  <section class="problem-section">
+    <div class="section" style="padding-top: 60px; padding-bottom: 60px;">
+      <div class="section-header">
+        <h2 class="section-title">The <span class="accent">Challenge</span> We're Solving</h2>
+        <p class="section-subtitle">Rural India has 63 million MSMEs, but most lack access to business intelligence, market data, and government scheme information.</p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-icon">01</div>
+          <h3>No Local Market Data</h3>
+          <p>Entrepreneurs make decisions without understanding local demand and competition.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">02</div>
+          <h3>Scheme Awareness Gap</h3>
+          <p>₹3 lakh crore in government schemes go unutilized annually due to lack of awareness.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">03</div>
+          <h3>Language Barriers</h3>
+          <p>Most digital tools are in English, excluding 90% of rural entrepreneurs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Solution ── -->
+  <section class="solution-section">
+    <div class="section" style="padding-top: 60px; padding-bottom: 60px;">
+      <div class="section-header">
+        <h2 class="section-title">Our <span class="accent">Solution</span></h2>
+        <p class="section-subtitle">BizPulse combines artificial intelligence, local market data, and multilingual support to provide hyper-local business advisory for rural India.</p>
+      </div>
+      <div class="solution-card">
+        <div class="solution-left">
+          <h3 style="font-size: 20px; font-weight: 900; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.5px;">Your AI-Powered Business Consultant</h3>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Analyze market demand for any business in your village</span></div>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Get personalized government scheme recommendations</span></div>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Generate professional business plans in minutes</span></div>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Calculate loan eligibility and repayment schedules</span></div>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Chat with AI in your preferred Indian language</span></div>
+          <div class="solution-check"><div class="check-icon">✓</div><span>Access local demographic and economic data</span></div>
+        </div>
+        <div class="chat-demo">
+          <div class="chat-header">
+            <div class="chat-avatar">B</div>
+            <span>BizPulse Assistant</span>
+          </div>
+          <div class="chat-bubble-user chat-bubble">
+            <p>मैं अपने गांव में डेयरी फार्म शुरू करना चाहता हूं। क्या आप मेरी मदद कर सकते हैं?</p>
+          </div>
+          <div class="chat-bubble-ai chat-bubble">
+            <p>बिल्कुल! आपके क्षेत्र में डेयरी फार्मिंग की मांग बहुत अच्छी है। आइए मैं आपके लिए एक विस्तृत विश्लेषण करता हूं...</p>
+          </div>
+          <div class="lang-tags">
+            <span class="lang-tag">EN</span>
+            <span class="lang-tag">HI</span>
+            <span class="lang-tag">TE</span>
+            <span class="lang-tag">TA</span>
+            <span class="lang-tag">KN</span>
+            <span class="lang-tag">MR</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ── -->
+  <section class="section" id="features">
+    <div class="section-header">
+      <h2 class="section-title">Powerful <span class="accent">Features</span></h2>
+      <p class="section-subtitle">Everything you need to start, grow, and manage your rural business.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" data-num="01">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 3 5-7"/></svg>
+        </div>
+        <h3>Hyper-Local Market Analysis</h3>
+        <p>Get AI-powered market demand scores, competition analysis, and revenue forecasts for your specific location.</p>
+      </div>
+      <div class="feature-card" data-num="02">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <h3>Business Plan Generator</h3>
+        <p>Generate comprehensive business plans with executive summaries, cost breakdowns, and growth strategies.</p>
+      </div>
+      <div class="feature-card" data-num="03">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <h3>Government Scheme Finder</h3>
+        <p>Discover matching government schemes like PMEGP, MUDRA, Stand-Up India with eligibility scoring.</p>
+      </div>
+      <div class="feature-card" data-num="04">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="0"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="4" x2="10" y2="20"/></svg>
+        </div>
+        <h3>Loan Eligibility Calculator</h3>
+        <p>Calculate your loan eligibility, EMI estimates, and repayment timelines with detailed charts.</p>
+      </div>
+      <div class="feature-card" data-num="05">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h3>Multilingual AI Assistant</h3>
+        <p>Chat with our AI advisor in English, Hindi, Telugu, Tamil, Kannada, or Marathi with voice support.</p>
+      </div>
+      <div class="feature-card" data-num="06">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>Local Insights Engine</h3>
+        <p>Access population data, literacy rates, demand trends, and business opportunities for your area.</p>
+      </div>
+      <div class="feature-card" data-num="07">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <h3>AI Funding Advisor</h3>
+        <p>Get personalized funding structures combining self-funding, loans, subsidies, and government schemes.</p>
+      </div>
+      <div class="feature-card" data-num="08">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+        </div>
+        <h3>Document Verification</h3>
+        <p>Upload Aadhaar, PAN, and business documents for AI-powered verification and completeness checks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ── -->
+  <section class="section" id="how-it-works">
+    <div class="section-header">
+      <h2 class="section-title">How It <span class="accent">Works</span></h2>
+      <p class="section-subtitle">Get started in 4 simple steps.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">01</div>
+        <h3>Sign Up</h3>
+        <p>Create your free account with basic details like name, location, and preferred language.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">02</div>
+        <h3>Enter Your Idea</h3>
+        <p>Tell us about your business idea, budget, and location. Our AI will analyze everything.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">03</div>
+        <h3>Get Insights</h3>
+        <p>Receive market analysis, business plans, scheme recommendations, and funding advice.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">04</div>
+        <h3>Take Action</h3>
+        <p>Download reports, apply for schemes, and start your entrepreneurial journey.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Schemes ── -->
+  <section class="section" id="schemes">
+    <div class="section-header">
+      <h2 class="section-title">Government <span class="accent">Schemes</span></h2>
+      <p class="section-subtitle">We help you discover and apply for government schemes you're eligible for.</p>
+    </div>
+    <div class="schemes-grid">
+      <div class="scheme-card"><h4>PMEGP</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹25 LAKH</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">25-35%</span></div></div>
+      <div class="scheme-card"><h4>MUDRA</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹10 LAKH</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">UP TO 100%</span></div></div>
+      <div class="scheme-card"><h4>STAND-UP INDIA</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹1 CRORE</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">SUBSIDIZED</span></div></div>
+      <div class="scheme-card"><h4>PM SVANIDHI</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹50,000</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">INT. SUBVENTION</span></div></div>
+      <div class="scheme-card"><h4>NRLM</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹3 LAKH</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">GROUP LENDING</span></div></div>
+      <div class="scheme-card"><h4>CGTMSE</h4><div class="scheme-detail"><span class="label">MAX LOAN</span><span class="value">₹5 CRORE</span></div><div class="scheme-detail"><span class="label">SUBSIDY</span><span class="value">NO COLLATERAL</span></div></div>
+    </div>
+  </section>
+
+  <!-- ── Testimonials ── -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Success <span class="accent">Stories</span></h2>
+      <p class="section-subtitle">Hear from entrepreneurs who transformed their businesses with BizPulse.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="quote">"BizPulse helped me understand which government scheme was best for my tailoring business. I got my MUDRA loan approved in just 2 weeks!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">P</div>
+          <div><div class="author-name">Priya Sharma</div><div class="author-role">Women Entrepreneur, Rajasthan</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="quote">"The market analysis feature showed me exactly what my village needs. My dairy farm is now profitable within 3 months of starting."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">R</div>
+          <div><div class="author-name">Ravi Kumar</div><div class="author-role">Dairy Farmer, Andhra Pradesh</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars"><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
+        <p class="quote">"Being able to use the AI assistant in Hindi made everything so much easier. Our self-help group got PMEGP funding for a food processing unit."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">S</div>
+          <div><div class="author-name">Sunita Devi</div><div class="author-role">SHG Leader, Bihar</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Team ── -->
+  <section class="section" id="team">
+    <div class="section-header">
+      <h2 class="section-title">Meet the <span class="accent">Team</span></h2>
+      <p class="section-subtitle">A passionate team of developers and problem solvers building for rural India.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-avatar">A</div><h4>Ananya Reddy</h4><p>Team Lead</p></div>
+      <div class="team-card"><div class="team-avatar">A</div><h4>Arjun Patel</h4><p>AI/ML Engineer</p></div>
+      <div class="team-card"><div class="team-avatar">D</div><h4>Deepika Nair</h4><p>Frontend Dev</p></div>
+      <div class="team-card"><div class="team-avatar">K</div><h4>Karthik Singh</h4><p>Backend Dev</p></div>
+      <div class="team-card"><div class="team-avatar">M</div><h4>Meera Joshi</h4><p>UI/UX Designer</p></div>
+      <div class="team-card"><div class="team-avatar">R</div><h4>Rajesh Kumar</h4><p>Data Analyst</p></div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <div class="cta-left">
+        <h2>Ready to Transform Your Business?</h2>
+        <p>Join thousands of rural entrepreneurs using AI to make smarter business decisions.</p>
+      </div>
+      <div class="cta-right">
+        <button class="btn-primary">Get Started Free →</button>
+        <button class="btn-secondary">Contact Us</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="logo" href="#">
+          <div class="logo-icon" style="width: 36px; height: 36px; font-size: 13px;">BP</div>
+          <span class="logo-text"><span class="biz">Biz</span><span class="pulse">Pulse</span></span>
+        </a>
+        <p>Empowering rural entrepreneurs with AI-driven business advisory and financial solutions.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Features</h4>
+        <a href="#features">Market Analysis</a>
+        <a href="#features">Business Plans</a>
+        <a href="#features">Scheme Finder</a>
+        <a href="#features">Loan Calculator</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#schemes">Government Schemes</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#">Documentation</a>
+        <a href="#contact">Support</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="#">GitHub</a>
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Email</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 BizPulse. All rights reserved.</p>
+      <p>Made with <span class="heart">♥</span> for Rural India</p>
+    </div>
+  </footer>
+
+  <!-- ── Particles ── -->
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    const COUNT = 40;
+    const COLOR = '#FF4103';
+
+    function resize() {
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+
+    function init() {
+      resize();
+      particles = Array.from({ length: COUNT }, () => ({
+        x: Math.random() * canvas.offsetWidth,
+        y: Math.random() * canvas.offsetHeight,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        size: Math.random() * 2 + 0.5,
+        alpha: Math.random() * 0.2 + 0.05,
+      }));
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.offsetWidth) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.offsetHeight) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = COLOR;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        particles.slice(i + 1).forEach(q => {
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 130) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = COLOR;
+            ctx.globalAlpha = (1 - dist / 130) * 0.06;
+            ctx.stroke();
+          }
+        });
+      });
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', resize);
+    init();
+    draw();
+  </script>
+
+</body>
+</html>

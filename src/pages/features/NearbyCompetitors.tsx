@@ -1,0 +1,882 @@
+import { useState, useMemo, useCallback } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download } from 'lucide-react'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import L from 'leaflet'
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+} from 'recharts'
+import { findNearbyBusinesses } from '../../lib/ai'
+import { useAuth } from '../../contexts/AuthContext'
+import { ScrollReveal, GlowCard, CountUp } from '../../components/react-bits'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
+import Card from '../../components/ui/Card'
+import jsPDF from 'jspdf'
+
+/* ─── Types ─────────────────────────────────────────────── */
+
+interface Competitor {
+  name: string
+  type: string
+  lat: number
+  lng: number
+  distance: number
+  popularity: number
+  demand: number
+  monthlyRevenue: number
+  rating: number
+  progressScore: number
+  established: number
+  strengths: string[]
+  weaknesses: string[]
+  specialties: string[]
+}
+
+interface CompetitorResult {
+  userBusiness: {
+    name: string
+    lat: number
+    lng: number
+    popularity: number
+    demand: number
+    monthlyRevenue: number
+    rating: number
+    progressScore: number
+  }
+  competitors: Competitor[]
+  marketSummary: {
+    totalCompetitors: number
+    averageDemand: number
+    averagePopularity: number
+    marketSaturation: string
+    bestOpportunity: string
+    threatLevel: string
+  }
+  demandTrend: { month: string; demand: number }[]
+  popularityComparison: { name: string; score: number }[]
+  recommendations: string[]
+}
+
+/* ─── Custom SVG markers (unique per type) ──────────────── */
+
+function createSvgIcon(svg: string, size = 36) {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center">${svg}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2],
+  })
+}
+
+const MARKER_COLORS = [
+  { bg: '#ef4444', label: 'Retail' },
+  { bg: '#f97316', label: 'Wholesale' },
+  { bg: '#3b82f6', label: 'Specialty' },
+  { bg: '#8b5cf6', label: 'Fashion' },
+  { bg: '#ec4899', label: 'Food' },
+  { bg: '#14b8a6', label: 'Services' },
+  { bg: '#eab308', label: 'Other' },
+]
+
+function getMarkerColor(type: string) {
+  const t = type.toLowerCase()
+  if (t.includes('retail') || t.includes('general')) return MARKER_COLORS[0]
+  if (t.includes('wholesale') || t.includes('supply')) return MARKER_COLORS[1]
+  if (t.includes('specialty') || t.includes('electronics')) return MARKER_COLORS[2]
+  if (t.includes('fashion') || t.includes('clothing') || t.includes('textile')) return MARKER_COLORS[3]
+  if (t.includes('food') || t.includes('restaurant') || t.includes('dairy')) return MARKER_COLORS[4]
+  if (t.includes('service')) return MARKER_COLORS[5]
+  return MARKER_COLORS[6]
+}
+
+function competitorIcon(type: string) {
+  const c = getMarkerColor(type)
+  const svg = `<svg viewBox="0 0 40 48" width="36" height="42" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="ds"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.4" flood-color="${c.bg}"/></filter></defs>
+    <path d="M20 46C20 46 38 28 38 18C38 8.07 29.94 0 20 0C10.06 0 2 8.07 2 18C2 28 20 46 20 46Z" fill="${c.bg}" filter="url(#ds)"/>
+    <circle cx="20" cy="17" r="7" fill="white" opacity="0.9"/>
+    <text x="20" y="20" text-anchor="middle" font-size="9" font-weight="bold" fill="${c.bg}">${c.label[0]}</text>
+  </svg>`
+  return createSvgIcon(svg, 38)
+}
+
+function userIcon() {
+  const svg = `<svg viewBox="0 0 44 52" width="42" height="48" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="ug"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.5" flood-color="#2BEE34"/></filter>
+    </defs>
+    <path d="M22 50C22 50 42 30 42 19C42 8.5 33.5 0 22 0C10.5 0 2 8.5 2 19C2 30 22 50 22 50Z" fill="#2BEE34" filter="url(#ug)"/>
+    <circle cx="22" cy="18" r="8" fill="#0e0e0e" opacity="0.85"/>
+    <text x="22" y="21.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#2BEE34">★</text>
+  </svg>`
+  return createSvgIcon(svg, 44)
+}
+
+/* ─── Fly-to helper ─────────────────────────────────────── */
+
+function FlyTo({ center }: { center: [number, number] }) {
+  const map = useMap()
+  useMemo(() => {
+    map.flyTo(center, 13, { duration: 1.5 })
+  }, [center, map])
+  return null
+}
+
+/* ─── Score bar ─────────────────────────────────────────── */
+
+function ScoreBar({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <div>
+      <div className="flex justify-between text-xs mb-1">
+        <span className="text-gray-400">{label}</span>
+        <span className="text-gray-300 font-medium">{value}/100</span>
+      </div>
+      <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${value}%` }}
+          transition={{ duration: 1, delay: 0.3 }}
+          className="h-full rounded-full"
+          style={{ background: color }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ─── Main component ────────────────────────────────────── */
+
+export default function NearbyCompetitors() {
+  const { profile } = useAuth()
+  const [businessType, setBusinessType] = useState('')
+  const [location, setLocation] = useState(profile?.district || '')
+  const [radius, setRadius] = useState('10')
+  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<CompetitorResult | null>(null)
+  const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null)
+  const [filterType, setFilterType] = useState('All')
+  const [downloading, setDownloading] = useState(false)
+
+  const downloadReport = useCallback(() => {
+    if (!result) return
+    setDownloading(true)
+    try {
+      const doc = new jsPDF()
+      const pageW = doc.internal.pageSize.getWidth()
+      let y = 20
+
+      // Title
+      doc.setFontSize(20)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Competitor Comparison Report', pageW / 2, y, { align: 'center' })
+      y += 8
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.setTextColor(120)
+      doc.text(`${result.userBusiness.name} · ${businessType} · ${location}`, pageW / 2, y, { align: 'center' })
+      y += 4
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}`, pageW / 2, y, { align: 'center' })
+      y += 10
+      doc.setDrawColor(43, 238, 52)
+      doc.setLineWidth(0.5)
+      doc.line(20, y, pageW - 20, y)
+      y += 10
+
+      // Your Business Summary
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0)
+      doc.text('Your Business', 20, y)
+      y += 7
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Demand: ${result.userBusiness.demand}/100  |  Popularity: ${result.userBusiness.popularity}/100  |  Rating: ${result.userBusiness.rating}/5  |  Score: ${result.userBusiness.progressScore}/100`, 20, y)
+      y += 6
+      doc.text(`Monthly Revenue: INR ${result.userBusiness.monthlyRevenue.toLocaleString('en-IN')}`, 20, y)
+      y += 12
+
+      // Key Metrics
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Market Overview', 20, y)
+      y += 7
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      const metrics = [
+        `Total Competitors: ${result.marketSummary.totalCompetitors}`,
+        `Average Demand: ${result.marketSummary.averageDemand}%`,
+        `Average Popularity: ${result.marketSummary.averagePopularity}%`,
+        `Market Saturation: ${result.marketSummary.marketSaturation}`,
+        `Threat Level: ${result.marketSummary.threatLevel}`,
+      ]
+      metrics.forEach((m) => { doc.text(m, 20, y); y += 6 })
+      y += 2
+      doc.setFont('helvetica', 'italic')
+      doc.text(`Best Opportunity: ${result.marketSummary.bestOpportunity}`, 20, y, { maxWidth: pageW - 40 })
+      y += 12
+
+      // Competitor Table
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.setTextColor(0)
+      doc.text('Competitor Comparison', 20, y)
+      y += 8
+
+      const cols = [
+        { header: 'Name', w: 42 },
+        { header: 'Type', w: 28 },
+        { header: 'Dist', w: 14 },
+        { header: 'Rating', w: 16 },
+        { header: 'Demand', w: 16 },
+        { header: 'Popularity', w: 22 },
+        { header: 'Revenue/mo', w: 28 },
+        { header: 'Score', w: 14 },
+      ]
+
+      // Table header
+      doc.setFillColor(240, 240, 240)
+      doc.rect(18, y - 4, pageW - 36, 8, 'F')
+      doc.setFontSize(8)
+      doc.setFont('helvetica', 'bold')
+      let x = 20
+      cols.forEach((col) => { doc.text(col.header, x, y + 1); x += col.w })
+      y += 8
+
+      // Table rows
+      doc.setFont('helvetica', 'normal')
+      const list = filterType === 'All' ? result.competitors : result.competitors.filter((c) => c.type === filterType)
+      list.forEach((c, idx) => {
+        if (y > 260) { doc.addPage(); y = 20 }
+        if (idx % 2 === 0) { doc.setFillColor(248, 248, 248); doc.rect(18, y - 3.5, pageW - 36, 7, 'F') }
+        x = 20
+        const row = [
+          c.name.length > 22 ? c.name.slice(0, 20) + '…' : c.name,
+          c.type,
+          `${c.distance} km`,
+          `${c.rating}`,
+          `${c.demand}`,
+          `${c.popularity}`,
+          `INR ${c.monthlyRevenue.toLocaleString('en-IN')}`,
+          `${c.progressScore}`,
+        ]
+        row.forEach((val, ci) => { doc.text(String(val), x, y + 1); x += cols[ci].w })
+        y += 7
+      })
+      y += 8
+
+      // Competitor details (strengths/weaknesses)
+      if (y > 220) { doc.addPage(); y = 20 }
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Competitor Strengths & Weaknesses', 20, y)
+      y += 8
+      doc.setFontSize(9)
+      list.forEach((c) => {
+        if (y > 250) { doc.addPage(); y = 20 }
+        doc.setFont('helvetica', 'bold')
+        doc.text(`${c.name} (${c.type})`, 20, y)
+        y += 5
+        doc.setFont('helvetica', 'normal')
+        doc.text(`Strengths: ${c.strengths.join(', ')}`, 24, y, { maxWidth: pageW - 48 })
+        y += 5
+        doc.text(`Weaknesses: ${c.weaknesses.join(', ')}`, 24, y, { maxWidth: pageW - 48 })
+        y += 5
+        doc.text(`Specialties: ${c.specialties.join(', ')}`, 24, y, { maxWidth: pageW - 48 })
+        y += 8
+      })
+
+      // Recommendations
+      if (y > 220) { doc.addPage(); y = 20 }
+      doc.setFontSize(13)
+      doc.setFont('helvetica', 'bold')
+      doc.text('Recommendations', 20, y)
+      y += 8
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      result.recommendations.forEach((rec, i) => {
+        if (y > 265) { doc.addPage(); y = 20 }
+        doc.text(`${i + 1}. ${rec}`, 20, y, { maxWidth: pageW - 40 })
+        y += 7
+      })
+
+      // Footer
+      const pages = doc.getNumberOfPages()
+      for (let p = 1; p <= pages; p++) {
+        doc.setPage(p)
+        doc.setFontSize(7)
+        doc.setTextColor(150)
+        doc.text(`BizPulse Competitor Report · Page ${p} of ${pages}`, pageW / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' })
+      }
+
+      doc.save(`competitor-report-${businessType.replace(/\s+/g, '-').toLowerCase()}-${location.replace(/\s+/g, '-').toLowerCase()}.pdf`)
+    } finally {
+      setDownloading(false)
+    }
+  }, [result, filterType, businessType, location])
+
+  async function handleSearch() {
+    if (!businessType || !location) return
+    setLoading(true)
+    try {
+      const data = await findNearbyBusinesses({
+        businessType,
+        location,
+        radius: Number(radius) || 10,
+      })
+      setResult(data)
+      setSelectedCompetitor(null)
+      setFilterType('All')
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const mapCenter: [number, number] = result
+    ? [result.userBusiness.lat, result.userBusiness.lng]
+    : [14.68, 77.59]
+
+  const availableTypes = useMemo(() => {
+    if (!result) return []
+    const types = Array.from(new Set(result.competitors.map((c) => c.type)))
+    return ['All', ...types]
+  }, [result])
+
+  const filteredCompetitors = useMemo(() => {
+    if (!result) return []
+    if (filterType === 'All') return result.competitors
+    return result.competitors.filter((c) => c.type === filterType)
+  }, [result, filterType])
+
+  const filteredPopularityComparison = useMemo(() => {
+    if (!result) return []
+    const filtered = filteredCompetitors.map((c) => ({ name: c.name, score: c.popularity }))
+    return [{ name: 'Your Business', score: result.userBusiness.popularity }, ...filtered]
+  }, [result, filteredCompetitors])
+
+  // Clear selection if filtered out
+  const visibleSelected = useMemo(() => {
+    if (!selectedCompetitor) return null
+    return filteredCompetitors.find((c) => c.name === selectedCompetitor.name) ?? null
+  }, [selectedCompetitor, filteredCompetitors])
+
+  const filteredRadarData = useMemo(() => {
+    return filteredCompetitors.slice(0, 5).map((c) => ({
+      subject: c.name.split(' ')[0],
+      popularity: c.popularity,
+      demand: c.demand,
+      progress: c.progressScore,
+      fullMark: 100,
+    }))
+  }, [filteredCompetitors])
+
+  const radarData = result
+    ? result.competitors.slice(0, 5).map((c) => ({
+        subject: c.name.split(' ')[0],
+        popularity: c.popularity,
+        demand: c.demand,
+        progress: c.progressScore,
+        fullMark: 100,
+      }))
+    : []
+
+  return (
+    <div className="space-y-8 max-w-6xl mx-auto">
+      {/* Header */}
+      <ScrollReveal>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+            <Store size={24} className="text-white" />
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-white">Nearby Competitors</h1>
+            <p className="text-gray-400 text-sm">
+              Discover similar businesses, compare demand & popularity, and find your edge
+            </p>
+          </div>
+          {result && (
+            <Button variant="secondary" onClick={downloadReport} loading={downloading}>
+              <Download size={18} />
+              Download PDF
+            </Button>
+          )}
+        </div>
+      </ScrollReveal>
+
+      {/* Input Form */}
+      <ScrollReveal delay={0.1}>
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Enter Your Business Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              label="Your Business Type"
+              placeholder="e.g., Grocery store, Dairy farm, Electronics shop"
+              value={businessType}
+              onChange={(e) => setBusinessType(e.target.value)}
+              icon={<Store size={18} />}
+            />
+            <Input
+              label="Location"
+              placeholder="e.g., Anantapur, Andhra Pradesh"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              icon={<MapPin size={18} />}
+            />
+            <Input
+              label="Search Radius (km)"
+              placeholder="10"
+              type="number"
+              value={radius}
+              onChange={(e) => setRadius(e.target.value)}
+              icon={<Target size={18} />}
+            />
+          </div>
+          <div className="mt-4">
+            <Button
+              onClick={handleSearch}
+              loading={loading}
+              disabled={!businessType || !location}
+            >
+              <Store size={18} />
+              Find Nearby Competitors
+            </Button>
+          </div>
+        </Card>
+      </ScrollReveal>
+
+      {/* Loading */}
+      {loading && (
+        <Card className="p-12 text-center">
+          <Loader2 size={48} className="text-violet-400 animate-spin mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Scanning Nearby Businesses...</h3>
+          <p className="text-gray-400">Analyzing competitors and market data in your area.</p>
+        </Card>
+      )}
+
+      {/* Results */}
+      {result && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { icon: Store, label: filterType === 'All' ? 'Competitors' : `${filterType} Count`, value: filteredCompetitors.length, color: 'text-violet-400' },
+              { icon: TrendingUp, label: 'Avg Demand', value: `${result.marketSummary.averageDemand}%`, color: 'text-green-400' },
+              { icon: Users, label: 'Avg Popularity', value: `${result.marketSummary.averagePopularity}%`, color: 'text-blue-400' },
+              { icon: BarChart3, label: 'Saturation', value: result.marketSummary.marketSaturation, color: 'text-amber-400' },
+              { icon: Star, label: 'Your Score', value: `${result.userBusiness.progressScore}/100`, color: 'text-moss-400' },
+            ].map((m, i) => (
+              <GlowCard key={i} className="text-center p-4">
+                <m.icon size={22} className={`mx-auto mb-2 ${m.color}`} />
+                <p className="text-xs text-gray-400 mb-1">{m.label}</p>
+                <p className={`text-xl font-bold ${m.color}`}>{m.value}</p>
+              </GlowCard>
+            ))}
+          </div>
+
+          {/* Type Filter */}
+          {availableTypes.length > 2 && (
+            <ScrollReveal delay={0.15}>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Filter size={16} className="text-gray-400 shrink-0" />
+                <span className="text-sm text-gray-400 shrink-0">Filter by type:</span>
+                {availableTypes.map((type) => {
+                  const active = filterType === type
+                  const mc = type === 'All' ? null : getMarkerColor(type)
+                  return (
+                    <button
+                      key={type}
+                      onClick={() => setFilterType(type)}
+                      className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
+                        active
+                          ? 'bg-white/10 border-white/20 text-white'
+                          : 'border-transparent text-gray-400 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {mc && (
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ background: mc.bg }}
+                          />
+                        )}
+                        {type}
+                        {active && type !== 'All' && (
+                          <X size={12} className="ml-0.5 opacity-60" />
+                        )}
+                      </span>
+                    </button>
+                  )
+                })}
+                {filterType !== 'All' && (
+                  <button
+                    onClick={() => setFilterType('All')}
+                    className="px-2 py-1 rounded-full text-xs text-moss-400 hover:bg-moss-400/10 transition-colors"
+                  >
+                    Clear filter
+                  </button>
+                )}
+              </div>
+            </ScrollReveal>
+          )}
+
+          {/* Map + Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Leaflet Map */}
+            <Card className="lg:col-span-2 p-0 overflow-hidden">
+              <div className="p-4 pb-2 border-b border-white/5">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <MapPin size={18} className="text-violet-400" />
+                  Competitor Map
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">Click markers for details — green ★ is you</p>
+              </div>
+              <div className="h-[420px] relative">
+                <MapContainer
+                  center={mapCenter}
+                  zoom={13}
+                  scrollWheelZoom={true}
+                  className="h-full w-full"
+                  style={{ background: '#141414' }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                  />
+                  <FlyTo center={mapCenter} />
+
+                  {/* User marker */}
+                  <Marker
+                    position={[result.userBusiness.lat, result.userBusiness.lng]}
+                    icon={userIcon()}
+                  >
+                    <Popup>
+                      <div style={{ color: '#141414', fontFamily: 'Inter, sans-serif', minWidth: 160 }}>
+                        <strong style={{ fontSize: 14 }}>★ {result.userBusiness.name}</strong>
+                        <br />
+                        <span style={{ fontSize: 12 }}>Your Business</span>
+                        <br />
+                        <span style={{ fontSize: 12 }}>
+                          Demand: {result.userBusiness.demand}/100 · Pop: {result.userBusiness.popularity}/100
+                        </span>
+                      </div>
+                    </Popup>
+                  </Marker>
+
+                  {/* Competitor markers */}
+                  {filteredCompetitors.map((c, i) => (
+                    <Marker
+                      key={c.name}
+                      position={[c.lat, c.lng]}
+                      icon={competitorIcon(c.type)}
+                      eventHandlers={{
+                        click: () => setSelectedCompetitor(c),
+                      }}
+                    >
+                      <Popup>
+                        <div style={{ color: '#141414', fontFamily: 'Inter, sans-serif', minWidth: 170 }}>
+                          <strong style={{ fontSize: 14 }}>{c.name}</strong>
+                          <br />
+                          <span style={{ fontSize: 12, color: '#6b7280' }}>{c.type} · {c.distance} km away</span>
+                          <br />
+                          <span style={{ fontSize: 12 }}>
+                            ★ {c.rating} · Demand: {c.demand} · Pop: {c.popularity}
+                          </span>
+                          <br />
+                          <span style={{ fontSize: 12 }}>
+                            Revenue: ₹{c.monthlyRevenue.toLocaleString('en-IN')}/mo
+                          </span>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+                </MapContainer>
+              </div>
+            </Card>
+
+            {/* Competitor List Sidebar */}
+            <Card className="p-4 overflow-y-auto max-h-[520px]">
+              <h3 className="text-base font-semibold text-white mb-3 flex items-center justify-between">
+                <span>Nearby Businesses</span>
+                <span className="text-xs font-normal text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
+                  {filteredCompetitors.length}
+                </span>
+              </h3>
+              <div className="space-y-2">
+                {filteredCompetitors.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">No businesses match this filter.</p>
+                )}
+                {filteredCompetitors.map((c, i) => {
+                  const mc = getMarkerColor(c.type)
+                  const isSelected = selectedCompetitor?.name === c.name
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => setSelectedCompetitor(c)}
+                      className={`w-full text-left p-3 rounded-xl transition-all duration-200 ${
+                        isSelected
+                          ? 'bg-white/10 border border-white/20'
+                          : 'hover:bg-white/5 border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                          style={{ background: `${mc.bg}20` }}
+                        >
+                          <span className="text-xs font-bold" style={{ color: mc.bg }}>
+                            {mc.label[0]}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">{c.name}</p>
+                          <p className="text-xs text-gray-500">
+                            {c.type} · {c.distance} km · ★ {c.rating}
+                          </p>
+                          <div className="flex gap-3 mt-1.5">
+                            <span className="text-xs text-gray-400">
+                              D: <span className="text-green-400 font-medium">{c.demand}</span>
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              P: <span className="text-blue-400 font-medium">{c.popularity}</span>
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              ₹{(c.monthlyRevenue / 1000).toFixed(0)}k
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </Card>
+          </div>
+
+          {/* Selected Competitor Detail */}
+          {visibleSelected && (
+            <ScrollReveal>
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-white">{visibleSelected.name}</h3>
+                    <p className="text-sm text-gray-400">
+                      {visibleSelected.type} · Est. {visibleSelected.established} · {visibleSelected.distance} km away
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-violet-400">★ {visibleSelected.rating}</p>
+                    <p className="text-xs text-gray-500">Rating</p>
+                  </div>
+                </div>
+
+                {/* Score bars */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="space-y-3">
+                    <ScoreBar label="Demand" value={visibleSelected.demand} color="#22c55e" />
+                    <ScoreBar label="Popularity" value={visibleSelected.popularity} color="#3b82f6" />
+                    <ScoreBar label="Progress" value={visibleSelected.progressScore} color="#8b5cf6" />
+                  </div>
+                  <div className="space-y-3">
+                    <ScoreBar label="Your Demand" value={result.userBusiness.demand} color="#22c55e80" />
+                    <ScoreBar label="Your Popularity" value={result.userBusiness.popularity} color="#3b82f680" />
+                    <ScoreBar label="Your Progress" value={result.userBusiness.progressScore} color="#8b5cf680" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-2">Monthly Revenue</p>
+                    <p className="text-2xl font-bold text-green-400">
+                      ₹{visibleSelected.monthlyRevenue.toLocaleString('en-IN')}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      vs your ₹{result.userBusiness.monthlyRevenue.toLocaleString('en-IN')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Strengths / Weaknesses / Specialties */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
+                    <h4 className="text-sm font-semibold text-green-400 mb-2">Strengths</h4>
+                    <ul className="space-y-1">
+                      {visibleSelected.strengths.map((s, i) => (
+                        <li key={i} className="text-xs text-gray-300">✦ {s}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
+                    <h4 className="text-sm font-semibold text-red-400 mb-2">Weaknesses</h4>
+                    <ul className="space-y-1">
+                      {visibleSelected.weaknesses.map((w, i) => (
+                        <li key={i} className="text-xs text-gray-300">✦ {w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
+                    <h4 className="text-sm font-semibold text-violet-400 mb-2">Specialties</h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {visibleSelected.specialties.map((s, i) => (
+                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-300">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </ScrollReveal>
+          )}
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Demand Trend */}
+            <Card>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <TrendingUp size={18} className="text-green-400" />
+                Market Demand Trend
+              </h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <LineChart data={result.demandTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                  <YAxis stroke="#64748b" fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#1e293b',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                    }}
+                    labelStyle={{ color: '#fff' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="demand"
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                    dot={{ fill: '#22c55e', r: 3 }}
+                    activeDot={{ r: 5, fill: '#22c55e' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* Popularity Comparison */}
+            <Card>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <BarChart3 size={18} className="text-blue-400" />
+                Popularity Comparison
+              </h3>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={filteredPopularityComparison} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis type="number" stroke="#64748b" fontSize={12} domain={[0, 100]} />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    stroke="#64748b"
+                    fontSize={11}
+                    width={100}
+                    tickFormatter={(v: string) => (v.length > 14 ? v.slice(0, 12) + '…' : v)}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#1e293b',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <Bar dataKey="score" radius={[0, 4, 4, 0]}>
+                    {filteredPopularityComparison.map((entry, i) => (
+                      <motion.rect
+                        key={i}
+                        fill={entry.name === 'Your Business' ? '#2BEE34' : '#6366f1'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
+
+          {/* Radar Chart */}
+          {filteredRadarData.length > 0 && (
+            <Card>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <Target size={18} className="text-violet-400" />
+                Competitor Radar Overview
+              </h3>
+              <ResponsiveContainer width="100%" height={320}>
+                <RadarChart data={filteredRadarData}>
+                  <PolarGrid stroke="#1e293b" />
+                  <PolarAngleAxis dataKey="subject" stroke="#64748b" fontSize={12} />
+                  <PolarRadiusAxis stroke="#334155" fontSize={10} domain={[0, 100]} />
+                  <Radar name="Popularity" dataKey="popularity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
+                  <Radar name="Demand" dataKey="demand" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} />
+                  <Radar name="Progress" dataKey="progress" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
+                  <Tooltip
+                    contentStyle={{
+                      background: '#1e293b',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '8px',
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </Card>
+          )}
+
+          {/* Market Summary & Recommendations */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <BarChart3 size={18} className="text-amber-400" />
+                Market Summary
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 rounded-xl glass">
+                  <span className="text-sm text-gray-400">Market Saturation</span>
+                  <span className={`text-sm font-semibold ${
+                    result.marketSummary.marketSaturation === 'Low' ? 'text-green-400' :
+                    result.marketSummary.marketSaturation === 'Medium' ? 'text-amber-400' : 'text-red-400'
+                  }`}>{result.marketSummary.marketSaturation}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl glass">
+                  <span className="text-sm text-gray-400">Threat Level</span>
+                  <span className={`text-sm font-semibold ${
+                    result.marketSummary.threatLevel === 'Low' ? 'text-green-400' :
+                    result.marketSummary.threatLevel === 'Medium' ? 'text-amber-400' : 'text-red-400'
+                  }`}>{result.marketSummary.threatLevel}</span>
+                </div>
+                <div className="p-3 rounded-xl glass">
+                  <p className="text-xs text-gray-400 mb-1">Best Opportunity</p>
+                  <p className="text-sm text-gray-300">{result.marketSummary.bestOpportunity}</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <Star size={18} className="text-moss-400" />
+                Recommendations
+              </h3>
+              <ul className="space-y-2">
+                {result.recommendations.map((rec, i) => (
+                  <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                    <span className="w-5 h-5 rounded-md bg-moss-400/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-xs text-moss-400 font-bold">{i + 1}</span>
+                    </span>
+                    <span className="text-sm text-gray-300">{rec}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
+
+        </motion.div>
+      )}
+    </div>
+  )
+}
