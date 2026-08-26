@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { TrendingUp, MapPin, IndianRupee, Loader2, Download } from 'lucide-react'
+import { TrendingUp, MapPin, IndianRupee, Loader2, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
 import { analyzeMarket } from '../../lib/ai'
+import { AnimatePresence } from 'motion/react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
@@ -41,12 +42,11 @@ export default function MarketAnalysis() {
   const [investmentAmount, setInvestmentAmount] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<MarketResult | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !result && !loading) {
-      handleAnalyze()
-    }
-  }, [isComplete])
+    if (!result && !loading) handleAnalyze()
+  }, [])
 
   async function handleAnalyze() {
     const idea = businessIdea || business?.businessType || ''
@@ -82,43 +82,32 @@ export default function MarketAnalysis() {
         </div>
       </ScrollReveal>
 
-      {/* Input Form */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Enter Business Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <TextArea
-                label="Business Idea"
-                placeholder="e.g., I want to start a dairy farm in my village to supply milk to nearby towns..."
-                value={businessIdea}
-                onChange={(e) => setBusinessIdea(e.target.value)}
-              />
-            </div>
-            <Input
-              label="Location"
-              placeholder="e.g., Anantapur, Andhra Pradesh"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              icon={<MapPin size={18} />}
-            />
-            <Input
-              label="Investment Amount (₹)"
-              placeholder="e.g., 500000"
-              type="number"
-              value={investmentAmount}
-              onChange={(e) => setInvestmentAmount(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-          </div>
-          <div className="mt-4">
-            <Button onClick={handleAnalyze} loading={loading}>
-              <TrendingUp size={18} />
-              Analyze Market
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <TextArea label="Business Idea" value={businessIdea} onChange={(e) => setBusinessIdea(e.target.value)} />
+                </div>
+                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
+                <Input label="Investment Amount (₹)" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} icon={<IndianRupee size={18} />} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleAnalyze() }} loading={loading}>
+                  <TrendingUp size={18} />Refresh Analysis
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Results */}
       {result && (

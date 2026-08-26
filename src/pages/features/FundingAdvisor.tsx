@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { DollarSign, Loader2, IndianRupee, Landmark, Gift } from 'lucide-react'
+import { DollarSign, Loader2, IndianRupee, Landmark, Gift, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts'
 import { getFundingAdvice } from '../../lib/ai'
+import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
@@ -29,10 +30,11 @@ export default function FundingAdvisor() {
   const [equipmentCost, setEquipmentCost] = useState(business?.equipmentCost ? String(business.equipmentCost) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<FundingResult | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !result && !loading) handleGetAdvice()
-  }, [isComplete])
+    if (!result && !loading) handleGetAdvice()
+  }, [])
 
   async function handleGetAdvice() {
     const type = businessType || business?.businessType || ''
@@ -70,56 +72,43 @@ export default function FundingAdvisor() {
         </div>
       </ScrollReveal>
 
-      {/* Input */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Business Cost Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select
-              label="Business Type"
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              options={[
-                { value: 'dairy', label: 'Dairy Farm' },
-                { value: 'retail', label: 'Retail Store' },
-                { value: 'food-processing', label: 'Food Processing' },
-                { value: 'manufacturing', label: 'Manufacturing' },
-                { value: 'services', label: 'Services' },
-              ]}
-            />
-            <Input
-              label="Total Cost (₹)"
-              type="number"
-              placeholder="e.g., 1000000"
-              value={totalCost}
-              onChange={(e) => setTotalCost(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Input
-              label="Working Capital (₹)"
-              type="number"
-              placeholder="e.g., 200000"
-              value={workingCapital}
-              onChange={(e) => setWorkingCapital(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Input
-              label="Equipment Cost (₹)"
-              type="number"
-              placeholder="e.g., 500000"
-              value={equipmentCost}
-              onChange={(e) => setEquipmentCost(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-          </div>
-          <div className="mt-4">
-            <Button onClick={handleGetAdvice} loading={loading}>
-              <DollarSign size={18} />
-              Get Funding Advice
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowEdit(!showEdit)}
+          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          <Edit3 size={14} />
+          {showEdit ? 'Hide' : 'Edit Details'}
+          {showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Select
+                  label="Business Type"
+                  value={businessType}
+                  onChange={(e) => setBusinessType(e.target.value)}
+                  options={[{ value: 'dairy', label: 'Dairy Farm' }, { value: 'retail', label: 'Retail Store' }, { value: 'food-processing', label: 'Food Processing' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }]}
+                />
+                <Input label="Total Cost (₹)" type="number" value={totalCost} onChange={(e) => setTotalCost(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Working Capital (₹)" type="number" value={workingCapital} onChange={(e) => setWorkingCapital(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Equipment Cost (₹)" type="number" value={equipmentCost} onChange={(e) => setEquipmentCost(e.target.value)} icon={<IndianRupee size={18} />} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleGetAdvice() }} loading={loading}>
+                  <DollarSign size={18} />
+                  Refresh Analysis
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Results */}
       {result && (

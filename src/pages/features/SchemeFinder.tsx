@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock } from 'lucide-react'
+import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import { findSchemes } from '../../lib/ai'
+import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
@@ -30,10 +31,11 @@ export default function SchemeFinder() {
   const [category, setCategory] = useState(business?.category?.toLowerCase() || '')
   const [loading, setLoading] = useState(false)
   const [schemes, setSchemes] = useState<Scheme[]>([])
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && schemes.length === 0 && !loading) handleFind()
-  }, [isComplete])
+    if (schemes.length === 0 && !loading) handleFind()
+  }, [])
 
   async function handleFind() {
     setLoading(true)
@@ -68,79 +70,33 @@ export default function SchemeFinder() {
         </div>
       </ScrollReveal>
 
-      {/* Input Form */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Your Profile</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Age"
-              type="number"
-              placeholder="e.g., 35"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-            />
-            <Select
-              label="Gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              options={[
-                { value: 'male', label: 'Male' },
-                { value: 'female', label: 'Female' },
-                { value: 'other', label: 'Other' },
-              ]}
-            />
-            <Select
-              label="Business Type"
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              options={[
-                { value: 'dairy', label: 'Dairy' },
-                { value: 'retail', label: 'Retail' },
-                { value: 'manufacturing', label: 'Manufacturing' },
-                { value: 'services', label: 'Services' },
-                { value: 'agriculture', label: 'Agriculture' },
-                { value: 'food-processing', label: 'Food Processing' },
-              ]}
-            />
-            <Input
-              label="Annual Income (₹)"
-              type="number"
-              placeholder="e.g., 200000"
-              value={income}
-              onChange={(e) => setIncome(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Input
-              label="Investment Needed (₹)"
-              type="number"
-              placeholder="e.g., 500000"
-              value={investmentNeeded}
-              onChange={(e) => setInvestmentNeeded(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Select
-              label="Category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              options={[
-                { value: 'general', label: 'General' },
-                { value: 'obc', label: 'OBC' },
-                { value: 'sc', label: 'SC' },
-                { value: 'st', label: 'ST' },
-                { value: 'women', label: 'Women Entrepreneur' },
-                { value: 'minority', label: 'Minority' },
-              ]}
-            />
-          </div>
-          <div className="mt-4">
-            <Button onClick={handleFind} loading={loading}>
-              <Search size={18} />
-              Find Eligible Schemes
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Profile'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
+                <Select label="Gender" value={gender} onChange={(e) => setGender(e.target.value)} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} />
+                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }, { value: 'food-processing', label: 'Food Processing' }]} />
+                <Input label="Annual Income (₹)" type="number" value={income} onChange={(e) => setIncome(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Investment Needed (₹)" type="number" value={investmentNeeded} onChange={(e) => setInvestmentNeeded(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Select label="Category" value={category} onChange={(e) => setCategory(e.target.value)} options={[{ value: 'general', label: 'General' }, { value: 'obc', label: 'OBC' }, { value: 'sc', label: 'SC' }, { value: 'st', label: 'ST' }, { value: 'women', label: 'Women Entrepreneur' }, { value: 'minority', label: 'Minority' }]} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleFind() }} loading={loading}>
+                  <Search size={18} />Refresh Schemes
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Results */}
       {schemes.length > 0 && (

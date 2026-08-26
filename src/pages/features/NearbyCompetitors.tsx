@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download } from 'lucide-react'
+import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import {
@@ -161,10 +161,11 @@ export default function NearbyCompetitors() {
   const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null)
   const [filterType, setFilterType] = useState('All')
   const [downloading, setDownloading] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !result && !loading) handleSearch()
-  }, [isComplete])
+    if (!result && !loading) handleSearch()
+  }, [])
 
   const downloadReport = useCallback(() => {
     if (!result) return
@@ -415,46 +416,30 @@ export default function NearbyCompetitors() {
         </div>
       </ScrollReveal>
 
-      {/* Input Form */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Enter Your Business Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              label="Your Business Type"
-              placeholder="e.g., Grocery store, Dairy farm, Electronics shop"
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              icon={<Store size={18} />}
-            />
-            <Input
-              label="Location"
-              placeholder="e.g., Anantapur, Andhra Pradesh"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              icon={<MapPin size={18} />}
-            />
-            <Input
-              label="Search Radius (km)"
-              placeholder="10"
-              type="number"
-              value={radius}
-              onChange={(e) => setRadius(e.target.value)}
-              icon={<Target size={18} />}
-            />
-          </div>
-          <div className="mt-4">
-            <Button
-              onClick={handleSearch}
-              loading={loading}
-              disabled={!businessType || !location}
-            >
-              <Store size={18} />
-              Find Nearby Competitors
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} icon={<Store size={18} />} />
+                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
+                <Input label="Search Radius (km)" type="number" value={radius} onChange={(e) => setRadius(e.target.value)} icon={<Target size={18} />} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleSearch() }} loading={loading}>
+                  <Store size={18} />Refresh Competitors
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Loading */}
       {loading && (

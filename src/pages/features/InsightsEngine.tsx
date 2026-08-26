@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'motion/react'
-import { MapPin, Loader2, Users, BookOpen, TrendingUp, Building2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { MapPin, Loader2, Users, BookOpen, TrendingUp, Building2, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -34,10 +34,11 @@ export default function InsightsEngine() {
   const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<InsightData | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !result && !loading) handleSearch()
-  }, [isComplete])
+    if (!result && !loading) handleSearch()
+  }, [])
 
   async function handleSearch() {
     const loc = location || business?.location || ''
@@ -76,26 +77,41 @@ export default function InsightsEngine() {
         </div>
       </ScrollReveal>
 
-      {/* Search */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <Input
-                label="Enter Location"
-                placeholder="e.g., Anantapur, Andhra Pradesh"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                icon={<MapPin size={18} />}
-              />
-            </div>
-            <Button onClick={handleSearch} loading={loading}>
-              <MapPin size={18} />
-              Get Insights
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button
+          onClick={() => setShowEdit(!showEdit)}
+          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        >
+          <Edit3 size={14} />
+          {showEdit ? 'Hide' : 'Edit Location'}
+          {showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="flex gap-4 items-end">
+                <div className="flex-1">
+                  <Input
+                    label="Location"
+                    placeholder="e.g., Anantapur, Andhra Pradesh"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    icon={<MapPin size={18} />}
+                  />
+                </div>
+                <Button onClick={() => { setLoading(true); getInsights(location).then(d => { setResult(d); setLoading(false) }).catch(() => setLoading(false)) }} loading={loading}>
+                  <MapPin size={18} />
+                  Refresh
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Results */}
       {result && (
@@ -150,16 +166,27 @@ export default function InsightsEngine() {
 
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">Employment Statistics</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={employmentData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
+                    cy="45%"
+                    innerRadius={55}
+                    outerRadius={90}
                     dataKey="value"
-                    label={({ name, value }) => `${name} ${value}%`}
+                    labelLine={false}
+                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, value }) => {
+                      const RADIAN = Math.PI / 180
+                      const radius = outerRadius + 20
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN)
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN)
+                      return (
+                        <text x={x} y={y} fill="#d1d5db" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+                          {`${name} ${value}%`}
+                        </text>
+                      )
+                    }}
                   >
                     {employmentData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Calculator, IndianRupee, Loader2 } from 'lucide-react'
+import { Calculator, IndianRupee, Loader2, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
 import { calculateLoan } from '../../lib/ai'
+import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
@@ -32,10 +33,11 @@ export default function LoanCalculator() {
   const [investmentRequirement, setInvestmentRequirement] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<LoanResult | null>(null)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !result && !loading) handleCalculate()
-  }, [isComplete])
+    if (!result && !loading) handleCalculate()
+  }, [])
 
   async function handleCalculate() {
     const inc = monthlyIncome || (business?.monthlyIncome ? String(business.monthlyIncome) : '')
@@ -80,56 +82,31 @@ export default function LoanCalculator() {
         </div>
       </ScrollReveal>
 
-      {/* Input Form */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Financial Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Monthly Income (₹)"
-              type="number"
-              placeholder="e.g., 25000"
-              value={monthlyIncome}
-              onChange={(e) => setMonthlyIncome(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Input
-              label="Existing Loans (₹)"
-              type="number"
-              placeholder="e.g., 0"
-              value={existingLoans}
-              onChange={(e) => setExistingLoans(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Select
-              label="Business Type"
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              options={[
-                { value: 'dairy', label: 'Dairy' },
-                { value: 'retail', label: 'Retail' },
-                { value: 'manufacturing', label: 'Manufacturing' },
-                { value: 'services', label: 'Services' },
-                { value: 'agriculture', label: 'Agriculture' },
-              ]}
-            />
-            <Input
-              label="Investment Required (₹)"
-              type="number"
-              placeholder="e.g., 500000"
-              value={investmentRequirement}
-              onChange={(e) => setInvestmentRequirement(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-          </div>
-          <div className="mt-4">
-            <Button onClick={handleCalculate} loading={loading}>
-              <Calculator size={18} />
-              Calculate Eligibility
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Monthly Income (₹)" type="number" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Existing Loans (₹)" type="number" value={existingLoans} onChange={(e) => setExistingLoans(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }]} />
+                <Input label="Investment Required (₹)" type="number" value={investmentRequirement} onChange={(e) => setInvestmentRequirement(e.target.value)} icon={<IndianRupee size={18} />} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleCalculate() }} loading={loading}>
+                  <Calculator size={18} />Recalculate
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Results */}
       {result && (

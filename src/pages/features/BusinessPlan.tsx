@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { FileText, MapPin, IndianRupee, Loader2, Download, Copy } from 'lucide-react'
+import { FileText, MapPin, IndianRupee, Loader2, Download, Copy, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import { generateBusinessPlan } from '../../lib/ai'
+import { AnimatePresence } from 'motion/react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../../components/react-bits'
@@ -36,10 +37,11 @@ export default function BusinessPlan() {
   const [loading, setLoading] = useState(false)
   const [plan, setPlan] = useState('')
   const [copied, setCopied] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
 
   useEffect(() => {
-    if (isComplete && !plan && !loading) handleGenerate()
-  }, [isComplete])
+    if (!plan && !loading) handleGenerate()
+  }, [])
 
   async function handleGenerate() {
     const type = businessType || business?.businessType || ''
@@ -81,41 +83,30 @@ export default function BusinessPlan() {
         </div>
       </ScrollReveal>
 
-      {/* Input Form */}
-      <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Business Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Select
-              label="Business Type"
-              value={businessType}
-              onChange={(e) => setBusinessType(e.target.value)}
-              options={businessTypes}
-            />
-            <Input
-              label="Budget (₹)"
-              placeholder="e.g., 1000000"
-              type="number"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              icon={<IndianRupee size={18} />}
-            />
-            <Input
-              label="Location"
-              placeholder="e.g., Anantapur, Andhra Pradesh"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              icon={<MapPin size={18} />}
-            />
-          </div>
-          <div className="mt-4">
-            <Button onClick={handleGenerate} loading={loading}>
-              <FileText size={18} />
-              Generate Business Plan
-            </Button>
-          </div>
-        </Card>
-      </ScrollReveal>
+      {/* Edit Toggle */}
+      <div className="flex justify-end">
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
+          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+      </div>
+      <AnimatePresence>
+        {showEdit && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={businessTypes} />
+                <Input label="Budget (₹)" type="number" value={budget} onChange={(e) => setBudget(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
+              </div>
+              <div className="mt-4">
+                <Button onClick={() => { setShowEdit(false); handleGenerate() }} loading={loading}>
+                  <FileText size={18} />Regenerate Plan
+                </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Generated Plan */}
       {plan && (
