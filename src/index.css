@@ -187,6 +187,15 @@
   }
 }
 
+/* Dark select dropdowns */
+select {
+  color-scheme: dark;
+}
+select option {
+  background-color: #141414;
+  color: #f3f4f6;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

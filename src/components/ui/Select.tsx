@@ -18,11 +18,12 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <select
           ref={ref}
           className={`input-field appearance-none cursor-pointer ${error ? 'border-red-500/50' : ''} ${className}`}
+          style={{ colorScheme: 'dark' }}
           {...props}
         >
-          <option value="" className="bg-navy-900">Select...</option>
+          <option value="" className="bg-charcoal-900">Select...</option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-navy-900">
+            <option key={opt.value} value={opt.value} className="bg-charcoal-900">
               {opt.label}
             </option>
           ))}
