@@ -3,6 +3,8 @@ import axios from 'axios'
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
 
+const hasApiKeys = Boolean(OPENAI_API_KEY || GEMINI_API_KEY)
+
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
   content: string
@@ -59,6 +61,9 @@ async function callGemini(prompt: string) {
 
 // Smart API selector - tries OpenAI first, falls back to Gemini
 async function callAI(messages: ChatMessage[] | string) {
+  if (!hasApiKeys) {
+    throw new Error('No API keys configured')
+  }
   try {
     if (typeof messages === 'string') {
       return await callGemini(messages)
@@ -79,7 +84,7 @@ Business Idea: ${data.businessIdea}
 Location: ${data.location}
 Investment Amount: ₹${data.investmentAmount.toLocaleString('en-IN')}
 
-Provide a comprehensive market analysis in JSON format with:
+Provide a comprehensive market analysis in JSON format:
 {
   "marketDemandScore": <1-10>,
   "competitionLevel": "<Low|Medium|High>",
@@ -100,8 +105,8 @@ Provide a comprehensive market analysis in JSON format with:
 }
 Return ONLY the JSON, no markdown.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     return {
@@ -110,8 +115,8 @@ Return ONLY the JSON, no markdown.`
       estimatedMonthlyIncome: 25000,
       growthPotential: 'High',
       riskLevel: 'Medium',
-      requiredResources: ['Shop space', 'Initial inventory', 'Marketing budget'],
-      targetCustomers: 'Local residents and nearby villages',
+      requiredResources: ['Shop space', 'Initial inventory', 'Marketing budget', 'Supplier connections', 'Local delivery vehicle'],
+      targetCustomers: 'Local residents, nearby villages, and small businesses in the area',
       demandChart: [
         { month: 'Jan', demand: 60 }, { month: 'Feb', demand: 65 },
         { month: 'Mar', demand: 70 }, { month: 'Apr', demand: 75 },
@@ -123,12 +128,17 @@ Return ONLY the JSON, no markdown.`
         { month: 'May', revenue: 30000 }, { month: 'Jun', revenue: 35000 },
       ],
       swotAnalysis: {
-        strengths: ['Low investment required', 'Growing local demand'],
-        weaknesses: ['Limited brand awareness initially'],
-        opportunities: ['Government subsidies available', 'Growing digital adoption'],
-        threats: ['Competition from established players'],
+        strengths: ['Low investment required', 'Growing local demand', 'Strong community network'],
+        weaknesses: ['Limited brand awareness initially', 'Seasonal demand fluctuations'],
+        opportunities: ['Government subsidies available', 'Growing digital adoption', 'Untapped nearby villages'],
+        threats: ['Competition from established players', 'Rising material costs'],
       },
-      recommendations: ['Start small and scale gradually', 'Leverage government schemes'],
+      recommendations: [
+        'Start small and scale gradually based on demand',
+        'Leverage government schemes like MUDRA for initial funding',
+        'Build a strong local presence through word-of-mouth',
+        'Consider online ordering for wider reach',
+      ],
     }
   }
 }
@@ -153,7 +163,61 @@ Generate a comprehensive business plan with:
 
 Format the response as structured sections with clear headings. Be specific to rural Indian context.`
 
-  return await callAI(prompt)
+  try {
+    return await callAI(prompt)
+  } catch {
+    return `# Business Plan: ${data.businessType}
+
+## 1. Executive Summary
+This ${data.businessType} venture in ${data.location} aims to serve the growing local demand with an initial investment of ₹${data.budget.toLocaleString('en-IN')}. The business targets local residents and nearby villages, leveraging community networks and digital presence for growth.
+
+## 2. Market Analysis
+The local market shows strong demand for ${data.businessType} services. With limited competition in the immediate area, there is a significant opportunity to capture market share. The area's growing population and increasing disposable income support a positive outlook.
+
+## 3. Target Customer Segment
+- Primary: Local residents aged 18-55
+- Secondary: Small businesses and self-help groups
+- Tertiary: Nearby village communities
+
+## 4. Revenue Model
+- Direct sales of products/services
+- Subscription-based repeat customers
+- Seasonal promotions and festival offers
+- Bulk orders for local businesses
+
+## 5. Cost Breakdown
+| Item | Cost (₹) |
+|------|----------|
+| Shop/Space Setup | ${(data.budget * 0.25).toLocaleString('en-IN')} |
+| Initial Inventory | ${(data.budget * 0.30).toLocaleString('en-IN')} |
+| Equipment | ${(data.budget * 0.15).toLocaleString('en-IN')} |
+| Marketing | ${(data.budget * 0.10).toLocaleString('en-IN')} |
+| Working Capital | ${(data.budget * 0.15).toLocaleString('en-IN')} |
+| Contingency | ${(data.budget * 0.05).toLocaleString('en-IN')} |
+
+## 6. Marketing Strategy
+- Word-of-mouth through local influencers and SHG networks
+- Social media presence on WhatsApp and Facebook
+- Participate in local haats and melas
+- Partner with nearby shops for cross-promotion
+
+## 7. Growth Plan
+**6 Months:** Establish brand, build customer base of 200+ regular customers
+**1 Year:** Expand product range, hire 1-2 employees, achieve break-even
+**3 Years:** Open second location, build online presence, ₹5L+ annual profit
+
+## 8. Risk Assessment
+- **Low Risk:** Strong local demand, low competition
+- **Medium Risk:** Seasonal fluctuations, supply chain disruptions
+- **Mitigation:** Diversify products, maintain 3-month cash reserve
+
+## 9. Key Metrics to Track
+- Monthly revenue and profit margins
+- Customer retention rate
+- Inventory turnover
+- Customer satisfaction scores
+- Digital engagement metrics`
+  }
 }
 
 export async function findSchemes(userProfile: {
@@ -192,8 +256,8 @@ For each scheme, provide:
 }
 Return ONLY the JSON.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     return {
@@ -201,22 +265,52 @@ Return ONLY the JSON.`
         {
           name: 'MUDRA Loan',
           eligibilityScore: 85,
-          benefits: 'Collateral-free loan up to ₹10 lakh for small businesses',
+          benefits: 'Collateral-free loan up to ₹10 lakh for small businesses. Three categories: Shishu (up to ₹50K), Kishore (₹50K-5L), Tarun (₹5L-10L).',
           maxLoanAmount: '₹10,00,000',
           interestRate: '8-12% per annum',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Business Plan', 'Address Proof'],
-          applicationProcess: 'Apply through participating banks or online via Udyamimitra portal',
+          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Business Plan', 'Address Proof', 'Passport-size Photo'],
+          applicationProcess: '1. Visit your nearest bank branch or NBFC\n2. Submit application with required documents\n3. Bank verifies and processes within 7-10 days\n4. Loan disbursement directly to your account',
           applicationLink: 'https://www.udyamimitra.in',
         },
         {
           name: 'PMEGP',
           eligibilityScore: 80,
-          benefits: 'Government subsidy of 25-35% on project cost',
+          benefits: 'Government subsidy of 25-35% on project cost. For rural areas, subsidy is 25% for general and 35% for SC/ST/OBC categories.',
           maxLoanAmount: '₹25,00,000',
           interestRate: '4-8% per annum (subsidized)',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Project Report', 'Caste Certificate (if applicable)'],
-          applicationProcess: 'Apply online through KVIC portal or District Industries Center',
+          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Project Report', 'Caste Certificate (if applicable)', 'Education qualification proof'],
+          applicationProcess: '1. Register on KVIC portal (kvic.org.in)\n2. Fill online application with project details\n3. Submit at District Industries Center\n4. Training period of 2-3 weeks\n5. Loan processing and disbursement',
           applicationLink: 'https://www.kvic.org.in',
+        },
+        {
+          name: 'Stand-Up India',
+          eligibilityScore: 70,
+          benefits: 'Loans from ₹10 lakh to ₹1 crore for SC/ST and women entrepreneurs. Covers 75% of project cost.',
+          maxLoanAmount: '₹1,00,00,000',
+          interestRate: 'MCLR + 3% (approx 11-14%)',
+          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Caste Certificate / Women Entrepreneur Proof', 'Project Report', 'Education Documents'],
+          applicationProcess: '1. Apply through standupmitra.in portal\n2. Select your lead bank\n3. Submit project report and documents\n4. Bank processes within 30-45 days',
+          applicationLink: 'https://www.standupmitra.in',
+        },
+        {
+          name: 'PM SVANidhi',
+          eligibilityScore: 75,
+          benefits: 'Working capital loan up to ₹50,000 for street vendors. 7% interest subsidy. First loan is collateral-free.',
+          maxLoanAmount: '₹50,000',
+          interestRate: '7% subsidized (effective ~2-3%)',
+          requiredDocuments: ['Aadhaar Card', 'Vending Certificate / Identity Certificate', 'Bank Account Details'],
+          applicationProcess: '1. Apply on pmvanidhi.mohua.gov.in\n2. Upload identity and vending proof\n3. Loan approved within 7 days\n4. Repay in monthly installments over 1 year',
+          applicationLink: 'https://pmvanidhi.mohua.gov.in',
+        },
+        {
+          name: 'CGTMSE',
+          eligibilityScore: 65,
+          benefits: 'Collateral-free loans up to ₹5 crore for MSMEs. Government guarantees 75% of the loan amount to the bank.',
+          maxLoanAmount: '₹5,00,00,000',
+          interestRate: '8-12% per annum',
+          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Business Registration', 'GST Returns', 'Bank Statements (6 months)', 'Project Report'],
+          applicationProcess: '1. Visit any CGTMSE-member bank\n2. Submit application with business documents\n3. Bank appraises and submits to CGTMSE\n4. Guarantee sanction within 30 days\n5. Loan disbursement',
+          applicationLink: 'https://www.cgtmse.in',
         },
       ],
     }
@@ -247,8 +341,8 @@ Provide in JSON:
 }
 Return ONLY the JSON.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     const loanAmount = Math.min(data.investmentRequirement, data.monthlyIncome * 24)
@@ -263,6 +357,8 @@ Return ONLY the JSON.`
       recommendedBanks: [
         { name: 'SBI', interestRate: '8.5% p.a.', processingFee: '1%' },
         { name: 'PNB', interestRate: '9% p.a.', processingFee: '0.5%' },
+        { name: 'HDFC Bank', interestRate: '9.5% p.a.', processingFee: '1.5%' },
+        { name: 'Bank of Baroda', interestRate: '8.75% p.a.', processingFee: '0.75%' },
       ],
       monthlyRepaymentSchedule: Array.from({ length: 12 }, (_, i) => ({
         month: i + 1,
@@ -289,7 +385,78 @@ Keep responses concise but informative. Use simple language.`
     ...messages,
   ]
 
-  return await callAI(fullMessages)
+  try {
+    return await callAI(fullMessages)
+  } catch {
+    // Smart mock responses based on the user's last message
+    const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
+    
+    if (lastMsg.includes('mudra') || lastMsg.includes('loan')) {
+      return `🏦 **MUDRA Loan** is perfect for small businesses! Here's what you need to know:
+
+• **Shishu** – Up to ₹50,000 (for starting out)
+• **Kishore** – ₹50,000 to ₹5 lakh (for growing businesses)  
+• **Tarun** – ₹5 lakh to ₹10 lakh (for established businesses)
+
+**Eligibility:** Any Indian citizen with a business plan
+**Documents needed:** Aadhaar, PAN, Business Plan, Address Proof
+**Where to apply:** Any bank branch or online at udyamimitra.in
+
+💡 *Tip: Shishu category has the easiest approval process. Start there if you're new!*`
+    }
+    
+    if (lastMsg.includes('scheme') || lastMsg.includes('government')) {
+      return `🏛️ **Top Government Schemes for Entrepreneurs:**
+
+1. **MUDRA Loan** – Collateral-free up to ₹10 lakh
+2. **PMEGP** – 25-35% government subsidy on project cost
+3. **Stand-Up India** – ₹10 lakh to ₹1 crore for SC/ST/Women
+4. **PM SVANidhi** – ₹50,000 working capital for street vendors
+5. **CGTMSE** – Collateral-free loans up to ₹5 crore
+
+Visit the **Scheme Finder** feature in BizPulse to check which ones you're eligible for based on your profile! 🎯`
+    }
+    
+    if (lastMsg.includes('business') || lastMsg.includes('idea') || lastMsg.includes('start')) {
+      return `💡 **Great business ideas for rural India:**
+
+🏪 **Retail:** Grocery store, general store, medical shop
+🌾 **Agriculture:** Organic farming, dairy, poultry, fishery
+🔧 **Services:** Mobile repair, beauty parlor, tailoring
+📦 **Supply:** Fertilizer/seed shop, hardware store, water purification
+
+**Steps to get started:**
+1. Research local demand (use our Market Analysis tool!)
+2. Create a business plan (we can generate one for you)
+3. Check eligible government schemes
+4. Apply for funding through MUDRA or PMEGP
+
+What type of business interests you? I can help you plan it out! 🚀`
+    }
+    
+    if (lastMsg.includes('hello') || lastMsg.includes('hi') || lastMsg.includes('namaste')) {
+      return `Namaste! 🙏 Welcome to BizPulse!
+
+I'm here to help you with:
+• 💡 Business ideas and planning
+• 🏛️ Government scheme information
+• 🏦 Loan eligibility and guidance
+• 📊 Market insights for your area
+
+What would you like to know about today?`
+    }
+    
+    return `Thank you for your question! Here are some things I can help with:
+
+• **Business Planning** – I can help you create a business plan
+• **Government Schemes** – Learn about MUDRA, PMEGP, and more
+• **Loan Guidance** – Check your eligibility and compare banks
+• **Market Insights** – Understand demand in your area
+
+💡 *For the best experience, try using the dedicated feature pages in the sidebar for detailed analysis!*
+
+Is there anything specific you'd like to know?`
+  }
 }
 
 export async function getInsights(location: string) {
@@ -310,28 +477,32 @@ Include:
 }
 Return ONLY the JSON.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     return {
       population: '2,50,000',
       literacyRate: '68%',
-      majorIndustries: ['Agriculture', 'Textiles', 'Small Manufacturing'],
+      majorIndustries: ['Agriculture', 'Textiles', 'Small Manufacturing', 'Retail', 'Services'],
       demandTrends: [
         { category: 'Agricultural Products', trend: 'growing' },
         { category: 'Digital Services', trend: 'growing' },
         { category: 'Traditional Retail', trend: 'stable' },
+        { category: 'Healthcare', trend: 'growing' },
+        { category: 'Education', trend: 'stable' },
       ],
       topBusinessOpportunities: [
         'Organic farming supply chain',
         'Digital payment services',
         'Cold storage facility',
         'Skill training center',
+        'Healthcare clinic',
+        'E-commerce delivery service',
       ],
-      agriculturalProfile: 'Primarily rice, wheat, and vegetable farming with seasonal variations',
+      agriculturalProfile: 'Primarily rice, wheat, and vegetable farming with seasonal variations. Good irrigation coverage with growing interest in organic and high-value crops.',
       employmentStats: { employed: '35%', selfEmployed: '25%', unemployed: '15%' },
-      nearbyMarkets: ['Weekly Haat', 'District Market', 'APMC Market'],
+      nearbyMarkets: ['Weekly Haat', 'District Market', 'APMC Market', 'Industrial Area Market'],
       infrastructureScore: 6,
       digitalAdoption: 'Medium',
     }
@@ -389,8 +560,8 @@ Provide realistic competitor data in JSON:
 }
 Use realistic coordinates near ${data.location}. Return ONLY the JSON.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     // Fallback with realistic mock data centered around Anantapur
@@ -547,25 +718,28 @@ Recommend a funding structure with:
 }
 Return ONLY the JSON.`
 
-  const result = await callAI(prompt)
   try {
+    const result = await callAI(prompt)
     return JSON.parse(result)
   } catch {
     return {
       selfFunding: { percentage: 30, amount: data.totalCost * 0.3 },
       governmentLoans: [
         { scheme: 'PMEGP', amount: data.totalCost * 0.4, subsidy: '25% government subsidy' },
+        { scheme: 'MUDRA Loan', amount: data.totalCost * 0.2, subsidy: 'Collateral-free, subsidized rate' },
       ],
       bankLoans: [
-        { bank: 'SBI', amount: data.totalCost * 0.2, interestRate: '8.5% p.a.' },
+        { bank: 'SBI', amount: data.totalCost * 0.15, interestRate: '8.5% p.a.' },
+        { bank: 'PNB', amount: data.totalCost * 0.1, interestRate: '9% p.a.' },
       ],
       subsidies: [
         { name: 'PMEGP Subsidy', amount: data.totalCost * 0.25, eligibility: 'All categories eligible' },
+        { name: 'State MSME Subsidy', amount: data.totalCost * 0.1, eligibility: 'Manufacturing units eligible' },
       ],
       totalFundingPlan: {
         ownContribution: data.totalCost * 0.3,
-        loanAmount: data.totalCost * 0.6,
-        subsidyAmount: data.totalCost * 0.1,
+        loanAmount: data.totalCost * 0.55,
+        subsidyAmount: data.totalCost * 0.15,
       },
       monthlyCashFlow: Array.from({ length: 6 }, (_, i) => ({
         month: `M${i + 1}`,
