@@ -360,13 +360,21 @@ Return ONLY the JSON.`
         { name: 'HDFC Bank', interestRate: '9.5% p.a.', processingFee: '1.5%' },
         { name: 'Bank of Baroda', interestRate: '8.75% p.a.', processingFee: '0.75%' },
       ],
-      monthlyRepaymentSchedule: Array.from({ length: 12 }, (_, i) => ({
-        month: i + 1,
-        emi: Math.round(emi),
-        principal: Math.round(emi * 0.7),
-        interest: Math.round(emi * 0.3),
-        balance: Math.round(loanAmount - (emi * 0.7 * (i + 1))),
-      })),
+      monthlyRepaymentSchedule: (() => {
+        let balance = loanAmount
+        return Array.from({ length: 12 }, (_, i) => {
+          const interestPart = Math.round(balance * interestRate)
+          const principalPart = Math.round(emi) - interestPart
+          balance = Math.max(0, balance - principalPart)
+          return {
+            month: i + 1,
+            emi: Math.round(emi),
+            principal: principalPart,
+            interest: interestPart,
+            balance: Math.round(balance),
+          }
+        })
+      })(),
     }
   }
 }

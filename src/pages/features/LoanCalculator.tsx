@@ -157,16 +157,27 @@ export default function LoanCalculator() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">EMI Breakdown</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
                     data={pieData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
+                    cy="45%"
+                    innerRadius={55}
+                    outerRadius={90}
                     dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }) => {
+                      const RADIAN = Math.PI / 180
+                      const radius = outerRadius + 20
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN)
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN)
+                      return (
+                        <text x={x} y={y} fill="#d1d5db" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+                          {`${name} ${(percent * 100).toFixed(0)}%`}
+                        </text>
+                      )
+                    }}
                   >
                     {pieData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -175,6 +186,11 @@ export default function LoanCalculator() {
                   <Tooltip
                     contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                     formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value) => <span style={{ color: '#9ca3af', fontSize: 12 }}>{value}</span>}
                   />
                 </PieChart>
               </ResponsiveContainer>
