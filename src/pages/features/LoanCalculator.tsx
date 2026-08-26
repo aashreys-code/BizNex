@@ -134,19 +134,19 @@ export default function LoanCalculator() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <h3 className="text-lg font-semibold text-white mb-4">EMI Breakdown</h3>
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
                     data={pieData}
                     cx="50%"
-                    cy="45%"
-                    innerRadius={55}
-                    outerRadius={90}
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
                     dataKey="value"
                     labelLine={false}
-                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }) => {
+                    label={({ cx, cy, midAngle, outerRadius, name, percent }) => {
                       const RADIAN = Math.PI / 180
-                      const radius = outerRadius + 20
+                      const radius = outerRadius + 18
                       const x = cx + radius * Math.cos(-midAngle * RADIAN)
                       const y = cy + radius * Math.sin(-midAngle * RADIAN)
                       return (
