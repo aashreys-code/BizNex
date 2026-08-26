@@ -38,3 +38,4 @@ dist-ssr
 
 # Supabase
 supabase/.temp
+chrome_stderr.txt
