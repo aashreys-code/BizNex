@@ -334,7 +334,7 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, i) => (
-              <ScrollReveal key={i} delay={i * 0.1}>
+              <ScrollReveal key={i} delay={i * 0.1} className="h-full">
                 <GlowCard className="h-full">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
                     <feature.icon size={24} className="text-white" />
@@ -445,8 +445,8 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((t, i) => (
-              <ScrollReveal key={i} delay={i * 0.15}>
-                <GlowCard className="p-6">
+              <ScrollReveal key={i} delay={i * 0.15} className="h-full">
+                <GlowCard className="p-6 h-full">
                   <div className="flex gap-1 mb-4">
                     {Array.from({ length: t.rating }).map((_, j) => (
                       <Star key={j} size={16} className="fill-moss-400 text-moss-400" />
