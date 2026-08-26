@@ -59,12 +59,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           {/* Logo */}
           <div className="p-4 border-b border-white/5">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="relative w-10 h-10">
-                <div className="absolute inset-0 bg-moss-400 rounded-xl rotate-3 group-hover:rotate-6 transition-transform" />
-                <div className="relative w-10 h-10 bg-charcoal-900 rounded-xl flex items-center justify-center border border-moss-400/30">
-                  <span className="text-moss-400 font-bold text-lg font-display">BP</span>
-                </div>
-              </div>
+              <img src="/logo.svg" alt="BizPulse Logo" className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
               <span className="text-xl font-bold font-display tracking-tight">
                 <span className="text-white">Biz</span>
                 <span className="text-moss-400">Pulse</span>
