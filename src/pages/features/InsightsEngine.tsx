@@ -53,11 +53,12 @@ export default function InsightsEngine() {
     }
   }
 
+  const parsePercent = (s: string) => Number(s.replace('%', '')) || 0
   const employmentData = result
     ? [
-        { name: 'Employed', value: Number(result.employmentStats.employed) },
-        { name: 'Self-Employed', value: Number(result.employmentStats.selfEmployed) },
-        { name: 'Unemployed', value: Number(result.employmentStats.unemployed) },
+        { name: 'Employed', value: parsePercent(result.employmentStats.employed) },
+        { name: 'Self-Employed', value: parsePercent(result.employmentStats.selfEmployed) },
+        { name: 'Unemployed', value: parsePercent(result.employmentStats.unemployed) },
       ]
     : []
 
