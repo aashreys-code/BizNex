@@ -6,7 +6,7 @@
   :root {
     --bg-primary: #0e0e0e;
     --bg-secondary: #141414;
-    --bg-card: rgba(255, 255, 255, 0.05);
+    --bg-card: #1a1a1a;
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
@@ -15,12 +15,14 @@
     --accent: #2BEE34;
     --accent-dim: rgba(43, 238, 52, 0.1);
     --shadow: rgba(0, 0, 0, 0.37);
+    --clay-shadow-dark: rgba(0, 0, 0, 0.4);
+    --clay-shadow-light: rgba(255, 255, 255, 0.05);
   }
 
   .dark {
     --bg-primary: #0e0e0e;
     --bg-secondary: #141414;
-    --bg-card: rgba(255, 255, 255, 0.05);
+    --bg-card: #1a1a1a;
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
@@ -29,21 +31,25 @@
     --accent: #2BEE34;
     --accent-dim: rgba(43, 238, 52, 0.1);
     --shadow: rgba(0, 0, 0, 0.37);
+    --clay-shadow-dark: rgba(0, 0, 0, 0.5);
+    --clay-shadow-light: rgba(255, 255, 255, 0.03);
   }
 
-  /* Light mode */
+  /* Light mode - Claymorphism */
   html:not(.dark) {
     --bg-primary: #F0EDE4;
     --bg-secondary: #E8E4DA;
-    --bg-card: rgba(0, 71, 65, 0.04);
+    --bg-card: #F5F2EB;
     --text-primary: #1a1a1a;
     --text-secondary: #555555;
     --text-muted: #888888;
     --border: rgba(0, 71, 65, 0.12);
-    --border-strong: rgba(0, 71, 65, 0.25);
+    --border-strong: rgba(0, 71, 65, 0.2);
     --accent: #004741;
     --accent-dim: rgba(0, 71, 65, 0.08);
     --shadow: rgba(0, 0, 0, 0.08);
+    --clay-shadow-dark: rgba(0, 0, 0, 0.08);
+    --clay-shadow-light: rgba(255, 255, 255, 0.8);
   }
 
   * {
@@ -66,41 +72,51 @@
 }
 
 @layer components {
-  /* Liquid Glass Effects */
+  /* Claymorphism Effects */
   .glass {
     background: var(--bg-card);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border-strong);
-    box-shadow: 0 8px 32px 0 var(--shadow);
-    transition: background 0.3s, border-color 0.3s;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 8px 8px 16px var(--clay-shadow-dark, rgba(0,0,0,0.08)),
+                -8px -8px 16px var(--clay-shadow-light, rgba(255,255,255,0.8));
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .glass:hover {
+    box-shadow: 10px 10px 20px var(--clay-shadow-dark, rgba(0,0,0,0.1)),
+                -10px -10px 20px var(--clay-shadow-light, rgba(255,255,255,0.85));
+    transform: translateY(-2px);
   }
   
   .glass-strong {
     background: var(--bg-card);
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border: 1px solid var(--border-strong);
-    box-shadow: 0 8px 32px 0 var(--shadow);
-    transition: background 0.3s, border-color 0.3s;
+    border-radius: 24px;
+    border: none;
+    box-shadow: 10px 10px 20px var(--clay-shadow-dark, rgba(0,0,0,0.1)),
+                -10px -10px 20px var(--clay-shadow-light, rgba(255,255,255,0.8));
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+  .glass-strong:hover {
+    box-shadow: 12px 12px 24px var(--clay-shadow-dark, rgba(0,0,0,0.12)),
+                -12px -12px 24px var(--clay-shadow-light, rgba(255,255,255,0.9));
+    transform: translateY(-2px);
   }
   
   .glass-dark {
     background: var(--bg-secondary);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 24px 0 var(--shadow);
-    transition: background 0.3s, border-color 0.3s;
+    border-radius: 0;
+    border: none;
+    box-shadow: 0 4px 16px var(--clay-shadow-dark, rgba(0,0,0,0.06));
+    transition: background 0.3s;
   }
   
   .glass-moss {
-    background: var(--accent-dim);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--accent);
-    box-shadow: 0 8px 32px 0 var(--accent-dim);
-    transition: background 0.3s, border-color 0.3s;
+    background: var(--accent);
+    color: white;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 6px 6px 12px var(--clay-shadow-dark, rgba(0,0,0,0.15)),
+                -4px -4px 8px var(--clay-shadow-light, rgba(255,255,255,0.3));
+    transition: box-shadow 0.3s, transform 0.3s;
   }
   
   .liquid-blob {
@@ -118,45 +134,57 @@
 
   /* Buttons */
   .btn-primary {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.75rem;
     font-weight: 600;
-    border-radius: 0.75rem;
+    border-radius: 9999px;
     transition: all 0.3s;
     font-size: 0.875rem;
     line-height: 1.25rem;
-    background: linear-gradient(to right, #2BEE34, #1fd427);
-    color: #141414;
-    box-shadow: 0 10px 15px -3px rgba(43, 238, 52, 0.25);
+    background: var(--accent);
+    color: white;
+    border: none;
+    box-shadow: 6px 6px 12px var(--clay-shadow-dark, rgba(0,0,0,0.15)),
+                -4px -4px 8px var(--clay-shadow-light, rgba(255,255,255,0.3));
     cursor: pointer;
   }
   .btn-primary:hover {
-    background: linear-gradient(to right, #4dff75, #2BEE34);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px -3px rgba(43, 238, 52, 0.4);
+    box-shadow: 8px 8px 16px var(--clay-shadow-dark, rgba(0,0,0,0.2)),
+                -6px -6px 12px var(--clay-shadow-light, rgba(255,255,255,0.4));
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: inset 4px 4px 8px rgba(0,0,0,0.15),
+                inset -4px -4px 8px rgba(255,255,255,0.1);
   }
   
   .btn-secondary {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.75rem;
     font-weight: 600;
-    border-radius: 0.75rem;
+    border-radius: 9999px;
     transition: all 0.3s;
     background: var(--bg-card);
     color: var(--text-primary);
-    border: 1px solid var(--border-strong);
-    backdrop-filter: blur(24px);
+    border: none;
+    box-shadow: 4px 4px 8px var(--clay-shadow-dark, rgba(0,0,0,0.06)),
+                -4px -4px 8px var(--clay-shadow-light, rgba(255,255,255,0.7));
     cursor: pointer;
   }
   .btn-secondary:hover {
-    background: var(--accent-dim);
     transform: translateY(-2px);
-    border-color: var(--accent);
+    box-shadow: 6px 6px 12px var(--clay-shadow-dark, rgba(0,0,0,0.08)),
+                -6px -6px 12px var(--clay-shadow-light, rgba(255,255,255,0.8));
     color: var(--accent);
+  }
+  .btn-secondary:active {
+    box-shadow: inset 3px 3px 6px var(--clay-shadow-dark, rgba(0,0,0,0.08)),
+                inset -3px -3px 6px var(--clay-shadow-light, rgba(255,255,255,0.6));
   }
   
   .btn-ghost {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1.75rem;
     font-weight: 600;
-    border-radius: 0.75rem;
+    border-radius: 9999px;
     transition: all 0.3s;
     background: transparent;
     color: var(--text-secondary);
@@ -171,20 +199,23 @@
   /* Inputs */
   .input-field {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1.125rem;
     background: var(--bg-card);
-    border: 1px solid var(--border-strong);
-    border-radius: 0.75rem;
+    border: none;
+    border-radius: 16px;
     color: var(--text-primary);
     outline: none;
-    transition: all 0.3s;
+    box-shadow: inset 4px 4px 8px var(--clay-shadow-dark, rgba(0,0,0,0.06)),
+                inset -4px -4px 8px var(--clay-shadow-light, rgba(255,255,255,0.7));
+    transition: box-shadow 0.3s;
   }
   .input-field::placeholder {
     color: var(--text-muted);
   }
   .input-field:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-dim);
+    box-shadow: inset 4px 4px 8px var(--clay-shadow-dark, rgba(0,0,0,0.08)),
+                inset -4px -4px 8px var(--clay-shadow-light, rgba(255,255,255,0.7)),
+                0 0 0 3px var(--accent-dim);
   }
 
   /* Section Styles */
@@ -228,6 +259,7 @@
 /* Select dropdowns */
 .dark select {
   color-scheme: dark;
+  border-radius: 16px;
 }
 .dark select option {
   background-color: #141414;
@@ -235,11 +267,17 @@
 }
 html:not(.dark) select {
   color-scheme: light;
+  border-radius: 16px;
 }
 html:not(.dark) select option {
   background-color: #F0EDE4;
   color: #1a1a1a;
 }
+
+/* Claymorphism rounded corners */
+.rounded-xl { border-radius: 16px !important; }
+.rounded-2xl { border-radius: 20px !important; }
+.rounded-3xl { border-radius: 24px !important; }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {

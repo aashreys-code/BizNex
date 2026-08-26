@@ -141,12 +141,11 @@ const stats = [
 ]
 
 const teamMembers = [
-  { name: 'Ananya Reddy', role: 'Team Lead & Developer' },
-  { name: 'Arjun Patel', role: 'AI/ML Engineer' },
-  { name: 'Deepika Nair', role: 'Frontend Developer' },
-  { name: 'Karthik Singh', role: 'Backend Developer' },
-  { name: 'Meera Joshi', role: 'UI/UX Designer' },
-  { name: 'Rajesh Kumar', role: 'Data Analyst' },
+  { name: 'S. Aashrey', role: 'Team Lead & Developer' },
+  { name: 'P. Ramcharan', role: 'AI/ML Engineer' },
+  { name: 'A. Varshitha', role: 'Frontend Developer' },
+  { name: 'A. Geetha', role: 'Backend Developer' },
+  { name: 'A. Divya', role: 'UI/UX Designer' },
 ]
 
 export default function LandingPage() {

@@ -7,15 +7,10 @@ interface CardProps {
   glow?: boolean
 }
 
-export default function Card({ children, className = '', hover = true, glow = false }: CardProps) {
+export default function Card({ children, className = '', hover = true }: CardProps) {
   return (
     <div
-      className={`
-        glass rounded-2xl p-6
-        ${hover ? 'hover:bg-white/10 transition-all duration-300' : ''}
-        ${glow ? 'hover:shadow-lg hover:shadow-primary-500/10' : ''}
-        ${className}
-      `}
+      className={`glass p-6 ${className}`}
     >
       {children}
     </div>
