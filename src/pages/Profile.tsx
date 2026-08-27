@@ -1,32 +1,120 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'motion/react'
 import {
   User, Mail, Phone, MapPin, Globe, Building2,
-  ArrowLeft, Calendar, Shield, Briefcase,
+  ArrowLeft, Calendar, Shield, Briefcase, Pencil, Save, X,
 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness } from '../contexts/BusinessContext'
 import { ScrollReveal, GlowCard } from '../components/react-bits'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import Select from '../components/ui/Select'
+
+const states = [
+  { value: 'andhra-pradesh', label: 'Andhra Pradesh' },
+  { value: 'arunachal-pradesh', label: 'Arunachal Pradesh' },
+  { value: 'assam', label: 'Assam' },
+  { value: 'bihar', label: 'Bihar' },
+  { value: 'chhattisgarh', label: 'Chhattisgarh' },
+  { value: 'goa', label: 'Goa' },
+  { value: 'gujarat', label: 'Gujarat' },
+  { value: 'haryana', label: 'Haryana' },
+  { value: 'himachal-pradesh', label: 'Himachal Pradesh' },
+  { value: 'jharkhand', label: 'Jharkhand' },
+  { value: 'karnataka', label: 'Karnataka' },
+  { value: 'kerala', label: 'Kerala' },
+  { value: 'madhya-pradesh', label: 'Madhya Pradesh' },
+  { value: 'maharashtra', label: 'Maharashtra' },
+  { value: 'manipur', label: 'Manipur' },
+  { value: 'meghalaya', label: 'Meghalaya' },
+  { value: 'mizoram', label: 'Mizoram' },
+  { value: 'nagaland', label: 'Nagaland' },
+  { value: 'odisha', label: 'Odisha' },
+  { value: 'punjab', label: 'Punjab' },
+  { value: 'rajasthan', label: 'Rajasthan' },
+  { value: 'sikkim', label: 'Sikkim' },
+  { value: 'tamil-nadu', label: 'Tamil Nadu' },
+  { value: 'telangana', label: 'Telangana' },
+  { value: 'tripura', label: 'Tripura' },
+  { value: 'uttar-pradesh', label: 'Uttar Pradesh' },
+  { value: 'uttarakhand', label: 'Uttarakhand' },
+  { value: 'west-bengal', label: 'West Bengal' },
+]
+
+const languages = [
+  { value: 'english', label: 'English' },
+  { value: 'hindi', label: 'Hindi' },
+  { value: 'telugu', label: 'Telugu' },
+  { value: 'tamil', label: 'Tamil' },
+  { value: 'kannada', label: 'Kannada' },
+  { value: 'marathi', label: 'Marathi' },
+]
 
 export default function Profile() {
-  const { profile } = useAuth()
+  const { profile, updateProfile } = useAuth()
   const { profiles, activeId } = useBusiness()
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [formData, setFormData] = useState({
+    name: profile?.name || '',
+    email: profile?.email || '',
+    mobile: profile?.mobile || '',
+    village: profile?.village || '',
+    district: profile?.district || '',
+    state: profile?.state || '',
+    language: profile?.language || '',
+  })
 
   const userName = profile?.name || 'User'
   const userInitial = userName[0]?.toUpperCase() || 'U'
 
+  function updateField(field: string, value: string) {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const { error } = await updateProfile(formData)
+      if (error) {
+        toast.error(error)
+      } else {
+        toast.success('Profile updated successfully!')
+        setEditing(false)
+      }
+    } catch {
+      toast.error('Failed to update profile')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  function handleCancel() {
+    setFormData({
+      name: profile?.name || '',
+      email: profile?.email || '',
+      mobile: profile?.mobile || '',
+      village: profile?.village || '',
+      district: profile?.district || '',
+      state: profile?.state || '',
+      language: profile?.language || '',
+    })
+    setEditing(false)
+  }
+
   const infoItems = [
-    { icon: User, label: 'Full Name', value: profile?.name || '—' },
-    { icon: Mail, label: 'Email', value: profile?.email || '—' },
-    { icon: Phone, label: 'Mobile', value: profile?.mobile || '—' },
-    { icon: MapPin, label: 'Village', value: profile?.village || '—' },
-    { icon: MapPin, label: 'District', value: profile?.district || '—' },
-    { icon: MapPin, label: 'State', value: profile?.state || '—' },
+    { icon: User, label: 'Full Name', value: profile?.name || '\u2014' },
+    { icon: Mail, label: 'Email', value: profile?.email || '\u2014' },
+    { icon: Phone, label: 'Mobile', value: profile?.mobile || '\u2014' },
+    { icon: MapPin, label: 'Village', value: profile?.village || '\u2014' },
+    { icon: MapPin, label: 'District', value: profile?.district || '\u2014' },
+    { icon: MapPin, label: 'State', value: profile?.state || '\u2014' },
     { icon: Globe, label: 'Language', value: profile?.language || 'English' },
     { icon: Shield, label: 'Role', value: profile?.role || 'user' },
-    { icon: Calendar, label: 'Member Since', value: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '—' },
+    { icon: Calendar, label: 'Member Since', value: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '\u2014' },
   ]
 
   return (
@@ -43,12 +131,33 @@ export default function Profile() {
             </Link>
             <h1 className="text-2xl font-bold text-white">My Profile</h1>
           </div>
-          <Link to="/dashboard">
-            <Button variant="secondary" size="sm">
-              <ArrowLeft size={14} />
-              Dashboard
-            </Button>
-          </Link>
+          <div className="flex gap-2">
+            {editing ? (
+              <>
+                <Button variant="secondary" size="sm" onClick={handleCancel}>
+                  <X size={14} />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSave} loading={saving}>
+                  <Save size={14} />
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
+                  <Pencil size={14} />
+                  Edit Profile
+                </Button>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">
+                    <ArrowLeft size={14} />
+                    Dashboard
+                  </Button>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </ScrollReveal>
 
@@ -73,12 +182,12 @@ export default function Profile() {
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 {profile?.district && (
                   <span className="text-xs px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
-                    📍 {profile.district}, {profile.state}
+                    {profile.district}, {profile.state}
                   </span>
                 )}
                 {profile?.role && (
                   <span className="text-xs px-2.5 py-1 rounded-full bg-moss-400/10 text-moss-400 border border-moss-400/20">
-                    {profile.role === 'admin' ? '🛡️ Admin' : '👤 User'}
+                    {profile.role === 'admin' ? 'Admin' : 'User'}
                   </span>
                 )}
                 {profiles.length > 0 && (
@@ -100,19 +209,71 @@ export default function Profile() {
             <User size={18} className="text-moss-400" />
             Personal Information
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {infoItems.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl glass">
-                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                  <item.icon size={16} className="text-gray-400" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs text-gray-500">{item.label}</p>
-                  <p className="text-sm text-white font-medium truncate">{item.value}</p>
-                </div>
+
+          {editing ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Full Name"
+                  value={formData.name}
+                  onChange={(e) => updateField('name', e.target.value)}
+                  icon={<User size={18} />}
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateField('email', e.target.value)}
+                  icon={<Mail size={18} />}
+                />
+                <Input
+                  label="Mobile Number"
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={(e) => updateField('mobile', e.target.value)}
+                  icon={<Phone size={18} />}
+                />
+                <Input
+                  label="Village"
+                  value={formData.village}
+                  onChange={(e) => updateField('village', e.target.value)}
+                  icon={<MapPin size={18} />}
+                />
+                <Input
+                  label="District"
+                  value={formData.district}
+                  onChange={(e) => updateField('district', e.target.value)}
+                  icon={<MapPin size={18} />}
+                />
+                <Select
+                  label="State"
+                  value={formData.state}
+                  onChange={(e) => updateField('state', e.target.value)}
+                  options={states}
+                />
+                <Select
+                  label="Preferred Language"
+                  value={formData.language}
+                  onChange={(e) => updateField('language', e.target.value)}
+                  options={languages}
+                />
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {infoItems.map((item, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl glass">
+                  <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                    <item.icon size={16} className="text-gray-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-500">{item.label}</p>
+                    <p className="text-sm text-white font-medium truncate">{item.value}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </Card>
       </ScrollReveal>
 
@@ -164,7 +325,7 @@ export default function Profile() {
                       )}
                     </div>
                     <p className="text-xs text-gray-500 truncate">
-                      {p.businessType} · {p.location} · ₹{p.investmentAmount.toLocaleString('en-IN')}
+                      {p.businessType} &middot; {p.location} &middot; &#8377;{p.investmentAmount.toLocaleString('en-IN')}
                     </p>
                   </div>
                 </div>

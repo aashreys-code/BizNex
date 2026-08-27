@@ -37,8 +37,8 @@ interface BusinessContextType {
   setActiveId: (id: string) => void
 }
 
-const STORAGE_KEY = 'bizpulse_business_profiles'
-const ACTIVE_KEY = 'bizpulse_active_profile'
+const STORAGE_KEY = 'biznex_business_profiles'
+const ACTIVE_KEY = 'biznex_active_profile'
 
 function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)

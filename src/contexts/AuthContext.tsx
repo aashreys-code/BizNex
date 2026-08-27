@@ -39,6 +39,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  updateProfile: (data: Partial<UserProfile>) => Promise<{ error: string | null }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -180,6 +181,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(null)
   }
 
+  async function updateProfile(data: Partial<UserProfile>) {
+    if (!user) return { error: 'Not authenticated' }
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('id', user.id)
+      if (error) return { error: error.message }
+      await refreshProfile()
+      return { error: null }
+    } catch (err) {
+      return { error: 'Failed to update profile' }
+    }
+  }
+
   const isAdmin = profile?.role === 'admin'
 
   return (
@@ -195,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signOut,
         refreshProfile,
+        updateProfile,
       }}
     >
       {children}

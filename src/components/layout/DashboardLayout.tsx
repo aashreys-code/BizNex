@@ -59,10 +59,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           {/* Logo */}
           <div className="p-4 border-b border-white/5">
             <Link to="/" className="flex items-center gap-3 group">
-              <img src="/logo.svg" alt="BizPulse Logo" className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
+              <img src="/logo.svg" alt="BizNex Logo" className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
               <span className="text-xl font-bold font-display tracking-tight">
                 <span className="text-white">Biz</span>
-                <span className="text-moss-400">Pulse</span>
+                <span className="text-moss-400">Nex</span>
               </span>
             </Link>
           </div>
@@ -104,24 +104,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             )}
           </nav>
 
-          {/* Active Profile */}
-          {profiles.length > 0 && (
-            <div className="px-3 py-2 border-t border-white/5">
-              <p className="text-xs text-gray-500 mb-2 px-1">Active Business</p>
-              <select
-                value={activeId || ''}
-                onChange={(e) => setActiveId(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-moss-400/50 cursor-pointer"
-                style={{ colorScheme: 'dark' }}
-              >
-                {profiles.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-charcoal-900">
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
 
           {/* Bottom */}
           <div className="p-3 border-t border-white/5 space-y-1">
@@ -167,6 +150,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           <div className="flex-1" />
+
+          {/* Business Switcher */}
+          {profiles.length > 0 && (
+            <select
+              value={activeId || ''}
+              onChange={(e) => setActiveId(e.target.value)}
+              className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-moss-400/50 cursor-pointer"
+              style={{ colorScheme: 'dark' }}
+            >
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id} className="bg-charcoal-900">
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          )}
 
           {/* User Dropdown */}
           <div className="relative" ref={dropdownRef}>

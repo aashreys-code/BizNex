@@ -12,10 +12,10 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-3 group">
-              <img src="/logo.svg" alt="BizPulse Logo" className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
+              <img src="/logo.svg" alt="BizNex Logo" className="w-10 h-10 rounded-xl group-hover:scale-105 transition-transform" />
               <span className="text-xl font-bold font-display tracking-tight">
                 <span className="text-white">Biz</span>
-                <span className="text-moss-400">Pulse</span>
+                <span className="text-moss-400">Nex</span>
               </span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed">
@@ -71,7 +71,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-white/5 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-sm">
-            © 2024 BizPulse. All rights reserved.
+            © 2024 BizNex. All rights reserved.
           </p>
           <p className="text-gray-600 text-sm flex items-center gap-1.5">
             Made with <Heart size={14} className="text-moss-400 fill-moss-400" /> for Rural India

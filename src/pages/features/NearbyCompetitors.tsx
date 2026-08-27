@@ -107,11 +107,11 @@ function competitorIcon(type: string) {
 function userIcon() {
   const svg = `<svg viewBox="0 0 44 52" width="42" height="48" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <filter id="ug"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.5" flood-color="#2BEE34"/></filter>
+      <filter id="ug"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.5" flood-color="#21F1A8"/></filter>
     </defs>
-    <path d="M22 50C22 50 42 30 42 19C42 8.5 33.5 0 22 0C10.5 0 2 8.5 2 19C2 30 22 50 22 50Z" fill="#2BEE34" filter="url(#ug)"/>
+    <path d="M22 50C22 50 42 30 42 19C42 8.5 33.5 0 22 0C10.5 0 2 8.5 2 19C2 30 22 50 22 50Z" fill="#21F1A8" filter="url(#ug)"/>
     <circle cx="22" cy="18" r="8" fill="#0e0e0e" opacity="0.85"/>
-    <text x="22" y="21.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#2BEE34">★</text>
+    <text x="22" y="21.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#21F1A8">★</text>
   </svg>`
   return createSvgIcon(svg, 44)
 }
@@ -315,7 +315,7 @@ export default function NearbyCompetitors() {
         doc.setPage(p)
         doc.setFontSize(7)
         doc.setTextColor(150)
-        doc.text(`BizPulse Competitor Report · Page ${p} of ${pages}`, pageW / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' })
+        doc.text(`BizNex Competitor Report · Page ${p} of ${pages}`, pageW / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' })
       }
 
       doc.save(`competitor-report-${businessType.replace(/\s+/g, '-').toLowerCase()}-${location.replace(/\s+/g, '-').toLowerCase()}.pdf`)
@@ -785,7 +785,7 @@ export default function NearbyCompetitors() {
                     {filteredPopularityComparison.map((entry, i) => (
                       <motion.rect
                         key={i}
-                        fill={entry.name === 'Your Business' ? '#2BEE34' : '#6366f1'}
+                        fill={entry.name === 'Your Business' ? '#21F1A8' : '#6366f1'}
                       />
                     ))}
                   </Bar>

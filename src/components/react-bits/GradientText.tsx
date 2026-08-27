@@ -8,7 +8,7 @@ export default function GradientText({ text, className = '' }: GradientTextProps
     <span
       className={className}
       style={{
-        background: 'linear-gradient(to right, #2BEE34, #4dff75, #1fd427)',
+        background: 'linear-gradient(to right, #5CF5C1, #21F1A8, #1AD692)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',

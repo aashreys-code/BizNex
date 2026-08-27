@@ -32,51 +32,51 @@ import Button from '../components/ui/Button'
 const features = [
   {
     icon: TrendingUp,
-    title: 'Hyper-Local Market Analysis',
+    title: 'Market Intelligence',
     description: 'Get AI-powered market demand scores, competition analysis, and revenue forecasts for your specific location.',
-    color: 'from-moss-400 to-moss-500',
+    color: 'from-tiffany-400 to-tiffany-500',
   },
   {
     icon: FileText,
-    title: 'Business Plan Generator',
+    title: 'Business Plan Builder',
     description: 'Generate comprehensive business plans with executive summaries, cost breakdowns, and growth strategies.',
-    color: 'from-moss-400 to-moss-600',
+    color: 'from-tiffany-400 to-tiffany-600',
   },
   {
     icon: Search,
-    title: 'Government Scheme Finder',
+    title: 'Scheme Discovery',
     description: 'Discover matching government schemes like PMEGP, MUDRA, Stand-Up India with eligibility scoring.',
-    color: 'from-moss-300 to-moss-400',
+    color: 'from-tiffany-300 to-tiffany-400',
   },
   {
     icon: Calculator,
-    title: 'Loan Eligibility Calculator',
+    title: 'Loan Eligibility Check',
     description: 'Calculate your loan eligibility, EMI estimates, and repayment timelines with detailed charts.',
-    color: 'from-moss-400 to-moss-500',
+    color: 'from-tiffany-400 to-tiffany-500',
   },
   {
     icon: MessageSquare,
-    title: 'Multilingual AI Assistant',
+    title: 'AI Business Advisor',
     description: 'Chat with our AI advisor in English, Hindi, Telugu, Tamil, Kannada, or Marathi with voice support.',
-    color: 'from-moss-400 to-moss-500',
+    color: 'from-tiffany-400 to-tiffany-500',
   },
   {
     icon: MapPin,
-    title: 'Local Insights Engine',
+    title: 'Local Market Insights',
     description: 'Access population data, literacy rates, demand trends, and business opportunities for your area.',
-    color: 'from-moss-300 to-moss-400',
+    color: 'from-tiffany-300 to-tiffany-400',
   },
   {
     icon: DollarSign,
-    title: 'AI Funding Advisor',
+    title: 'Funding Strategy',
     description: 'Get personalized funding structures combining self-funding, loans, subsidies, and government schemes.',
-    color: 'from-moss-400 to-moss-500',
+    color: 'from-tiffany-400 to-tiffany-500',
   },
   {
     icon: Upload,
     title: 'Document Verification',
     description: 'Upload Aadhaar, PAN, and business documents for AI-powered verification and completeness checks.',
-    color: 'from-moss-400 to-moss-500',
+    color: 'from-tiffany-400 to-tiffany-500',
   },
 ]
 
@@ -116,7 +116,7 @@ const testimonials = [
   {
     name: 'Priya Sharma',
     role: 'Women Entrepreneur, Rajasthan',
-    text: 'BizPulse helped me understand which government scheme was best for my tailoring business. I got my MUDRA loan approved in just 2 weeks!',
+    text: 'BizNex helped me understand which government scheme was best for my tailoring business. I got my MUDRA loan approved in just 2 weeks!',
     rating: 5,
   },
   {
@@ -141,11 +141,11 @@ const stats = [
 ]
 
 const teamMembers = [
-  { name: 'S. Aashrey', role: 'Team Lead & Developer' },
-  { name: 'P. Ramcharan', role: 'AI/ML Engineer' },
-  { name: 'A. Varshitha', role: 'Frontend Developer' },
-  { name: 'A. Geetha', role: 'Backend Developer' },
-  { name: 'A. Divya', role: 'UI/UX Designer' },
+  { name: 'S. Aashrey' },
+  { name: 'P. Ramcharan' },
+  { name: 'A. Varshitha' },
+  { name: 'A. Geetha' },
+  { name: 'A. Divya' },
 ]
 
 export default function LandingPage() {
@@ -153,7 +153,7 @@ export default function LandingPage() {
     <div className="bg-charcoal-950 overflow-hidden">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        <ParticlesBg particleCount={80} color="#2BEE34" />
+        <ParticlesBg particleCount={80} color="#21F1A8" />
 
         {/* Gradient Orbs */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-moss-400/10 rounded-full blur-3xl animate-liquid" />
@@ -185,16 +185,11 @@ export default function LandingPage() {
             <Link to="/register">
               <MagneticButton>
                 <Button size="lg" className="min-w-[200px]">
-                  Start Free
+                  Start Your Growth
                   <ArrowRight size={18} />
                 </Button>
               </MagneticButton>
             </Link>
-            <MagneticButton>
-              <Button variant="secondary" size="lg" className="min-w-[200px]">
-                Watch Demo
-              </Button>
-            </MagneticButton>
           </motion.div>
 
           {/* Animated Stats */}
@@ -262,7 +257,7 @@ export default function LandingPage() {
                 Our <GradientText text="Solution" />
               </h2>
               <p className="section-subtitle mx-auto">
-                BizPulse combines artificial intelligence, local market data, and multilingual support
+                BizNex combines artificial intelligence, local market data, and multilingual support
                 to provide hyper-local business advisory for rural India.
               </p>
             </div>
@@ -297,7 +292,7 @@ export default function LandingPage() {
                       <div className="w-8 h-8 rounded-lg bg-moss-400 flex items-center justify-center">
                         <MessageSquare size={16} className="text-charcoal-900" />
                       </div>
-                      <span className="font-semibold text-white">BizPulse Assistant</span>
+                      <span className="font-semibold text-white">BizNex Assistant</span>
                     </div>
                     <div className="bg-moss-400/10 rounded-xl p-3 max-w-[80%]">
                       <p className="text-sm text-gray-300">मैं अपने गांव में डेयरी फार्म शुरू करना चाहता हूं। क्या आप मेरी मदद कर सकते हैं?</p>
@@ -438,7 +433,7 @@ export default function LandingPage() {
                 Success <GradientText text="Stories" />
               </h2>
               <p className="section-subtitle mx-auto">
-                Hear from entrepreneurs who transformed their businesses with BizPulse.
+                Hear from entrepreneurs who transformed their businesses with BizNex.
               </p>
             </div>
           </ScrollReveal>
@@ -492,7 +487,7 @@ export default function LandingPage() {
                     <span className="text-2xl font-bold text-moss-400">{member.name[0]}</span>
                   </div>
                   <h4 className="text-sm font-semibold text-white">{member.name}</h4>
-                  <p className="text-xs text-gray-400">{member.role}</p>
+                  
                 </div>
               </ScrollReveal>
             ))}
@@ -517,7 +512,7 @@ export default function LandingPage() {
                   <Link to="/register">
                     <MagneticButton>
                       <Button size="lg" className="min-w-[220px]">
-                        Get Started Free
+                        Get Started
                         <ArrowRight size={18} />
                       </Button>
                     </MagneticButton>

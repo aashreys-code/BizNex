@@ -106,7 +106,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative pt-16 pb-12 px-4 bg-charcoal-950">
-      <ParticlesBg particleCount={30} color="#2BEE34" />
+      <ParticlesBg particleCount={30} color="#21F1A8" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -117,7 +117,7 @@ export default function RegisterPage() {
         <div className="glass-strong rounded-3xl p-8">
           <div className="text-center mb-8">
             <BlurText
-              text="Join BizPulse"
+              text="Join BizNex"
               className="text-3xl font-bold font-display text-white mb-2"
             />
             <p className="text-gray-400">Create your free account and start your business journey</p>

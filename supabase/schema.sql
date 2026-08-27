@@ -1,5 +1,5 @@
 -- ============================================
--- BizPulse - Supabase Database Schema
+-- BizNex - Supabase Database Schema
 -- ============================================
 
 -- Enable UUID extension

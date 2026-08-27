@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative pt-16 pb-12 px-4 bg-charcoal-950">
-      <ParticlesBg particleCount={30} color="#2BEE34" />
+      <ParticlesBg particleCount={30} color="#21F1A8" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -51,7 +51,7 @@ export default function LoginPage() {
               text="Welcome Back"
               className="text-3xl font-bold font-display text-white mb-2"
             />
-            <p className="text-gray-400">Sign in to your BizPulse account</p>
+            <p className="text-gray-400">Sign in to your BizNex account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

@@ -383,7 +383,7 @@ export async function chatWithAI(
   messages: ChatMessage[],
   language = 'English'
 ): Promise<string> {
-  const systemPrompt = `You are BizPulse, a friendly and knowledgeable business advisor for rural Indian entrepreneurs. 
+  const systemPrompt = `You are BizNex, a friendly and knowledgeable business advisor for rural Indian entrepreneurs. 
 You help with business ideas, government schemes, loan guidance, and market insights.
 Respond in ${language}. Be helpful, encouraging, and provide practical advice.
 Keep responses concise but informative. Use simple language.`
@@ -422,7 +422,7 @@ Keep responses concise but informative. Use simple language.`
 4. **PM SVANidhi** – ₹50,000 working capital for street vendors
 5. **CGTMSE** – Collateral-free loans up to ₹5 crore
 
-Visit the **Scheme Finder** feature in BizPulse to check which ones you're eligible for based on your profile! 🎯`
+Visit the **Scheme Finder** feature in BizNex to check which ones you're eligible for based on your profile! 🎯`
     }
     
     if (lastMsg.includes('business') || lastMsg.includes('idea') || lastMsg.includes('start')) {
@@ -443,7 +443,7 @@ What type of business interests you? I can help you plan it out! 🚀`
     }
     
     if (lastMsg.includes('hello') || lastMsg.includes('hi') || lastMsg.includes('namaste')) {
-      return `Namaste! 🙏 Welcome to BizPulse!
+      return `Namaste! 🙏 Welcome to BizNex!
 
 I'm here to help you with:
 • 💡 Business ideas and planning

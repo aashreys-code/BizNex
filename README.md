@@ -1,4 +1,4 @@
-# BizPulse 🌾
+# BizNex 🌾
 
 **Hyper-Local Business Advisory & Financial Structuring Assistant for Rural India**
 
@@ -22,7 +22,7 @@ Rural India has 63 million MSMEs, but most lack access to:
 
 ## 💡 Our Solution
 
-BizPulse is an AI-driven multilingual platform that acts as a **virtual business consultant** for:
+BizNex is an AI-driven multilingual platform that acts as a **virtual business consultant** for:
 - Rural micro-entrepreneurs
 - Self-Help Groups (SHGs)
 - Women entrepreneurs
@@ -82,7 +82,7 @@ BizPulse is an AI-driven multilingual platform that acts as a **virtual business
 ## 📁 Project Structure
 
 ```
-bizpulse/
+biznex/
 ├── public/
 │   └── favicon.svg
 ├── src/
@@ -162,8 +162,8 @@ bizpulse/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-team/bizpulse.git
-cd bizpulse
+git clone https://github.com/your-team/biznex.git
+cd biznex
 ```
 
 2. **Install dependencies**

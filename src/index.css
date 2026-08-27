@@ -4,32 +4,32 @@
 
 @layer base {
   :root {
-    --bg-primary: #0e0e0e;
-    --bg-secondary: #141414;
-    --bg-card: #1a1a1a;
+    --bg-primary: #171717;
+    --bg-secondary: #1E1E1E;
+    --bg-card: #232323;
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
     --border: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.15);
-    --accent: #2BEE34;
-    --accent-dim: rgba(43, 238, 52, 0.1);
+    --accent: #21F1A8;
+    --accent-dim: rgba(33, 241, 168, 0.1);
     --shadow: rgba(0, 0, 0, 0.37);
     --clay-shadow-dark: rgba(0, 0, 0, 0.4);
     --clay-shadow-light: rgba(255, 255, 255, 0.05);
   }
 
   .dark {
-    --bg-primary: #0e0e0e;
-    --bg-secondary: #141414;
-    --bg-card: #1a1a1a;
+    --bg-primary: #171717;
+    --bg-secondary: #1E1E1E;
+    --bg-card: #232323;
     --text-primary: #f3f4f6;
     --text-secondary: #9ca3af;
     --text-muted: #6b7280;
     --border: rgba(255, 255, 255, 0.08);
     --border-strong: rgba(255, 255, 255, 0.15);
-    --accent: #2BEE34;
-    --accent-dim: rgba(43, 238, 52, 0.1);
+    --accent: #21F1A8;
+    --accent-dim: rgba(33, 241, 168, 0.1);
     --shadow: rgba(0, 0, 0, 0.37);
     --clay-shadow-dark: rgba(0, 0, 0, 0.5);
     --clay-shadow-light: rgba(255, 255, 255, 0.03);
@@ -126,7 +126,7 @@
 
   /* Gradient Text */
   .gradient-text {
-    background: linear-gradient(to right, #2BEE34, #4dff75, #1fd427);
+    background: linear-gradient(to right, #5CF5C1, #21F1A8, #1AD692);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -242,7 +242,7 @@
   /* Liquid Accent Line */
   .liquid-line {
     height: 2px;
-    background: linear-gradient(to right, transparent, #2BEE34, transparent);
+    background: linear-gradient(to right, transparent, #21F1A8, transparent);
   }
 
   /* Moss Glow Dot */
@@ -250,9 +250,9 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 9999px;
-    background: #2BEE34;
-    box-shadow: 0 0 10px rgba(43, 238, 52, 0.5),
-                0 0 20px rgba(43, 238, 52, 0.3);
+    background: #21F1A8;
+    box-shadow: 0 0 10px rgba(33, 241, 168, 0.5),
+                0 0 20px rgba(33, 241, 168, 0.3);
   }
 }
 

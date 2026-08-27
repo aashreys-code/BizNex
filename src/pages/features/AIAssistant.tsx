@@ -37,7 +37,7 @@ export default function AIAssistant() {
     {
       id: '1',
       role: 'assistant',
-      content: `Namaste! 🙏 I'm your BizPulse assistant. I can help you with:\n\n• Business ideas and feasibility\n• Government scheme information\n• Loan guidance and eligibility\n• Market insights for your area\n\nHow can I help you today?`,
+      content: `Namaste! 🙏 I'm your BizNex assistant. I can help you with:\n\n• Business ideas and feasibility\n• Government scheme information\n• Loan guidance and eligibility\n• Market insights for your area\n\nHow can I help you today?`,
       timestamp: new Date(),
     },
   ])
