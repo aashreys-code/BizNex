@@ -34,14 +34,14 @@ BizNex is an AI-driven multilingual platform that acts as a **virtual business c
 
 | Feature | Description |
 |---------|-------------|
-| 🏪 **Hyper-Local Market Analysis** | AI-powered market demand scoring, competition analysis, and revenue forecasts |
-| 📋 **Business Plan Generator** | Comprehensive plans with executive summaries, cost breakdowns, and growth strategies |
-| 🏛️ **Government Scheme Finder** | Smart matching with 50+ schemes (PMEGP, MUDRA, Stand-Up India, etc.) |
-| 💰 **Loan Eligibility Calculator** | EMI estimates, repayment schedules, and bank comparisons |
-| 🤖 **Multilingual AI Assistant** | Business guidance in English, Hindi, Telugu, Tamil, Kannada, Marathi |
-| 🗺️ **Local Insights Engine** | Population data, literacy rates, demand trends, and opportunities |
-| 💵 **AI Funding Advisor** | Personalized funding structures combining loans, subsidies, and self-funding |
-| 📄 **Document Verification** | AI-powered document checking and completeness verification |
+| **Market Intelligence** | AI-powered market demand scoring, competition analysis, and revenue forecasts |
+| **Business Plan Builder** | Comprehensive plans with executive summaries, cost breakdowns, and growth strategies |
+| **Scheme Discovery** | Smart matching with 50+ schemes (PMEGP, MUDRA, Stand-Up India, etc.) |
+| **Loan Eligibility Check** | EMI estimates, repayment schedules, and bank comparisons |
+| **AI Business Advisor** | Business guidance in English, Hindi, Telugu, Tamil, Kannada, Marathi |
+| **Local Market Insights** | Population data, literacy rates, demand trends, and opportunities |
+| **Funding Strategy** | Personalized funding structures combining loans, subsidies, and self-funding |
+| **Document Verification** | AI-powered document checking and completeness verification |
 
 ---
 
