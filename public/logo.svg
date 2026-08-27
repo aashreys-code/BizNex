@@ -1,41 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="lineGrad" x1="60" y1="420" x2="440" y2="60" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0099FF"/>
-      <stop offset="1" stop-color="#00D4FF"/>
+    <linearGradient id="line1" x1="60" y1="420" x2="430" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#21F1A8"/>
+      <stop offset="1" stop-color="#5CF5C1"/>
     </linearGradient>
-    <linearGradient id="arrowGrad" x1="340" y1="160" x2="440" y2="50" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0099FF"/>
-      <stop offset="1" stop-color="#00D4FF"/>
+    <linearGradient id="line2" x1="60" y1="420" x2="430" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1AD692"/>
+      <stop offset="1" stop-color="#21F1A8"/>
     </linearGradient>
+    <linearGradient id="arrow" x1="350" y1="160" x2="440" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#21F1A8"/>
+      <stop offset="1" stop-color="#5CF5C1"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
   </defs>
 
-  <!-- Zigzag growth line -->
-  <path
-    d="M70 400 L150 260 L250 320 L340 140 L430 60"
-    stroke="url(#lineGrad)"
-    stroke-width="32"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    fill="none"
-  />
+  <g filter="url(#shadow)">
+    <!-- Back ribbon line (slightly offset) -->
+    <path
+      d="M80 390 L165 255 L265 310 L355 135 L425 65"
+      stroke="url(#line2)"
+      stroke-width="26"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+      opacity="0.7"
+    />
 
-  <!-- Arrow head -->
-  <path
-    d="M430 60 L370 60 L430 0 Z"
-    fill="url(#arrowGrad)"
-  />
+    <!-- Front ribbon line -->
+    <path
+      d="M65 410 L150 275 L250 330 L340 155 L430 75"
+      stroke="url(#line1)"
+      stroke-width="26"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
 
-  <!-- Data point dots -->
-  <circle cx="70" cy="400" r="16" fill="#0099FF"/>
-  <circle cx="70" cy="400" r="8" fill="#00D4FF" opacity="0.6"/>
+    <!-- Arrow head (filled triangle) -->
+    <path
+      d="M430 75 L370 75 L430 15 Z"
+      fill="url(#arrow)"
+    />
 
-  <circle cx="150" cy="260" r="16" fill="#0099FF"/>
-  <circle cx="150" cy="260" r="8" fill="#00D4FF" opacity="0.6"/>
+    <!-- Data point dots on front line -->
+    <circle cx="65" cy="410" r="14" fill="#21F1A8"/>
+    <circle cx="65" cy="410" r="7" fill="#14A874"/>
 
-  <circle cx="250" cy="320" r="16" fill="#0099FF"/>
-  <circle cx="250" cy="320" r="8" fill="#00D4FF" opacity="0.6"/>
+    <circle cx="150" cy="275" r="14" fill="#21F1A8"/>
+    <circle cx="150" cy="275" r="7" fill="#14A874"/>
 
-  <circle cx="340" cy="140" r="16" fill="#00AAFF"/>
-  <circle cx="340" cy="140" r="8" fill="#00D4FF" opacity="0.6"/>
+    <circle cx="250" cy="330" r="14" fill="#21F1A8"/>
+    <circle cx="250" cy="330" r="7" fill="#14A874"/>
+
+    <circle cx="340" cy="155" r="14" fill="#21F1A8"/>
+    <circle cx="340" cy="155" r="7" fill="#14A874"/>
+  </g>
 </svg>
