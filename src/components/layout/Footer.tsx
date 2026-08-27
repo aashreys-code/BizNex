@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Heart, Github, Twitter, Linkedin, Mail } from 'lucide-react'
+import { useTheme } from '../../contexts/ThemeContext'
 
 export default function Footer() {
+  const { isDark } = useTheme()
   return (
     <footer className="bg-charcoal-950 border-t border-white/5 relative overflow-hidden">
       {/* Subtle moss glow */}
@@ -12,7 +14,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-3 group">
-              <img src="/logo.svg" alt="BizNex Logo" className="w-10 h-10 group-hover:scale-105 transition-transform" />
+              <img src={isDark ? '/logo-dark.svg' : '/logo-light.svg'} alt="BizNex Logo" className="w-10 h-10 group-hover:scale-105 transition-transform" />
               <span className="text-xl font-bold font-display tracking-tight">
                 <span className="text-white">Biz</span>
                 <span className="text-moss-400">Nex</span>
