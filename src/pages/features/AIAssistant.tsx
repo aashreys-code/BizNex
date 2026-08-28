@@ -4,8 +4,7 @@ import { MessageSquare, Send, Mic, Volume2, Globe, Loader2 } from 'lucide-react'
 import { chatWithAI } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
-import Card from '../../components/ui/Card'
+import { ScrollReveal } from '../../components/react-bits'
 
 interface Message {
   id: string
@@ -37,7 +36,7 @@ export default function AIAssistant() {
     {
       id: '1',
       role: 'assistant',
-      content: `Namaste! 🙏 I'm your BizNex assistant. I can help you with:\n\n• Business ideas and feasibility\n• Government scheme information\n• Loan guidance and eligibility\n• Market insights for your area\n\nHow can I help you today?`,
+      content: `Namaste! I'm your BizNex assistant. I can help you with:\n\n• Business ideas and feasibility\n• Government scheme information\n• Loan guidance and eligibility\n• Market insights for your area\n\nHow can I help you today?`,
       timestamp: new Date(),
     },
   ])
@@ -104,29 +103,22 @@ export default function AIAssistant() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
+    <div className="space-y-4 max-w-3xl mx-auto h-[calc(100vh-7rem)] flex flex-col">
       <ScrollReveal>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-              <MessageSquare size={24} className="text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">AI Assistant</h1>
-              <p className="text-gray-400 text-sm">Multilingual business advisor</p>
-            </div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>AI Assistant</h1>
+            <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Multilingual business advisor</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Globe size={16} className="text-gray-400" />
+          <div className="flex items-center gap-1.5">
+            <Globe size={14} style={{ color: 'var(--text-muted)' }} />
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-primary-500/50"
+              className="input-field text-xs py-1.5 px-2.5 max-w-[120px]"
             >
               {languages.map((lang) => (
-                <option key={lang.code} value={lang.code} className="bg-charcoal-900">
-                  {lang.label}
-                </option>
+                <option key={lang.code} value={lang.code}>{lang.label}</option>
               ))}
             </select>
           </div>
@@ -135,12 +127,15 @@ export default function AIAssistant() {
 
       {/* Quick Prompts */}
       {messages.length <= 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {quickPrompts.map((prompt, i) => (
             <button
               key={i}
               onClick={() => handleSend(prompt)}
-              className="text-sm px-3 py-1.5 rounded-full glass hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+              className="text-xs px-2.5 py-1.5 rounded-lg transition-colors"
+              style={{ background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-bright)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
             >
               {prompt}
             </button>
@@ -149,29 +144,30 @@ export default function AIAssistant() {
       )}
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
         {messages.map((msg) => (
           <motion.div
             key={msg.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[80%] rounded-2xl p-4 ${
-                msg.role === 'user'
-                  ? 'bg-primary-500/20 border border-primary-500/20'
-                  : 'glass'
-              }`}
+              className="max-w-[80%] rounded-lg p-3"
+              style={{
+                background: msg.role === 'user' ? 'var(--accent)' : 'var(--bg-card)',
+                color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
+                border: msg.role === 'user' ? 'none' : '1px solid var(--border)',
+              }}
             >
-              <p className="text-sm text-gray-200 whitespace-pre-wrap">{msg.content}</p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-gray-500">
+              <p className="text-sm whitespace-pre-wrap" style={{ color: msg.role === 'user' ? 'white' : 'var(--text-primary)' }}>{msg.content}</p>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-[10px]" style={{ color: msg.role === 'user' ? 'rgba(255,255,255,0.6)' : 'var(--text-muted)' }}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
                 {msg.role === 'assistant' && (
-                  <button className="text-gray-500 hover:text-primary-400 transition-colors">
-                    <Volume2 size={12} />
+                  <button style={{ color: 'var(--text-muted)' }} className="hover:opacity-80 transition-opacity">
+                    <Volume2 size={11} />
                   </button>
                 )}
               </div>
@@ -181,10 +177,10 @@ export default function AIAssistant() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="glass rounded-2xl p-4">
-              <div className="flex items-center gap-2">
-                <Loader2 size={16} className="text-primary-400 animate-spin" />
-                <span className="text-sm text-gray-400">Thinking...</span>
+            <div className="card p-3">
+              <div className="flex items-center gap-1.5">
+                <Loader2 size={14} className="animate-spin" style={{ color: 'var(--accent-bright)' }} />
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Thinking...</span>
               </div>
             </div>
           </div>
@@ -194,25 +190,27 @@ export default function AIAssistant() {
       </div>
 
       {/* Input */}
-      <div className="glass rounded-2xl p-3">
+      <div className="card p-2.5">
         <div className="flex items-end gap-2">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={`Type your message in ${language}...`}
-            className="flex-1 bg-transparent text-white placeholder-gray-500 resize-none focus:outline-none max-h-32 text-sm"
+            className="flex-1 bg-transparent resize-none focus:outline-none max-h-24 text-sm"
+            style={{ color: 'var(--text-primary)' }}
             rows={1}
           />
-          <button className="p-2 text-gray-400 hover:text-primary-400 transition-colors">
-            <Mic size={20} />
+          <button style={{ color: 'var(--text-muted)' }} className="p-1.5 hover:opacity-80 transition-opacity">
+            <Mic size={18} />
           </button>
           <button
             onClick={() => handleSend()}
             disabled={!input.trim() || loading}
-            className="p-2 bg-primary-500 rounded-xl text-white hover:bg-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 rounded-lg text-white transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: 'var(--accent)' }}
           >
-            <Send size={20} />
+            <Send size={16} />
           </button>
         </div>
       </div>

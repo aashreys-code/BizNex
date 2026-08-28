@@ -7,7 +7,7 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness } from '../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../components/react-bits'
+import { ScrollReveal } from '../components/react-bits'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -118,7 +118,7 @@ export default function Profile() {
   ]
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <ScrollReveal>
         <div className="flex items-center justify-between">
@@ -167,8 +167,9 @@ export default function Profile() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
             <div className="relative">
-              <div className="w-24 h-24 rounded-2xl bg-moss-400/20 border-2 border-moss-400/30 flex items-center justify-center">
-                <span className="text-4xl font-bold text-moss-400 font-display">{userInitial}</span>
+              <div className="w-20 h-20 rounded-xl flex items-center justify-center"
+                style={{ background: 'var(--accent-dim)', border: '2px solid var(--accent-bright)' }}>
+                <span className="text-3xl font-bold" style={{ color: 'var(--accent-bright)' }}>{userInitial}</span>
               </div>
               <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-green-500 border-2 border-charcoal-900 flex items-center justify-center">
                 <div className="w-2 h-2 rounded-full bg-white" />
@@ -177,21 +178,21 @@ export default function Profile() {
 
             {/* Info */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-2xl font-bold text-white mb-1">{userName}</h2>
-              <p className="text-gray-400 text-sm mb-3">{profile?.email}</p>
-              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              <h2 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{userName}</h2>
+              <p className="text-sm mb-2.5" style={{ color: 'var(--text-secondary)' }}>{profile?.email}</p>
+              <div className="flex flex-wrap gap-1.5 justify-center sm:justify-start">
                 {profile?.district && (
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-white/5 text-gray-300 border border-white/10">
+                  <span className="badge" style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                     {profile.district}, {profile.state}
                   </span>
                 )}
                 {profile?.role && (
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-moss-400/10 text-moss-400 border border-moss-400/20">
+                  <span className="badge badge-accent">
                     {profile.role === 'admin' ? 'Admin' : 'User'}
                   </span>
                 )}
                 {profiles.length > 0 && (
-                  <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <span className="badge badge-info">
                     <Briefcase size={10} className="inline mr-1" />
                     {profiles.length} Business{profiles.length !== 1 ? 'es' : ''}
                   </span>
@@ -204,9 +205,8 @@ export default function Profile() {
 
       {/* Personal Information */}
       <ScrollReveal delay={0.1}>
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <User size={18} className="text-moss-400" />
+        <Card className="p-6">            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+            <User size={16} style={{ color: 'var(--accent-bright)' }} />
             Personal Information
           </h3>
 
@@ -262,13 +262,14 @@ export default function Profile() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {infoItems.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl glass">
-                  <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
-                    <item.icon size={16} className="text-gray-400" />
+                <div key={i} className="flex items-center gap-2.5 p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
+                    style={{ background: 'var(--accent-dim)' }}>
+                    <item.icon size={14} style={{ color: 'var(--accent-bright)' }} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs text-gray-500">{item.label}</p>
-                    <p className="text-sm text-white font-medium truncate">{item.value}</p>
+                    <p className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
+                    <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>{item.value}</p>
                   </div>
                 </div>
               ))}
@@ -281,8 +282,8 @@ export default function Profile() {
       <ScrollReveal delay={0.15}>
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Building2 size={18} className="text-moss-400" />
+            <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <Building2 size={16} style={{ color: 'var(--accent-bright)' }} />
               My Businesses
             </h3>
             <Link to="/business-profile">
@@ -293,8 +294,8 @@ export default function Profile() {
           </div>
           {profiles.length === 0 ? (
             <div className="text-center py-8">
-              <Building2 size={32} className="text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400 text-sm mb-3">No business profiles yet</p>
+              <Building2 size={28} style={{ color: 'var(--text-muted)' }} className="mx-auto mb-2" />
+              <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>No business profiles yet</p>
               <Link to="/business-profile">
                 <Button size="sm">Create One</Button>
               </Link>
@@ -304,28 +305,25 @@ export default function Profile() {
               {profiles.map((p) => (
                 <div
                   key={p.id}
-                  className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                    activeId === p.id
-                      ? 'bg-moss-400/5 border border-moss-400/20'
-                      : 'glass'
-                  }`}
+                  className="flex items-center gap-3 p-3 rounded-lg transition-all"
+                  style={{
+                    background: activeId === p.id ? 'var(--accent-dim)' : 'var(--bg-surface)',
+                    border: activeId === p.id ? '1px solid var(--accent-bright)' : '1px solid var(--border)',
+                  }}
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                    activeId === p.id
-                      ? 'bg-moss-400/20 text-moss-400'
-                      : 'bg-white/5 text-gray-400'
-                  }`}>
-                    <Building2 size={18} />
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: activeId === p.id ? 'var(--accent-dim)' : 'var(--bg-card)' }}>
+                    <Building2 size={16} style={{ color: activeId === p.id ? 'var(--accent-bright)' : 'var(--text-muted)' }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-white truncate">{p.name}</p>
+                      <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
                       {activeId === p.id && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-moss-400/20 text-moss-400">Active</span>
+                        <span className="badge badge-success">Active</span>
                       )}
                     </div>
-                    <p className="text-xs text-gray-500 truncate">
-                      {p.businessType} &middot; {p.location} &middot; &#8377;{p.investmentAmount.toLocaleString('en-IN')}
+                    <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>
+                      {p.businessType} · {p.location} · ₹{p.investmentAmount.toLocaleString('en-IN')}
                     </p>
                   </div>
                 </div>

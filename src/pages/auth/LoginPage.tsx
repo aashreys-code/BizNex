@@ -4,7 +4,6 @@ import { motion } from 'motion/react'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
-import { BlurText, ParticlesBg } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 
@@ -36,24 +35,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative pt-16 pb-12 px-4 bg-charcoal-950">
-      <ParticlesBg particleCount={30} color="#21F1A8" />
-
+    <div className="min-h-screen flex items-center justify-center relative pt-14 pb-12 px-4" style={{ background: 'var(--bg-primary)' }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md relative z-10"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-sm relative z-10"
       >
-        <div className="glass-strong rounded-3xl p-8">
-          <div className="text-center mb-8">
-            <BlurText
-              text="Welcome Back"
-              className="text-3xl font-bold font-display text-white mb-2"
-            />
-            <p className="text-gray-400">Sign in to your BizNex account</p>
-          </div>
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Welcome back
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Sign in to your BizNex account</p>
+        </div>
 
+        <div className="surface-elevated p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email"
@@ -61,7 +57,7 @@ export default function LoginPage() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              icon={<Mail size={18} />}
+              icon={<Mail size={16} />}
               required
             />
 
@@ -72,15 +68,19 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                icon={<Lock size={18} />}
+                icon={<Lock size={16} />}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-300"
+                className="absolute right-3 top-[38px] transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
@@ -88,15 +88,15 @@ export default function LoginPage() {
               Sign In
             </Button>
           </form>
+        </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium">
-                Sign Up
-              </Link>
-            </p>
-          </div>
+        <div className="mt-5 text-center">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Don't have an account?{' '}
+            <Link to="/register" className="font-semibold" style={{ color: 'var(--accent-bright)' }}>
+              Sign Up
+            </Link>
+          </p>
         </div>
       </motion.div>
     </div>

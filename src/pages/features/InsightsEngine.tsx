@@ -8,7 +8,7 @@ import {
 import { getInsights } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
@@ -26,7 +26,7 @@ interface InsightData {
   digitalAdoption: string
 }
 
-const COLORS = ['#22c55e', '#f97316', '#3b82f6', '#8b5cf6']
+const PIE_COLORS = ['var(--accent-bright)', 'var(--info)', 'var(--warning)']
 
 export default function InsightsEngine() {
   const { profile } = useAuth()
@@ -63,49 +63,41 @@ export default function InsightsEngine() {
       ]
     : []
 
+  const tooltipStyle = {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border-strong)',
+    borderRadius: '8px',
+    fontSize: '12px',
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
-            <MapPin size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Hyper-Local Insights Engine</h1>
-            <p className="text-gray-400 text-sm">Discover data-driven insights about your area</p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Insights</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover data-driven insights about your area</p>
         </div>
       </ScrollReveal>
 
-      {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button
-          onClick={() => setShowEdit(!showEdit)}
-          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={14} />
-          {showEdit ? 'Hide' : 'Edit Location'}
-          {showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Location'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
-
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="flex gap-4 items-end">
+            <Card className="p-5">
+              <div className="flex gap-3 items-end">
                 <div className="flex-1">
-                  <Input
-                    label="Location"
-                    placeholder="e.g., Anantapur, Andhra Pradesh"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    icon={<MapPin size={18} />}
-                  />
+                  <Input label="Location" placeholder="e.g., Anantapur, Andhra Pradesh" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
                 </div>
                 <Button onClick={() => { setLoading(true); getInsights(location).then(d => { setResult(d); setLoading(false) }).catch(() => setLoading(false)) }} loading={loading}>
-                  <MapPin size={18} />
-                  Refresh
+                  <MapPin size={16} />Refresh
                 </Button>
               </div>
             </Card>
@@ -113,51 +105,47 @@ export default function InsightsEngine() {
         )}
       </AnimatePresence>
 
-      {/* Results */}
       {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
-          {/* Key Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Users, label: 'Population', value: result.population, color: 'text-primary-400' },
-              { icon: BookOpen, label: 'Literacy Rate', value: result.literacyRate, color: 'text-blue-400' },
-              { icon: TrendingUp, label: 'Infra Score', value: `${result.infrastructureScore}/10`, color: 'text-accent-400' },
-              { icon: Building2, label: 'Digital Adoption', value: result.digitalAdoption, color: 'text-purple-400' },
-            ].map((stat, i) => (
-              <GlowCard key={i} className="text-center p-4">
-                <stat.icon size={24} className={`mx-auto mb-2 ${stat.color}`} />
-                <p className="text-xs text-gray-400 mb-1">{stat.label}</p>
-                <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
-              </GlowCard>
-            ))}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+          {/* Location Header */}
+          <div className="card p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <MapPin size={16} style={{ color: 'var(--accent-bright)' }} />
+              <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{location}</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { icon: Users, label: 'Population', value: result.population },
+                { icon: BookOpen, label: 'Literacy Rate', value: result.literacyRate },
+                { icon: TrendingUp, label: 'Infra Score', value: `${result.infrastructureScore}/10` },
+                { icon: Building2, label: 'Digital Adoption', value: result.digitalAdoption },
+              ].map((stat, i) => (
+                <div key={i} className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <stat.icon size={16} className="mx-auto mb-1" style={{ color: 'var(--accent-bright)' }} />
+                  <p className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>{stat.label}</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{stat.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Demand Trends</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Local Demand Trends</h3>
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={result.demandTrends.map(d => ({
                   category: d.category.split(' ').slice(0, 2).join(' '),
                   score: d.trend === 'growing' ? 80 : d.trend === 'stable' ? 50 : 20,
                   trend: d.trend,
                 }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="category" stroke="#64748b" fontSize={11} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="category" stroke="var(--text-muted)" fontSize={10} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="score" radius={[3, 3, 0, 0]}>
                     {result.demandTrends.map((d, i) => (
-                      <Cell
-                        key={i}
-                        fill={d.trend === 'growing' ? '#22c55e' : d.trend === 'stable' ? '#f97316' : '#ef4444'}
-                      />
+                      <Cell key={i} fill={d.trend === 'growing' ? 'var(--success)' : d.trend === 'stable' ? 'var(--warning)' : 'var(--danger)'} opacity={0.8} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -165,58 +153,51 @@ export default function InsightsEngine() {
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Employment Statistics</h3>
-              <ResponsiveContainer width="100%" height={300}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Employment Distribution</h3>
+              <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie
-                    data={employmentData}
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={55}
-                    outerRadius={90}
-                    dataKey="value"
-                    labelLine={false}
-                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, value }) => {
+                  <Pie data={employmentData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" labelLine={false}
+                    label={({ cx, cy, midAngle, outerRadius, name, value }) => {
                       const RADIAN = Math.PI / 180
-                      const radius = outerRadius + 20
+                      const radius = outerRadius + 14
                       const x = cx + radius * Math.cos(-midAngle * RADIAN)
                       const y = cy + radius * Math.sin(-midAngle * RADIAN)
                       return (
-                        <text x={x} y={y} fill="#d1d5db" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+                        <text x={x} y={y} fill="var(--text-secondary)" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
                           {`${name} ${value}%`}
                         </text>
                       )
                     }}
                   >
                     {employmentData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  />
+                  <Tooltip contentStyle={tooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
           </div>
 
           {/* Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3">Major Industries</h3>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Major Industries</h3>
+              <div className="flex flex-wrap gap-1.5">
                 {result.majorIndustries.map((industry, i) => (
-                  <span key={i} className="text-sm px-3 py-1 rounded-full glass text-gray-300">
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-md"
+                    style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                     {industry}
                   </span>
                 ))}
               </div>
             </Card>
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3">Nearby Markets</h3>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Nearby Markets</h3>
+              <div className="flex flex-wrap gap-1.5">
                 {result.nearbyMarkets.map((market, i) => (
-                  <span key={i} className="text-sm px-3 py-1 rounded-full glass text-gray-300">
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-md"
+                    style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                     {market}
                   </span>
                 ))}
@@ -225,31 +206,32 @@ export default function InsightsEngine() {
           </div>
 
           <Card>
-            <h3 className="text-lg font-semibold text-white mb-3">Top Business Opportunities</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Top Business Opportunities</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {result.topBusinessOpportunities.map((opp, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-xl glass">
-                  <div className="w-8 h-8 rounded-lg bg-primary-500/20 flex items-center justify-center text-primary-400 font-bold text-sm">
+                <div key={i} className="flex items-center gap-2.5 p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0"
+                    style={{ background: 'var(--accent-dim)', color: 'var(--accent-bright)' }}>
                     {i + 1}
                   </div>
-                  <span className="text-sm text-gray-300">{opp}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{opp}</span>
                 </div>
               ))}
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-lg font-semibold text-white mb-2">Agricultural Profile</h3>
-            <p className="text-gray-300 text-sm">{result.agriculturalProfile}</p>
+            <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Agricultural Profile</h3>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{result.agriculturalProfile}</p>
           </Card>
         </motion.div>
       )}
 
       {loading && (
-        <Card className="p-12 text-center">
-          <Loader2 size={48} className="text-teal-400 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Gathering Insights...</h3>
-          <p className="text-gray-400">Analyzing data for your location.</p>
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Gathering Insights...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing data for your location.</p>
         </Card>
       )}
     </div>

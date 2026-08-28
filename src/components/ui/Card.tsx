@@ -10,7 +10,7 @@ interface CardProps {
 export default function Card({ children, className = '', hover = true }: CardProps) {
   return (
     <div
-      className={`glass p-6 ${className}`}
+      className={`card ${hover ? 'card-interactive' : ''} ${className}`}
     >
       {children}
     </div>

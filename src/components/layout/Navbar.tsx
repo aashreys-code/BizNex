@@ -15,32 +15,52 @@ export default function Navbar() {
   const isLanding = location.pathname === '/'
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-dark">
+    <nav
+      className="fixed top-0 left-0 right-0 z-50"
+      style={{
+        background: isDark ? 'rgba(20, 20, 20, 0.9)' : 'rgba(240, 237, 228, 0.9)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: '1px solid var(--border)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <img src={isDark ? '/logo-dark.svg' : '/logo-light.svg'} alt="BizNex Logo" className="w-10 h-10 group-hover:scale-105 transition-transform" />
-            <span className="text-xl font-bold font-display tracking-tight">
-              <span className="text-white">Biz</span>
-              <span className="text-moss-400">Nex</span>
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <img src={isDark ? '/logo-dark.svg' : '/logo-light.svg'} alt="BizNex" className="w-8 h-8 group-hover:scale-105 transition-transform" />
+            <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+              <span style={{ color: 'var(--text-primary)' }}>Biz</span>
+              <span style={{ color: 'var(--accent-bright)' }}>Nex</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {isLanding && (
               <>
-                <a href="#features" className="text-gray-400 hover:text-moss-400 transition-colors text-sm font-medium">
+                <a href="#features" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
+                >
                   Features
                 </a>
-                <a href="#how-it-works" className="text-gray-400 hover:text-moss-400 transition-colors text-sm font-medium">
+                <a href="#how-it-works" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
+                >
                   How It Works
                 </a>
-                <a href="#schemes" className="text-gray-400 hover:text-moss-400 transition-colors text-sm font-medium">
+                <a href="#schemes" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
+                >
                   Schemes
                 </a>
-                <a href="#team" className="text-gray-400 hover:text-moss-400 transition-colors text-sm font-medium">
+                <a href="#team" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
+                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
+                >
                   Team
                 </a>
               </>
@@ -48,13 +68,17 @@ export default function Navbar() {
 
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-400 hover:text-moss-400"
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              aria-label="Toggle theme"
             >
               {isDark ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm">
                     <LayoutDashboard size={16} />
@@ -63,13 +87,17 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={signOut}
-                  className="p-2 rounded-lg hover:bg-white/5 transition-colors text-gray-400 hover:text-red-400"
+                  className="p-1.5 rounded-lg transition-colors"
+                  style={{ color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--danger)'; (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.08)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                  aria-label="Sign out"
                 >
                   <LogOut size={18} />
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
                     Sign In
@@ -87,9 +115,11 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-white/5 text-gray-400"
+            className="md:hidden p-1.5 rounded-lg"
+            style={{ color: 'var(--text-muted)' }}
+            aria-label="Toggle menu"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
@@ -101,23 +131,16 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass-dark border-t border-white/5"
+            className="md:hidden"
+            style={{ background: isDark ? 'rgba(20, 20, 20, 0.98)' : 'rgba(240, 237, 228, 0.98)', borderTop: '1px solid var(--border)' }}
           >
-            <div className="px-4 py-4 space-y-3">
+            <div className="px-4 py-3 space-y-2">
               {isLanding && (
                 <>
-                  <a href="#features" className="block text-gray-300 hover:text-moss-400 py-2" onClick={() => setIsOpen(false)}>
-                    Features
-                  </a>
-                  <a href="#how-it-works" className="block text-gray-300 hover:text-moss-400 py-2" onClick={() => setIsOpen(false)}>
-                    How It Works
-                  </a>
-                  <a href="#schemes" className="block text-gray-300 hover:text-moss-400 py-2" onClick={() => setIsOpen(false)}>
-                    Schemes
-                  </a>
-                  <a href="#team" className="block text-gray-300 hover:text-moss-400 py-2" onClick={() => setIsOpen(false)}>
-                    Team
-                  </a>
+                  <a href="#features" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Features</a>
+                  <a href="#how-it-works" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>How It Works</a>
+                  <a href="#schemes" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Schemes</a>
+                  <a href="#team" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Team</a>
                 </>
               )}
               {user ? (

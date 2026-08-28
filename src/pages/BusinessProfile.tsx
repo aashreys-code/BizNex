@@ -154,19 +154,14 @@ export default function BusinessProfilePage() {
   // Profile list view
   if (view === 'list') {
     return (
-      <div className="space-y-8 max-w-4xl mx-auto">
+      <div className="space-y-6 max-w-4xl mx-auto">
         <ScrollReveal>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-moss-400 to-green-600 flex items-center justify-center">
-                <Building2 size={24} className="text-charcoal-950" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-white">Business Profiles</h1>
-                <p className="text-gray-400 text-sm">
-                  Manage multiple businesses — switch between them anytime
-                </p>
-              </div>
+            <div>
+              <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Business Profiles</h1>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                Manage multiple businesses — switch between them anytime
+              </p>
             </div>
             <Button onClick={startCreate}>
               <Plus size={16} />
@@ -177,10 +172,10 @@ export default function BusinessProfilePage() {
 
         {profiles.length === 0 ? (
           <ScrollReveal delay={0.1}>
-            <Card className="p-12 text-center">
-              <Building2 size={48} className="text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No Business Profiles Yet</h3>
-              <p className="text-gray-400 mb-6">
+            <Card className="p-10 text-center">
+              <Building2 size={36} style={{ color: 'var(--text-muted)' }} className="mx-auto mb-3" />
+              <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>No Business Profiles Yet</h3>
+              <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>
                 Create your first business profile to unlock all features.
               </p>
               <Button onClick={startCreate}>
@@ -194,43 +189,39 @@ export default function BusinessProfilePage() {
             {profiles.map((p, i) => (
               <ScrollReveal key={p.id} delay={i * 0.05}>
                 <div
-                  className={`glass rounded-2xl p-5 flex items-center gap-4 cursor-pointer transition-all duration-200 ${
-                    activeId === p.id
-                      ? 'border border-moss-400/30 bg-moss-400/5'
-                      : 'hover:bg-white/5'
-                  }`}
+                  className="card card-interactive p-4 flex items-center gap-3 cursor-pointer"
+                  style={{
+                    borderLeft: activeId === p.id ? '3px solid var(--accent-bright)' : '3px solid transparent',
+                  }}
                   onClick={() => setActiveId(p.id)}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                    activeId === p.id
-                      ? 'bg-moss-400/20 text-moss-400'
-                      : 'bg-white/5 text-gray-400'
-                  }`}>
-                    <Building2 size={20} />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: activeId === p.id ? 'var(--accent-dim)' : 'var(--bg-surface)' }}>
+                    <Building2 size={18} style={{ color: activeId === p.id ? 'var(--accent-bright)' : 'var(--text-muted)' }} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-white font-semibold truncate">{p.name}</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{p.name}</p>
                       {activeId === p.id && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-moss-400/20 text-moss-400 font-medium">
-                          Active
-                        </span>
+                        <span className="badge badge-success">Active</span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-400 truncate">
+                    <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
                       {p.businessType} · {p.location} · ₹{p.investmentAmount.toLocaleString('en-IN')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); startEdit(p) }}
-                      className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                      className="p-1.5 rounded-md transition-colors"
+                      style={{ color: 'var(--text-muted)' }}
                     >
-                      <Edit3 size={16} />
+                      <Edit3 size={14} />
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(p.id) }}
-                      className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors"
+                      className="p-1.5 rounded-md transition-colors"
+                      style={{ color: 'var(--text-muted)' }}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -255,24 +246,24 @@ export default function BusinessProfilePage() {
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
-      {/* Header */}
-      <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <button onClick={() => setView('list')} className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
-            <ArrowLeft size={20} />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-white">{isEdit ? 'Edit Profile' : 'New Profile'}</h1>
-            <p className="text-gray-400 text-sm">
-              {isEdit ? 'Update your business details' : 'Enter your business details — all features will use this data'}
-            </p>
+      {/* Header */}        <ScrollReveal>
+          <div className="flex items-center gap-3 mb-2">
+            <button onClick={() => setView('list')} className="p-1.5 rounded-md transition-colors"
+              style={{ color: 'var(--text-muted)' }}>
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{isEdit ? 'Edit Profile' : 'New Profile'}</h1>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                {isEdit ? 'Update your business details' : 'Enter your business details — all features will use this data'}
+              </p>
+            </div>
           </div>
-        </div>
-      </ScrollReveal>
+        </ScrollReveal>
 
       {/* Step Indicator */}
       <ScrollReveal delay={0.05}>
-        <div className="flex items-center justify-between glass rounded-2xl p-4">
+        <div className="flex items-center justify-between card p-3">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center gap-2 flex-1">
               <div
@@ -310,8 +301,8 @@ export default function BusinessProfilePage() {
       >
         {step === 0 && (
           <Card className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Building2 size={20} className="text-moss-400" />
+            <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <Building2 size={16} style={{ color: 'var(--accent-bright)' }} />
               Profile Name
             </h2>
             <Input
@@ -321,7 +312,7 @@ export default function BusinessProfilePage() {
               onChange={(e) => update('name', e.target.value)}
               icon={<Building2 size={18} />}
             />
-            <p className="text-xs text-gray-500">
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               This helps you identify the profile when switching between businesses.
             </p>
           </Card>
@@ -329,8 +320,8 @@ export default function BusinessProfilePage() {
 
         {step === 1 && (
           <Card className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <User size={20} className="text-moss-400" />
+            <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <User size={16} style={{ color: 'var(--accent-bright)' }} />
               Personal Details
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -366,8 +357,8 @@ export default function BusinessProfilePage() {
 
         {step === 2 && (
           <Card className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Briefcase size={20} className="text-moss-400" />
+            <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <Briefcase size={16} style={{ color: 'var(--accent-bright)' }} />
               Business Details
             </h2>
             <Select
@@ -404,8 +395,8 @@ export default function BusinessProfilePage() {
 
         {step === 3 && (
           <Card className="p-6 space-y-5">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <IndianRupee size={20} className="text-moss-400" />
+            <h2 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <IndianRupee size={16} style={{ color: 'var(--accent-bright)' }} />
               Financial Details
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

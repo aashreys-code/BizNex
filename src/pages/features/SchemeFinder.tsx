@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
+import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock, Edit3, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react'
 import { findSchemes } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -32,6 +32,7 @@ export default function SchemeFinder() {
   const [loading, setLoading] = useState(false)
   const [schemes, setSchemes] = useState<Scheme[]>([])
   const [showEdit, setShowEdit] = useState(false)
+  const [expandedScheme, setExpandedScheme] = useState<number | null>(null)
 
   useEffect(() => {
     if (schemes.length === 0 && !loading) handleFind()
@@ -56,41 +57,46 @@ export default function SchemeFinder() {
     }
   }
 
+  function getScoreBadge(score: number) {
+    if (score >= 80) return <span className="badge badge-success">{score}% Match</span>
+    if (score >= 60) return <span className="badge badge-warning">{score}% Match</span>
+    return <span className="badge badge-danger">{score}% Match</span>
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center">
-            <Search size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Government Scheme Finder</h1>
-            <p className="text-gray-400 text-sm">Find schemes you're eligible for with AI matching</p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Government Scheme Finder</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Find schemes you're eligible for with AI matching</p>
         </div>
       </ScrollReveal>
 
       {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Profile'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+        >
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Profile'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
                 <Select label="Gender" value={gender} onChange={(e) => setGender(e.target.value)} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} />
                 <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }, { value: 'food-processing', label: 'Food Processing' }]} />
-                <Input label="Annual Income (₹)" type="number" value={income} onChange={(e) => setIncome(e.target.value)} icon={<IndianRupee size={18} />} />
-                <Input label="Investment Needed (₹)" type="number" value={investmentNeeded} onChange={(e) => setInvestmentNeeded(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Annual Income (₹)" type="number" value={income} onChange={(e) => setIncome(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label="Investment Needed (₹)" type="number" value={investmentNeeded} onChange={(e) => setInvestmentNeeded(e.target.value)} icon={<IndianRupee size={16} />} />
                 <Select label="Category" value={category} onChange={(e) => setCategory(e.target.value)} options={[{ value: 'general', label: 'General' }, { value: 'obc', label: 'OBC' }, { value: 'sc', label: 'SC' }, { value: 'st', label: 'ST' }, { value: 'women', label: 'Women Entrepreneur' }, { value: 'minority', label: 'Minority' }]} />
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleFind() }} loading={loading}>
-                  <Search size={18} />Refresh Schemes
+                  <Search size={16} />Refresh Schemes
                 </Button>
               </div>
             </Card>
@@ -100,92 +106,81 @@ export default function SchemeFinder() {
 
       {/* Results */}
       {schemes.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white">Recommended Schemes</h2>
-          {schemes.map((scheme, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <GlowCard className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-white">{scheme.name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-sm px-2 py-0.5 rounded-full ${
-                        scheme.eligibilityScore >= 80
-                          ? 'bg-green-500/20 text-green-400'
-                          : scheme.eligibilityScore >= 60
-                          ? 'bg-yellow-500/20 text-yellow-400'
-                          : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {scheme.eligibilityScore}% Match
-                      </span>
+        <div className="space-y-3">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Recommended Schemes</h2>
+          {schemes.map((scheme, i) => {
+            const isExpanded = expandedScheme === i
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
+                <Card className="p-4">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {getScoreBadge(scheme.eligibilityScore)}
+                      <div>
+                        <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{scheme.name}</h3>
+                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{scheme.maxLoanAmount} max · {scheme.interestRate}</p>
+                      </div>
                     </div>
+                    {scheme.applicationLink && (
+                      <a href={scheme.applicationLink} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs font-medium"
+                        style={{ color: 'var(--accent-bright)' }}>
+                        Apply <ExternalLink size={12} />
+                      </a>
+                    )}
                   </div>
-                  {scheme.applicationLink && (
-                    <a
-                      href={scheme.applicationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-sm text-primary-400 hover:text-primary-300"
-                    >
-                      Apply <ExternalLink size={14} />
-                    </a>
-                  )}
-                </div>
 
-                <p className="text-gray-300 text-sm mb-4">{scheme.benefits}</p>
+                  <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>{scheme.benefits}</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="flex items-center gap-2 text-sm">
-                    <IndianRupee size={16} className="text-primary-400" />
-                    <span className="text-gray-400">Max Loan:</span>
-                    <span className="text-white font-medium">{scheme.maxLoanAmount}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <FileCheck size={16} className="text-accent-400" />
-                    <span className="text-gray-400">Interest:</span>
-                    <span className="text-white font-medium">{scheme.interestRate}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock size={16} className="text-blue-400" />
-                    <span className="text-gray-400">Docs Required:</span>
-                    <span className="text-white font-medium">{scheme.requiredDocuments.length} documents</span>
-                  </div>
-                </div>
+                  {/* Why You Match */}
+                  <button onClick={() => setExpandedScheme(isExpanded ? null : i)}
+                    className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
+                    style={{ color: 'var(--accent-bright)' }}>
+                    <CheckCircle2 size={14} />
+                    {isExpanded ? 'Hide details' : 'Why you match'}
+                  </button>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-2">Required Documents</h4>
-                    <ul className="space-y-1">
-                      {scheme.requiredDocuments.map((doc, j) => (
-                        <li key={j} className="text-sm text-gray-300 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary-400" />
-                          {doc}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-gray-400 mb-2">Application Process</h4>
-                    <p className="text-sm text-gray-300">{scheme.applicationProcess}</p>
-                  </div>
-                </div>
-              </GlowCard>
-            </motion.div>
-          ))}
+                  {/* Expanded Details */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden">
+                        <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Required Documents</p>
+                              <ul className="space-y-1">
+                                {scheme.requiredDocuments.map((doc, j) => (
+                                  <li key={j} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                    <span className="w-1 h-1 rounded-full flex-shrink-0" style={{ background: 'var(--accent-bright)' }} />
+                                    {doc}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Application Process</p>
+                              <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{scheme.applicationProcess}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+              </motion.div>
+            )
+          })}
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <Card className="p-12 text-center">
-          <Loader2 size={48} className="text-purple-400 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Finding Eligible Schemes...</h3>
-          <p className="text-gray-400">Matching your profile against 50+ government schemes.</p>
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Finding Eligible Schemes...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Matching your profile against 50+ government schemes.</p>
         </Card>
       )}
     </div>

@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Mail, Lock, User, Phone, MapPin, Globe, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, User, Phone, MapPin, Eye, EyeOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
-import { BlurText, ParticlesBg } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -105,42 +104,39 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative pt-16 pb-12 px-4 bg-charcoal-950">
-      <ParticlesBg particleCount={30} color="#21F1A8" />
-
+    <div className="min-h-screen flex items-center justify-center relative pt-14 pb-12 px-4" style={{ background: 'var(--bg-primary)' }}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg relative z-10"
+        transition={{ duration: 0.4 }}
+        className="w-full max-w-md relative z-10"
       >
-        <div className="glass-strong rounded-3xl p-8">
-          <div className="text-center mb-8">
-            <BlurText
-              text="Join BizNex"
-              className="text-3xl font-bold font-display text-white mb-2"
-            />
-            <p className="text-gray-400">Create your free account and start your business journey</p>
-          </div>
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            Join BizNex
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Create your free account and start your business journey</p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="surface-elevated p-6">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <Input
               label="Full Name"
               placeholder="Enter your full name"
               value={formData.name}
               onChange={(e) => updateField('name', e.target.value)}
-              icon={<User size={18} />}
+              icon={<User size={16} />}
               required
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <Input
                 label="Email"
                 type="email"
                 placeholder="you@example.com"
                 value={formData.email}
                 onChange={(e) => updateField('email', e.target.value)}
-                icon={<Mail size={18} />}
+                icon={<Mail size={16} />}
                 required
               />
               <Input
@@ -149,7 +145,7 @@ export default function RegisterPage() {
                 placeholder="+91 XXXXX XXXXX"
                 value={formData.mobile}
                 onChange={(e) => updateField('mobile', e.target.value)}
-                icon={<Phone size={18} />}
+                icon={<Phone size={16} />}
                 required
               />
             </div>
@@ -161,36 +157,40 @@ export default function RegisterPage() {
                 placeholder="Min. 6 characters"
                 value={formData.password}
                 onChange={(e) => updateField('password', e.target.value)}
-                icon={<Lock size={18} />}
+                icon={<Lock size={16} />}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[38px] text-gray-500 hover:text-gray-300"
+                className="absolute right-3 top-[38px] transition-colors"
+                style={{ color: 'var(--text-muted)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <Input
                 label="Village"
                 placeholder="Your village"
                 value={formData.village}
                 onChange={(e) => updateField('village', e.target.value)}
-                icon={<MapPin size={18} />}
+                icon={<MapPin size={16} />}
               />
               <Input
                 label="District"
                 placeholder="Your district"
                 value={formData.district}
                 onChange={(e) => updateField('district', e.target.value)}
-                icon={<MapPin size={18} />}
+                icon={<MapPin size={16} />}
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <Select
                 label="State"
                 value={formData.state}
@@ -209,15 +209,15 @@ export default function RegisterPage() {
               Create Account
             </Button>
           </form>
+        </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-400 text-sm">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary-400 hover:text-primary-300 font-medium">
-                Sign In
-              </Link>
-            </p>
-          </div>
+        <div className="mt-5 text-center">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Already have an account?{' '}
+            <Link to="/login" className="font-semibold" style={{ color: 'var(--accent-bright)' }}>
+              Sign In
+            </Link>
+          </p>
         </div>
       </motion.div>
     </div>

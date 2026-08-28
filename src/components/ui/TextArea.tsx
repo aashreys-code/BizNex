@@ -8,18 +8,18 @@ interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ({ label, error, className = '', ...props }, ref) => {
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
-          <label className="block text-sm font-medium text-gray-300 mb-1">
+          <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             {label}
           </label>
         )}
         <textarea
           ref={ref}
-          className={`input-field min-h-[120px] resize-y ${error ? 'border-red-500/50' : ''} ${className}`}
+          className={`input-field min-h-[100px] resize-y ${error ? 'border-[var(--danger)]' : ''} ${className}`}
           {...props}
         />
-        {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+        {error && <p className="text-sm mt-1" style={{ color: 'var(--danger)' }}>{error}</p>}
       </div>
     )
   }

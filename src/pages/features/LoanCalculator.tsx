@@ -8,7 +8,7 @@ import {
 import { calculateLoan } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -23,7 +23,7 @@ interface LoanResult {
   monthlyRepaymentSchedule: { month: number; emi: number; principal: number; interest: number; balance: number }[]
 }
 
-const COLORS = ['#22c55e', '#f97316', '#3b82f6']
+const PIE_COLORS = ['var(--accent-bright)', 'var(--warning)', 'var(--info)']
 
 export default function LoanCalculator() {
   const { business, isComplete } = useBusiness()
@@ -46,12 +46,7 @@ export default function LoanCalculator() {
     if (!inc || !type || !req) return
     setLoading(true)
     try {
-      const data = await calculateLoan({
-        monthlyIncome: Number(inc),
-        existingLoans: Number(existingLoans || business?.existingLoans || 0),
-        businessType: type,
-        investmentRequirement: Number(req),
-      })
+      const data = await calculateLoan({ monthlyIncome: Number(inc), existingLoans: Number(existingLoans || business?.existingLoans || 0), businessType: type, investmentRequirement: Number(req) })
       setResult(data)
     } catch (err) {
       console.error(err)
@@ -68,39 +63,44 @@ export default function LoanCalculator() {
       ]
     : []
 
+  const tooltipStyle = {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border-strong)',
+    borderRadius: '8px',
+    fontSize: '12px',
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
-            <Calculator size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Loan Eligibility Calculator</h1>
-            <p className="text-gray-400 text-sm">Calculate your eligibility, EMI, and repayment schedule</p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Loan Eligibility Calculator</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Calculate your eligibility, EMI, and repayment schedule</p>
         </div>
       </ScrollReveal>
 
-      {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+        >
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input label="Monthly Income (₹)" type="number" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} icon={<IndianRupee size={18} />} />
-                <Input label="Existing Loans (₹)" type="number" value={existingLoans} onChange={(e) => setExistingLoans(e.target.value)} icon={<IndianRupee size={18} />} />
+            <Card className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Input label="Monthly Income (₹)" type="number" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label="Existing Loans (₹)" type="number" value={existingLoans} onChange={(e) => setExistingLoans(e.target.value)} icon={<IndianRupee size={16} />} />
                 <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }]} />
-                <Input label="Investment Required (₹)" type="number" value={investmentRequirement} onChange={(e) => setInvestmentRequirement(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Investment Required (₹)" type="number" value={investmentRequirement} onChange={(e) => setInvestmentRequirement(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleCalculate() }} loading={loading}>
-                  <Calculator size={18} />Recalculate
+                  <Calculator size={16} />Recalculate
                 </Button>
               </div>
             </Card>
@@ -108,85 +108,71 @@ export default function LoanCalculator() {
         )}
       </AnimatePresence>
 
-      {/* Results */}
       {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Eligibility Score', value: `${result.eligibilityScore}/100`, color: 'text-primary-400' },
-              { label: 'Loan Amount', value: `₹${result.eligibleLoanAmount.toLocaleString('en-IN')}`, color: 'text-blue-400' },
-              { label: 'Est. EMI', value: `₹${result.estimatedEMI.toLocaleString('en-IN')}`, color: 'text-accent-400' },
-              { label: 'Repayment Period', value: result.repaymentTenure, color: 'text-purple-400' },
+              { label: 'Eligibility Score', value: `${result.eligibilityScore}/100` },
+              { label: 'Loan Amount', value: `₹${result.eligibleLoanAmount.toLocaleString('en-IN')}` },
+              { label: 'Est. EMI', value: `₹${result.estimatedEMI.toLocaleString('en-IN')}` },
+              { label: 'Repayment Period', value: result.repaymentTenure },
             ].map((metric, i) => (
-              <GlowCard key={i} className="text-center p-4">
-                <p className="text-xs text-gray-400 mb-1">{metric.label}</p>
-                <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
-              </GlowCard>
+              <div key={i} className="card p-3 text-center">
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{metric.label}</p>
+                <p className="text-base font-bold" style={{ color: 'var(--accent-bright)' }}>{metric.value}</p>
+              </div>
             ))}
           </div>
 
+          {/* Summary */}
+          <div className="card p-4" style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)' }}>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Estimated monthly repayment: <strong style={{ color: 'var(--accent-bright)' }}>₹{result.estimatedEMI.toLocaleString('en-IN')}</strong>.
+              At this repayment level, your projected cash flow remains {result.eligibilityScore >= 60 ? 'positive' : 'tight — consider reducing the loan amount'}.
+            </p>
+          </div>
+
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">EMI Breakdown</h3>
-              <ResponsiveContainer width="100%" height={300}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>EMI Breakdown</h3>
+              <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    dataKey="value"
-                    labelLine={false}
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" labelLine={false}
                     label={({ cx, cy, midAngle, outerRadius, name, percent }) => {
                       const RADIAN = Math.PI / 180
-                      const radius = outerRadius + 18
+                      const radius = outerRadius + 14
                       const x = cx + radius * Math.cos(-midAngle * RADIAN)
                       const y = cy + radius * Math.sin(-midAngle * RADIAN)
                       return (
-                        <text x={x} y={y} fill="#d1d5db" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11}>
+                        <text x={x} y={y} fill="var(--text-secondary)" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
                           {`${name} ${(percent * 100).toFixed(0)}%`}
                         </text>
                       )
                     }}
                   >
                     {pieData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    formatter={(value) => <span style={{ color: '#9ca3af', fontSize: 12 }}>{value}</span>}
-                  />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
+                  <Legend verticalAlign="bottom" height={30} formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Repayment Schedule</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Repayment Schedule</h3>
+              <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={result.monthlyRepaymentSchedule}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} label={{ value: 'Month', position: 'bottom', fill: '#64748b' }} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
                   <Legend />
-                  <Bar dataKey="principal" fill="#22c55e" name="Principal" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="interest" fill="#f97316" name="Interest" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="principal" fill="var(--accent-bright)" name="Principal" radius={[3, 3, 0, 0]} opacity={0.8} />
+                  <Bar dataKey="interest" fill="var(--warning)" name="Interest" radius={[3, 3, 0, 0]} opacity={0.8} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
@@ -194,22 +180,22 @@ export default function LoanCalculator() {
 
           {/* Recommended Banks */}
           <Card>
-            <h3 className="text-lg font-semibold text-white mb-4">Recommended Banks</h3>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommended Banks</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Bank</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Interest Rate</th>
-                    <th className="text-left py-3 px-4 text-gray-400 font-medium">Processing Fee</th>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Bank</th>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Interest Rate</th>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Processing Fee</th>
                   </tr>
                 </thead>
                 <tbody>
                   {result.recommendedBanks.map((bank, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/5">
-                      <td className="py-3 px-4 text-white font-medium">{bank.name}</td>
-                      <td className="py-3 px-4 text-primary-400">{bank.interestRate}</td>
-                      <td className="py-3 px-4 text-gray-300">{bank.processingFee}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td className="py-2.5 px-3 font-medium" style={{ color: 'var(--text-primary)' }}>{bank.name}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--accent-bright)' }}>{bank.interestRate}</td>
+                      <td className="py-2.5 px-3" style={{ color: 'var(--text-secondary)' }}>{bank.processingFee}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -220,10 +206,10 @@ export default function LoanCalculator() {
       )}
 
       {loading && (
-        <Card className="p-12 text-center">
-          <Loader2 size={48} className="text-orange-400 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Calculating Eligibility...</h3>
-          <p className="text-gray-400">Analyzing your financial profile against bank requirements.</p>
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Calculating Eligibility...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing your financial profile against bank requirements.</p>
         </Card>
       )}
     </div>

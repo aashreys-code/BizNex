@@ -10,7 +10,7 @@ import {
 import { findNearbyBusinesses } from '../../lib/ai'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { useAuth } from '../../contexts/AuthContext'
-import { ScrollReveal, GlowCard, CountUp } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
@@ -394,39 +394,37 @@ export default function NearbyCompetitors() {
     : []
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-            <Store size={24} className="text-white" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white">Nearby Competitors</h1>
-            <p className="text-gray-400 text-sm">
-              Discover similar businesses, compare demand & popularity, and find your edge
-            </p>
-          </div>
-          {result && (
-            <Button variant="secondary" onClick={downloadReport} loading={downloading}>
-              <Download size={18} />
-              Download PDF
-            </Button>
-          )}
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Nearby Competitors</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Discover similar businesses, compare demand & popularity, and find your edge
+          </p>
         </div>
       </ScrollReveal>
+      {result && (
+        <div className="flex justify-end">
+          <Button variant="secondary" onClick={downloadReport} loading={downloading}>
+            <Download size={16} />
+            Download PDF
+          </Button>
+        </div>
+      )}
 
       {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}>
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Input label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} icon={<Store size={18} />} />
                 <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
                 <Input label="Search Radius (km)" type="number" value={radius} onChange={(e) => setRadius(e.target.value)} icon={<Target size={18} />} />
@@ -443,10 +441,10 @@ export default function NearbyCompetitors() {
 
       {/* Loading */}
       {loading && (
-        <Card className="p-12 text-center">
-          <Loader2 size={48} className="text-violet-400 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Scanning Nearby Businesses...</h3>
-          <p className="text-gray-400">Analyzing competitors and market data in your area.</p>
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Scanning Nearby Businesses...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing competitors and market data in your area.</p>
         </Card>
       )}
 
@@ -455,28 +453,28 @@ export default function NearbyCompetitors() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { icon: Store, label: filterType === 'All' ? 'Competitors' : `${filterType} Count`, value: filteredCompetitors.length, color: 'text-violet-400' },
-              { icon: TrendingUp, label: 'Avg Demand', value: `${result.marketSummary.averageDemand}%`, color: 'text-green-400' },
-              { icon: Users, label: 'Avg Popularity', value: `${result.marketSummary.averagePopularity}%`, color: 'text-blue-400' },
-              { icon: BarChart3, label: 'Saturation', value: result.marketSummary.marketSaturation, color: 'text-amber-400' },
-              { icon: Star, label: 'Your Score', value: `${result.userBusiness.progressScore}/100`, color: 'text-moss-400' },
+              { icon: Store, label: filterType === 'All' ? 'Competitors' : `${filterType} Count`, value: filteredCompetitors.length },
+              { icon: TrendingUp, label: 'Avg Demand', value: `${result.marketSummary.averageDemand}%` },
+              { icon: Users, label: 'Avg Popularity', value: `${result.marketSummary.averagePopularity}%` },
+              { icon: BarChart3, label: 'Saturation', value: result.marketSummary.marketSaturation },
+              { icon: Star, label: 'Your Score', value: `${result.userBusiness.progressScore}/100` },
             ].map((m, i) => (
-              <GlowCard key={i} className="text-center p-4">
-                <m.icon size={22} className={`mx-auto mb-2 ${m.color}`} />
-                <p className="text-xs text-gray-400 mb-1">{m.label}</p>
-                <p className={`text-xl font-bold ${m.color}`}>{m.value}</p>
-              </GlowCard>
+              <div key={i} className="card p-3 text-center">
+                <m.icon size={18} className="mx-auto mb-1.5" style={{ color: 'var(--accent-bright)' }} />
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{m.label}</p>
+                <p className="text-base font-bold" style={{ color: 'var(--accent-bright)' }}>{m.value}</p>
+              </div>
             ))}
           </div>
 
           {/* Type Filter */}
           {availableTypes.length > 2 && (
             <ScrollReveal delay={0.15}>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Filter size={16} className="text-gray-400 shrink-0" />
-                <span className="text-sm text-gray-400 shrink-0">Filter by type:</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Filter size={14} className="shrink-0" style={{ color: 'var(--text-muted)' }} />
+                <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Filter by type:</span>
                 {availableTypes.map((type) => {
                   const active = filterType === type
                   const mc = type === 'All' ? null : getMarkerColor(type)
@@ -484,11 +482,12 @@ export default function NearbyCompetitors() {
                     <button
                       key={type}
                       onClick={() => setFilterType(type)}
-                      className={`relative px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border ${
-                        active
-                          ? 'bg-white/10 border-white/20 text-white'
-                          : 'border-transparent text-gray-400 hover:text-white hover:bg-white/5'
-                      }`}
+                      className="relative px-2.5 py-1 rounded-md text-[11px] font-medium transition-all duration-150"
+                      style={{
+                        background: active ? 'var(--accent-dim)' : 'transparent',
+                        color: active ? 'var(--accent-bright)' : 'var(--text-muted)',
+                        border: `1px solid ${active ? 'var(--accent-bright)' : 'transparent'}`,
+                      }}
                     >
                       <span className="flex items-center gap-1.5">
                         {mc && (
@@ -510,7 +509,7 @@ export default function NearbyCompetitors() {
                     onClick={() => setFilterType('All')}
                     className="px-2 py-1 rounded-full text-xs text-moss-400 hover:bg-moss-400/10 transition-colors"
                   >
-                    Clear filter
+                    Clear
                   </button>
                 )}
               </div>
@@ -520,13 +519,13 @@ export default function NearbyCompetitors() {
           {/* Map + Sidebar */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Leaflet Map */}
-            <Card className="lg:col-span-2 p-0 overflow-hidden">
-              <div className="p-4 pb-2 border-b border-white/5">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <MapPin size={18} className="text-violet-400" />
+            <Card className="lg:col-span-2 p-0 overflow-hidden" hover={false}>
+              <div className="p-4 pb-2" style={{ borderBottom: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                  <MapPin size={16} style={{ color: 'var(--accent-bright)' }} />
                   Competitor Map
                 </h3>
-                <p className="text-xs text-gray-500 mt-1">Click markers for details — green ★ is you</p>
+                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Click markers for details — green star is you</p>
               </div>
               <div className="h-[420px] relative">
                 <MapContainer
@@ -592,16 +591,16 @@ export default function NearbyCompetitors() {
             </Card>
 
             {/* Competitor List Sidebar */}
-            <Card className="p-4 overflow-y-auto max-h-[520px]">
-              <h3 className="text-base font-semibold text-white mb-3 flex items-center justify-between">
+            <Card className="p-3 overflow-y-auto max-h-[480px]" hover={false}>
+              <h3 className="text-xs font-semibold mb-2.5 flex items-center justify-between" style={{ color: 'var(--text-primary)' }}>
                 <span>Nearby Businesses</span>
-                <span className="text-xs font-normal text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: 'var(--bg-surface)', color: 'var(--text-muted)' }}>
                   {filteredCompetitors.length}
                 </span>
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {filteredCompetitors.length === 0 && (
-                  <p className="text-sm text-gray-500 text-center py-4">No businesses match this filter.</p>
+                  <p className="text-xs text-center py-4" style={{ color: 'var(--text-muted)' }}>No businesses match this filter.</p>
                 )}
                 {filteredCompetitors.map((c, i) => {
                   const mc = getMarkerColor(c.type)
@@ -610,34 +609,34 @@ export default function NearbyCompetitors() {
                     <button
                       key={i}
                       onClick={() => setSelectedCompetitor(c)}
-                      className={`w-full text-left p-3 rounded-xl transition-all duration-200 ${
-                        isSelected
-                          ? 'bg-white/10 border border-white/20'
-                          : 'hover:bg-white/5 border border-transparent'
-                      }`}
+                      className="w-full text-left p-2.5 rounded-lg transition-all duration-150"
+                      style={{
+                        background: isSelected ? 'var(--accent-dim)' : 'transparent',
+                        border: isSelected ? '1px solid var(--accent-bright)' : '1px solid transparent',
+                      }}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2.5">
                         <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                          className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 mt-0.5"
                           style={{ background: `${mc.bg}20` }}
                         >
-                          <span className="text-xs font-bold" style={{ color: mc.bg }}>
+                          <span className="text-[10px] font-bold" style={{ color: mc.bg }}>
                             {mc.label[0]}
                           </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{c.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs font-medium truncate" style={{ color: 'var(--text-primary)' }}>{c.name}</p>
+                          <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                             {c.type} · {c.distance} km · ★ {c.rating}
                           </p>
-                          <div className="flex gap-3 mt-1.5">
-                            <span className="text-xs text-gray-400">
-                              D: <span className="text-green-400 font-medium">{c.demand}</span>
+                          <div className="flex gap-2 mt-1">
+                            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                              D: <span className="font-medium" style={{ color: 'var(--success)' }}>{c.demand}</span>
                             </span>
-                            <span className="text-xs text-gray-400">
-                              P: <span className="text-blue-400 font-medium">{c.popularity}</span>
+                            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                              P: <span className="font-medium" style={{ color: 'var(--info)' }}>{c.popularity}</span>
                             </span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                               ₹{(c.monthlyRevenue / 1000).toFixed(0)}k
                             </span>
                           </div>
@@ -653,17 +652,17 @@ export default function NearbyCompetitors() {
           {/* Selected Competitor Detail */}
           {visibleSelected && (
             <ScrollReveal>
-              <Card className="p-6">
+              <Card className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-white">{visibleSelected.name}</h3>
-                    <p className="text-sm text-gray-400">
+                    <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>{visibleSelected.name}</h3>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {visibleSelected.type} · Est. {visibleSelected.established} · {visibleSelected.distance} km away
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-violet-400">★ {visibleSelected.rating}</p>
-                    <p className="text-xs text-gray-500">Rating</p>
+                    <p className="text-lg font-bold" style={{ color: 'var(--accent-bright)' }}>★ {visibleSelected.rating}</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Rating</p>
                   </div>
                 </div>
 
@@ -691,28 +690,29 @@ export default function NearbyCompetitors() {
                 </div>
 
                 {/* Strengths / Weaknesses / Specialties */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-green-500/5 border border-green-500/20">
-                    <h4 className="text-sm font-semibold text-green-400 mb-2">Strengths</h4>
-                    <ul className="space-y-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="p-3 rounded-lg" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--success)' }}>Strengths</h4>
+                    <ul className="space-y-0.5">
                       {visibleSelected.strengths.map((s, i) => (
-                        <li key={i} className="text-xs text-gray-300">✦ {s}</li>
+                        <li key={i} className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>• {s}</li>
                       ))}
                     </ul>
                   </div>
-                  <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
-                    <h4 className="text-sm font-semibold text-red-400 mb-2">Weaknesses</h4>
-                    <ul className="space-y-1">
+                  <div className="p-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--danger)' }}>Weaknesses</h4>
+                    <ul className="space-y-0.5">
                       {visibleSelected.weaknesses.map((w, i) => (
-                        <li key={i} className="text-xs text-gray-300">✦ {w}</li>
+                        <li key={i} className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>• {w}</li>
                       ))}
                     </ul>
                   </div>
-                  <div className="p-4 rounded-xl bg-violet-500/5 border border-violet-500/20">
-                    <h4 className="text-sm font-semibold text-violet-400 mb-2">Specialties</h4>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div className="p-3 rounded-lg" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--accent-bright)' }}>Specialties</h4>
+                    <div className="flex flex-wrap gap-1">
                       {visibleSelected.specialties.map((s, i) => (
-                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-300">
+                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-md"
+                          style={{ background: 'var(--accent-dim)', color: 'var(--accent-bright)' }}>
                           {s}
                         </span>
                       ))}
@@ -724,69 +724,40 @@ export default function NearbyCompetitors() {
           )}
 
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Demand Trend */}
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <TrendingUp size={18} className="text-green-400" />
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <TrendingUp size={16} style={{ color: 'var(--accent-bright)' }} />
                 Market Demand Trend
               </h3>
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#1e293b',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                    }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="demand"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={{ fill: '#22c55e', r: 3 }}
-                    activeDot={{ r: 5, fill: '#22c55e' }}
-                  />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
+                  <Line type="monotone" dataKey="demand" stroke="var(--accent-bright)" strokeWidth={2} dot={{ fill: 'var(--accent-bright)', r: 3 }} activeDot={{ r: 5, fill: 'var(--accent-bright)' }} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
 
             {/* Popularity Comparison */}
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <BarChart3 size={18} className="text-blue-400" />
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <BarChart3 size={16} style={{ color: 'var(--info)' }} />
                 Popularity Comparison
               </h3>
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={filteredPopularityComparison} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis type="number" stroke="#64748b" fontSize={12} domain={[0, 100]} />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    stroke="#64748b"
-                    fontSize={11}
-                    width={100}
-                    tickFormatter={(v: string) => (v.length > 14 ? v.slice(0, 12) + '…' : v)}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#1e293b',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <Bar dataKey="score" radius={[0, 4, 4, 0]}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis type="number" stroke="var(--text-muted)" fontSize={11} domain={[0, 100]} />
+                  <YAxis type="category" dataKey="name" stroke="var(--text-muted)" fontSize={10} width={90}
+                    tickFormatter={(v: string) => (v.length > 12 ? v.slice(0, 10) + '…' : v)} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
+                  <Bar dataKey="score" radius={[0, 3, 3, 0]}>
                     {filteredPopularityComparison.map((entry, i) => (
-                      <motion.rect
-                        key={i}
-                        fill={entry.name === 'Your Business' ? '#21F1A8' : '#6366f1'}
-                      />
+                      <motion.rect key={i} fill={entry.name === 'Your Business' ? 'var(--accent-bright)' : 'var(--info)'} opacity={0.8} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -797,71 +768,60 @@ export default function NearbyCompetitors() {
           {/* Radar Chart */}
           {filteredRadarData.length > 0 && (
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <Target size={18} className="text-violet-400" />
+              <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                <Target size={16} style={{ color: 'var(--accent-bright)' }} />
                 Competitor Radar Overview
               </h3>
-              <ResponsiveContainer width="100%" height={320}>
+              <ResponsiveContainer width="100%" height={280}>
                 <RadarChart data={filteredRadarData}>
-                  <PolarGrid stroke="#1e293b" />
-                  <PolarAngleAxis dataKey="subject" stroke="#64748b" fontSize={12} />
-                  <PolarRadiusAxis stroke="#334155" fontSize={10} domain={[0, 100]} />
-                  <Radar name="Popularity" dataKey="popularity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
-                  <Radar name="Demand" dataKey="demand" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} />
-                  <Radar name="Progress" dataKey="progress" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#1e293b',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                    }}
-                  />
+                  <PolarGrid stroke="var(--border)" />
+                  <PolarAngleAxis dataKey="subject" stroke="var(--text-muted)" fontSize={11} />
+                  <PolarRadiusAxis stroke="var(--border-strong)" fontSize={10} domain={[0, 100]} />
+                  <Radar name="Popularity" dataKey="popularity" stroke="var(--info)" fill="var(--info)" fillOpacity={0.12} />
+                  <Radar name="Demand" dataKey="demand" stroke="var(--accent-bright)" fill="var(--accent-bright)" fillOpacity={0.12} />
+                  <Radar name="Progress" dataKey="progress" stroke="var(--warning)" fill="var(--warning)" fillOpacity={0.12} />
+                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
                 </RadarChart>
               </ResponsiveContainer>
             </Card>
           )}
 
           {/* Market Summary & Recommendations */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                <BarChart3 size={18} className="text-amber-400" />
-                Market Summary
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 rounded-xl glass">
-                  <span className="text-sm text-gray-400">Market Saturation</span>
-                  <span className={`text-sm font-semibold ${
-                    result.marketSummary.marketSaturation === 'Low' ? 'text-green-400' :
-                    result.marketSummary.marketSaturation === 'Medium' ? 'text-amber-400' : 'text-red-400'
-                  }`}>{result.marketSummary.marketSaturation}</span>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Market Summary</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Market Saturation</span>
+                  <span className="text-xs font-semibold" style={{
+                    color: result.marketSummary.marketSaturation === 'Low' ? 'var(--success)' :
+                    result.marketSummary.marketSaturation === 'Medium' ? 'var(--warning)' : 'var(--danger)'
+                  }}>{result.marketSummary.marketSaturation}</span>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-xl glass">
-                  <span className="text-sm text-gray-400">Threat Level</span>
-                  <span className={`text-sm font-semibold ${
-                    result.marketSummary.threatLevel === 'Low' ? 'text-green-400' :
-                    result.marketSummary.threatLevel === 'Medium' ? 'text-amber-400' : 'text-red-400'
-                  }`}>{result.marketSummary.threatLevel}</span>
+                <div className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Threat Level</span>
+                  <span className="text-xs font-semibold" style={{
+                    color: result.marketSummary.threatLevel === 'Low' ? 'var(--success)' :
+                    result.marketSummary.threatLevel === 'Medium' ? 'var(--warning)' : 'var(--danger)'
+                  }}>{result.marketSummary.threatLevel}</span>
                 </div>
-                <div className="p-3 rounded-xl glass">
-                  <p className="text-xs text-gray-400 mb-1">Best Opportunity</p>
-                  <p className="text-sm text-gray-300">{result.marketSummary.bestOpportunity}</p>
+                <div className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <p className="text-[10px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Best Opportunity</p>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{result.marketSummary.bestOpportunity}</p>
                 </div>
               </div>
             </Card>
 
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                <Star size={18} className="text-moss-400" />
-                Recommendations
-              </h3>
-              <ul className="space-y-2">
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommendations</h3>
+              <ul className="space-y-1.5">
                 {result.recommendations.map((rec, i) => (
-                  <li key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
-                    <span className="w-5 h-5 rounded-md bg-moss-400/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-xs text-moss-400 font-bold">{i + 1}</span>
+                  <li key={i} className="flex items-start gap-2 p-1.5 rounded-lg">
+                    <span className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5"
+                      style={{ background: 'var(--accent-dim)' }}>
+                      <span className="text-[10px] font-bold" style={{ color: 'var(--accent-bright)' }}>{i + 1}</span>
                     </span>
-                    <span className="text-sm text-gray-300">{rec}</span>
+                    <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{rec}</span>
                   </li>
                 ))}
               </ul>

@@ -7,7 +7,7 @@ import {
 import { getFundingAdvice } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -44,12 +44,7 @@ export default function FundingAdvisor() {
     if (!type || !cost || !wc || !ec) return
     setLoading(true)
     try {
-      const data = await getFundingAdvice({
-        businessType: type,
-        totalCost: Number(cost),
-        workingCapital: Number(wc),
-        equipmentCost: Number(ec),
-      })
+      const data = await getFundingAdvice({ businessType: type, totalCost: Number(cost), workingCapital: Number(wc), equipmentCost: Number(ec) })
       setResult(data)
     } catch (err) {
       console.error(err)
@@ -58,51 +53,44 @@ export default function FundingAdvisor() {
     }
   }
 
+  const tooltipStyle = {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border-strong)',
+    borderRadius: '8px',
+    fontSize: '12px',
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-500 flex items-center justify-center">
-            <DollarSign size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">AI Funding Advisor</h1>
-            <p className="text-gray-400 text-sm">Get personalized funding structure recommendations</p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>AI Funding Advisor</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Get personalized funding structure recommendations</p>
         </div>
       </ScrollReveal>
 
-      {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button
-          onClick={() => setShowEdit(!showEdit)}
-          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={14} />
-          {showEdit ? 'Hide' : 'Edit Details'}
-          {showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
-
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select
-                  label="Business Type"
-                  value={businessType}
-                  onChange={(e) => setBusinessType(e.target.value)}
-                  options={[{ value: 'dairy', label: 'Dairy Farm' }, { value: 'retail', label: 'Retail Store' }, { value: 'food-processing', label: 'Food Processing' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }]}
-                />
-                <Input label="Total Cost (₹)" type="number" value={totalCost} onChange={(e) => setTotalCost(e.target.value)} icon={<IndianRupee size={18} />} />
-                <Input label="Working Capital (₹)" type="number" value={workingCapital} onChange={(e) => setWorkingCapital(e.target.value)} icon={<IndianRupee size={18} />} />
-                <Input label="Equipment Cost (₹)" type="number" value={equipmentCost} onChange={(e) => setEquipmentCost(e.target.value)} icon={<IndianRupee size={18} />} />
+            <Card className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy Farm' }, { value: 'retail', label: 'Retail Store' }, { value: 'food-processing', label: 'Food Processing' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }]} />
+                <Input label="Total Cost (₹)" type="number" value={totalCost} onChange={(e) => setTotalCost(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label="Working Capital (₹)" type="number" value={workingCapital} onChange={(e) => setWorkingCapital(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label="Equipment Cost (₹)" type="number" value={equipmentCost} onChange={(e) => setEquipmentCost(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleGetAdvice() }} loading={loading}>
-                  <DollarSign size={18} />
-                  Refresh Analysis
+                  <DollarSign size={16} />Refresh Analysis
                 </Button>
               </div>
             </Card>
@@ -110,91 +98,78 @@ export default function FundingAdvisor() {
         )}
       </AnimatePresence>
 
-      {/* Results */}
       {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
           {/* Funding Plan Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <GlowCard className="text-center p-4">
-              <p className="text-xs text-gray-400 mb-1">Own Contribution</p>
-              <p className="text-xl font-bold text-primary-400">₹{result.totalFundingPlan.ownContribution.toLocaleString('en-IN')}</p>
-            </GlowCard>
-            <GlowCard className="text-center p-4">
-              <p className="text-xs text-gray-400 mb-1">Loan Amount</p>
-              <p className="text-xl font-bold text-blue-400">₹{result.totalFundingPlan.loanAmount.toLocaleString('en-IN')}</p>
-            </GlowCard>
-            <GlowCard className="text-center p-4">
-              <p className="text-xs text-gray-400 mb-1">Subsidy Amount</p>
-              <p className="text-xl font-bold text-accent-400">₹{result.totalFundingPlan.subsidyAmount.toLocaleString('en-IN')}</p>
-            </GlowCard>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { label: 'Own Contribution', value: `₹${result.totalFundingPlan.ownContribution.toLocaleString('en-IN')}` },
+              { label: 'Loan Amount', value: `₹${result.totalFundingPlan.loanAmount.toLocaleString('en-IN')}` },
+              { label: 'Subsidy Amount', value: `₹${result.totalFundingPlan.subsidyAmount.toLocaleString('en-IN')}` },
+            ].map((item, i) => (
+              <div key={i} className="card p-3 text-center">
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
+                <p className="text-base font-bold" style={{ color: 'var(--accent-bright)' }}>{item.value}</p>
+              </div>
+            ))}
           </div>
 
           {/* Cash Flow Chart */}
           <Card>
-            <h3 className="text-lg font-semibold text-white mb-4">Projected Monthly Cash Flow</h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Monthly Cash Flow</h3>
+            <ResponsiveContainer width="100%" height={240}>
               <BarChart data={result.monthlyCashFlow}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="month" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip
-                  contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                  formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]}
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
+                <YAxis stroke="var(--text-muted)" fontSize={11} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
                 <Legend />
-                <Bar dataKey="inflow" fill="#22c55e" name="Inflow" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="outflow" fill="#ef4444" name="Outflow" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="inflow" fill="var(--success)" name="Inflow" radius={[3, 3, 0, 0]} opacity={0.8} />
+                <Bar dataKey="outflow" fill="var(--danger)" name="Outflow" radius={[3, 3, 0, 0]} opacity={0.8} />
               </BarChart>
             </ResponsiveContainer>
           </Card>
 
           {/* Funding Sources */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Self Funding */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
-              <div className="flex items-center gap-2 mb-3">
-                <DollarSign size={18} className="text-primary-400" />
-                <h3 className="font-semibold text-white">Self Funding</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <DollarSign size={14} style={{ color: 'var(--accent-bright)' }} />
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Self Funding</h3>
               </div>
-              <div className="text-center p-4 glass rounded-xl">
-                <p className="text-2xl font-bold text-primary-400">{result.selfFunding.percentage}%</p>
-                <p className="text-sm text-gray-400">₹{result.selfFunding.amount.toLocaleString('en-IN')}</p>
+              <div className="text-center p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                <p className="text-lg font-bold" style={{ color: 'var(--accent-bright)' }}>{result.selfFunding.percentage}%</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>₹{result.selfFunding.amount.toLocaleString('en-IN')}</p>
               </div>
             </Card>
 
-            {/* Government Loans */}
             <Card>
-              <div className="flex items-center gap-2 mb-3">
-                <Landmark size={18} className="text-blue-400" />
-                <h3 className="font-semibold text-white">Government Loans</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <Landmark size={14} style={{ color: 'var(--info)' }} />
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Government Loans</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {result.governmentLoans.map((loan, i) => (
-                  <div key={i} className="p-3 glass rounded-xl">
-                    <p className="text-sm font-medium text-white">{loan.scheme}</p>
-                    <p className="text-xs text-blue-400">₹{loan.amount.toLocaleString('en-IN')}</p>
-                    <p className="text-xs text-gray-400">{loan.subsidy}</p>
+                  <div key={i} className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                    <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{loan.scheme}</p>
+                    <p className="text-[11px]" style={{ color: 'var(--info)' }}>₹{loan.amount.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{loan.subsidy}</p>
                   </div>
                 ))}
               </div>
             </Card>
 
-            {/* Subsidies */}
             <Card>
-              <div className="flex items-center gap-2 mb-3">
-                <Gift size={18} className="text-accent-400" />
-                <h3 className="font-semibold text-white">Subsidies</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <Gift size={14} style={{ color: 'var(--accent-bright)' }} />
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Subsidies</h3>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {result.subsidies.map((sub, i) => (
-                  <div key={i} className="p-3 glass rounded-xl">
-                    <p className="text-sm font-medium text-white">{sub.name}</p>
-                    <p className="text-xs text-accent-400">₹{sub.amount.toLocaleString('en-IN')}</p>
-                    <p className="text-xs text-gray-400">{sub.eligibility}</p>
+                  <div key={i} className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                    <p className="text-xs font-medium" style={{ color: 'var(--text-primary)' }}>{sub.name}</p>
+                    <p className="text-[11px]" style={{ color: 'var(--accent-bright)' }}>₹{sub.amount.toLocaleString('en-IN')}</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{sub.eligibility}</p>
                   </div>
                 ))}
               </div>
@@ -204,10 +179,10 @@ export default function FundingAdvisor() {
       )}
 
       {loading && (
-        <Card className="p-12 text-center">
-          <Loader2 size={48} className="text-indigo-400 animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">Analyzing Funding Options...</h3>
-          <p className="text-gray-400">Finding the best funding structure for your business.</p>
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Analyzing Funding Options...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Finding the best funding structure for your business.</p>
         </Card>
       )}
     </div>

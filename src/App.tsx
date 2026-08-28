@@ -28,8 +28,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-navy-950">
-        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="spinner" style={{ width: '2rem', height: '2rem', borderWidth: '3px' }} />
       </div>
     )
   }
@@ -46,8 +46,8 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-navy-950">
-        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+        <div className="spinner" style={{ width: '2rem', height: '2rem', borderWidth: '3px' }} />
       </div>
     )
   }

@@ -5,52 +5,49 @@ import { useTheme } from '../../contexts/ThemeContext'
 export default function Footer() {
   const { isDark } = useTheme()
   return (
-    <footer className="bg-charcoal-950 border-t border-white/5 relative overflow-hidden">
-      {/* Subtle moss glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-32 bg-moss-400/5 blur-3xl" />
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+    <footer style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border)' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
-          <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-3 group">
-              <img src={isDark ? '/logo-dark.svg' : '/logo-light.svg'} alt="BizNex Logo" className="w-10 h-10 group-hover:scale-105 transition-transform" />
-              <span className="text-xl font-bold font-display tracking-tight">
-                <span className="text-white">Biz</span>
-                <span className="text-moss-400">Nex</span>
+          <div className="space-y-3">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <img src={isDark ? '/logo-dark.svg' : '/logo-light.svg'} alt="BizNex" className="w-8 h-8 group-hover:scale-105 transition-transform" />
+              <span className="text-lg font-bold tracking-tight" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+                <span style={{ color: 'var(--text-primary)' }}>Biz</span>
+                <span style={{ color: 'var(--accent-bright)' }}>Nex</span>
               </span>
             </Link>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
               Empowering rural entrepreneurs with AI-driven business advisory and financial solutions.
             </p>
           </div>
 
           {/* Features */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Features</h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#features" className="hover:text-moss-400 transition-colors">Market Analysis</a></li>
-              <li><a href="#features" className="hover:text-moss-400 transition-colors">Business Plans</a></li>
-              <li><a href="#features" className="hover:text-moss-400 transition-colors">Scheme Finder</a></li>
-              <li><a href="#features" className="hover:text-moss-400 transition-colors">Loan Calculator</a></li>
+            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Features</h4>
+            <ul className="space-y-2 text-sm" style={{ color: 'var(--text-muted)' }}>
+              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Market Analysis</a></li>
+              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Business Plans</a></li>
+              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Scheme Finder</a></li>
+              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Loan Calculator</a></li>
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Resources</h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#schemes" className="hover:text-moss-400 transition-colors">Government Schemes</a></li>
-              <li><a href="#how-it-works" className="hover:text-moss-400 transition-colors">How It Works</a></li>
-              <li><a href="#" className="hover:text-moss-400 transition-colors">Documentation</a></li>
-              <li><a href="#contact" className="hover:text-moss-400 transition-colors">Support</a></li>
+            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Resources</h4>
+            <ul className="space-y-2 text-sm" style={{ color: 'var(--text-muted)' }}>
+              <li><a href="#schemes" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Government Schemes</a></li>
+              <li><a href="#how-it-works" className="hover:underline" style={{ color: 'var(--text-muted)' }}>How It Works</a></li>
+              <li><a href="#" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Documentation</a></li>
+              <li><a href="#contact" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Support</a></li>
             </ul>
           </div>
 
           {/* Connect */}
           <div>
-            <h4 className="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Connect</h4>
-            <div className="flex gap-3">
+            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Connect</h4>
+            <div className="flex gap-2">
               {[
                 { icon: Github, label: 'GitHub' },
                 { icon: Twitter, label: 'Twitter' },
@@ -61,9 +58,12 @@ export default function Footer() {
                   key={label}
                   href="#"
                   aria-label={label}
-                  className="p-2.5 rounded-xl glass hover:bg-moss-400/10 hover:border-moss-400/30 transition-all duration-300 text-gray-500 hover:text-moss-400"
+                  className="p-2 rounded-lg transition-all duration-150"
+                  style={{ color: 'var(--text-muted)' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                 >
-                  <Icon size={18} />
+                  <Icon size={16} />
                 </a>
               ))}
             </div>
@@ -71,12 +71,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/5 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-600 text-sm">
+        <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid var(--border)' }}>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             © 2024 BizNex. All rights reserved.
           </p>
-          <p className="text-gray-600 text-sm flex items-center gap-1.5">
-            Made with <Heart size={14} className="text-moss-400 fill-moss-400" /> for Rural India
+          <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+            Made with <Heart size={14} style={{ color: 'var(--accent-bright)' }} className="fill-current" /> for Rural India
           </p>
         </div>
       </div>

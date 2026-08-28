@@ -3,13 +3,13 @@ import { motion } from 'motion/react'
 import { TrendingUp, MapPin, IndianRupee, Loader2, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  BarChart, Bar,
 } from 'recharts'
 import { analyzeMarket } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../../components/react-bits'
+import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import TextArea from '../../components/ui/TextArea'
@@ -55,11 +55,7 @@ export default function MarketAnalysis() {
     if (!idea || !loc || !invest) return
     setLoading(true)
     try {
-      const data = await analyzeMarket({
-        businessIdea: idea,
-        location: loc,
-        investmentAmount: Number(invest),
-      })
+      const data = await analyzeMarket({ businessIdea: idea, location: loc, investmentAmount: Number(invest) })
       setResult(data)
     } catch (err) {
       console.error(err)
@@ -68,40 +64,46 @@ export default function MarketAnalysis() {
     }
   }
 
+  const tooltipStyle = {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border-strong)',
+    borderRadius: '8px',
+    fontSize: '12px',
+  }
+
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <ScrollReveal>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-            <TrendingUp size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">Hyper-Local Market Analysis</h1>
-            <p className="text-gray-400 text-sm">Analyze demand, competition, and revenue potential</p>
-          </div>
+        <div>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Market Analysis</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Analyze demand, competition, and revenue potential</p>
         </div>
       </ScrollReveal>
 
       {/* Edit Toggle */}
       <div className="flex justify-end">
-        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors">
-          <Edit3 size={14} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
+          style={{ color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+        >
+          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
                   <TextArea label="Business Idea" value={businessIdea} onChange={(e) => setBusinessIdea(e.target.value)} />
                 </div>
-                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
-                <Input label="Investment Amount (₹)" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} icon={<IndianRupee size={18} />} />
+                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
+                <Input label="Investment Amount (₹)" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
-              <div className="mt-4">
+              <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleAnalyze() }} loading={loading}>
-                  <TrendingUp size={18} />Refresh Analysis
+                  <TrendingUp size={16} />Refresh Analysis
                 </Button>
               </div>
             </Card>
@@ -111,104 +113,118 @@ export default function MarketAnalysis() {
 
       {/* Results */}
       {result && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
-        >
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Market Demand', value: `${result.marketDemandScore}/10`, color: 'text-primary-400' },
-              { label: 'Competition', value: result.competitionLevel, color: 'text-accent-400' },
-              { label: 'Est. Monthly Income', value: `₹${result.estimatedMonthlyIncome.toLocaleString('en-IN')}`, color: 'text-blue-400' },
-              { label: 'Risk Level', value: result.riskLevel, color: result.riskLevel === 'Low' ? 'text-green-400' : result.riskLevel === 'Medium' ? 'text-yellow-400' : 'text-red-400' },
+              { label: 'Market Demand', value: `${result.marketDemandScore}/10` },
+              { label: 'Competition', value: result.competitionLevel },
+              { label: 'Est. Monthly Income', value: `₹${result.estimatedMonthlyIncome.toLocaleString('en-IN')}` },
+              { label: 'Risk Level', value: result.riskLevel },
             ].map((metric, i) => (
-              <GlowCard key={i} className="text-center p-4">
-                <p className="text-xs text-gray-400 mb-1">{metric.label}</p>
-                <p className={`text-xl font-bold ${metric.color}`}>{metric.value}</p>
-              </GlowCard>
+              <div key={i} className="card p-3 text-center">
+                <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{metric.label}</p>
+                <p className="text-base font-bold" style={{ color: 'var(--accent-bright)' }}>{metric.value}</p>
+              </div>
             ))}
           </div>
 
+          {/* Insight */}
+          <div className="card p-4" style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--accent-bright)' }}>BizNex Insight</p>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Market demand for {business?.businessType || 'this business'} in {business?.location || 'your area'} is {result.marketDemandScore >= 7 ? 'strong' : result.marketDemandScore >= 5 ? 'moderate' : 'developing'}.
+              Competition is {result.competitionLevel.toLowerCase()}. Estimated monthly income: ₹{result.estimatedMonthlyIncome.toLocaleString('en-IN')}.
+            </p>
+          </div>
+
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Demand Chart */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Market Demand Trend</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Market Demand Trend</h3>
+              <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandChart}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Line type="monotone" dataKey="demand" stroke="#22c55e" strokeWidth={2} dot={{ fill: '#22c55e' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Line type="monotone" dataKey="demand" stroke="var(--accent-bright)" strokeWidth={2} dot={{ fill: 'var(--accent-bright)', r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
 
-            {/* Revenue Forecast */}
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Revenue Forecast</h3>
-              <ResponsiveContainer width="100%" height={250}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Revenue Over 6 Months</h3>
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={result.revenueForecast}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                  <YAxis stroke="#64748b" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']}
-                  />
-                  <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
+                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']} />
+                  <Bar dataKey="revenue" fill="var(--accent-bright)" radius={[3, 3, 0, 0]} opacity={0.8} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
           </div>
 
-          {/* SWOT Analysis */}
+          {/* Business Opportunity Assessment (Editorial SWOT) */}
           <Card>
-            <h3 className="text-lg font-semibold text-white mb-4">SWOT Analysis</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                { title: 'Strengths', items: result.swotAnalysis.strengths, color: 'green' },
-                { title: 'Weaknesses', items: result.swotAnalysis.weaknesses, color: 'red' },
-                { title: 'Opportunities', items: result.swotAnalysis.opportunities, color: 'blue' },
-                { title: 'Threats', items: result.swotAnalysis.threats, color: 'orange' },
-              ].map((section, i) => (
-                <div key={i} className={`p-4 rounded-xl border border-${section.color}-500/20 bg-${section.color}-500/5`}>
-                  <h4 className={`font-semibold text-${section.color}-400 mb-2`}>{section.title}</h4>
-                  <ul className="space-y-1">
-                    {section.items.map((item, j) => (
-                      <li key={j} className="text-sm text-gray-300">• {item}</li>
-                    ))}
-                  </ul>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Business Opportunity Assessment</h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--success)' }}>What Works</p>
+                <div className="space-y-1">
+                  {result.swotAnalysis.strengths.map((s, i) => (
+                    <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {s}</p>
+                  ))}
                 </div>
-              ))}
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--warning)' }}>Watch Out For</p>
+                <div className="space-y-1">
+                  {result.swotAnalysis.weaknesses.map((w, i) => (
+                    <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {w}</p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--info)' }}>Where to Grow</p>
+                <div className="space-y-1">
+                  {result.swotAnalysis.opportunities.map((o, i) => (
+                    <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {o}</p>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--danger)' }}>Key Risks</p>
+                <div className="space-y-1">
+                  {result.swotAnalysis.threats.map((t, i) => (
+                    <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {t}</p>
+                  ))}
+                </div>
+              </div>
             </div>
           </Card>
 
           {/* Resources & Recommendations */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3">Required Resources</h3>
-              <ul className="space-y-2">
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Required Resources</h3>
+              <ul className="space-y-1.5">
                 {result.requiredResources.map((resource, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="w-2 h-2 rounded-full bg-primary-400" />
+                  <li key={i} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'var(--accent-bright)' }} />
                     {resource}
                   </li>
                 ))}
               </ul>
             </Card>
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-3">Recommendations</h3>
-              <ul className="space-y-2">
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommendations</h3>
+              <ul className="space-y-1.5">
                 {result.recommendations.map((rec, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
-                    <span className="w-2 h-2 rounded-full bg-accent-400" />
+                  <li key={i} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: 'var(--accent-bright)' }} />
                     {rec}
                   </li>
                 ))}
@@ -216,13 +232,22 @@ export default function MarketAnalysis() {
             </Card>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Button variant="secondary">
-              <Download size={18} />
+              <Download size={16} />
               Download PDF Report
             </Button>
           </div>
         </motion.div>
+      )}
+
+      {/* Loading */}
+      {loading && (
+        <Card className="p-10 text-center">
+          <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Analyzing Market Data...</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Our AI is evaluating market conditions for your business.</p>
+        </Card>
       )}
     </div>
   )

@@ -9,25 +9,25 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, icon, className = '', ...props }, ref) => {
     return (
-      <div className="space-y-1">
+      <div className="space-y-1.5">
         {label && (
-          <label className="block text-sm font-medium text-gray-300 mb-1">
+          <label className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             {label}
           </label>
         )}
         <div className="relative">
           {icon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }}>
               {icon}
             </div>
           )}
           <input
             ref={ref}
-            className={`input-field ${icon ? 'pl-10' : ''} ${error ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20' : ''} ${className}`}
+            className={`input-field ${icon ? 'pl-10' : ''} ${error ? 'border-[var(--danger)] focus:border-[var(--danger)] focus:shadow-[0_0_0_3px_rgba(239,68,68,0.1)]' : ''} ${className}`}
             {...props}
           />
         </div>
-        {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+        {error && <p className="text-sm mt-1" style={{ color: 'var(--danger)' }}>{error}</p>}
       </div>
     )
   }
