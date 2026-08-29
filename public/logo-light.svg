@@ -1,33 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
   <defs>
     <linearGradient id="swoosh" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0052CC"/>
-      <stop offset="100%" stop-color="#0088FF"/>
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
     </linearGradient>
     <linearGradient id="arrowG" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#00C9A7"/>
       <stop offset="100%" stop-color="#00E676"/>
     </linearGradient>
   </defs>
-
   <!-- Circular swoosh arc (thick) -->
   <path d="M 40 140 A 62 62 0 1 1 150 42"
         fill="none" stroke="url(#swoosh)" stroke-width="14" stroke-linecap="round"/>
-
   <!-- Inner ring detail -->
   <path d="M 52 138 A 50 50 0 1 1 142 50"
         fill="none" stroke="url(#swoosh)" stroke-width="5" stroke-linecap="round"
         opacity="0.4"/>
-
   <!-- Bar chart - 3 ascending bars -->
   <rect x="68" y="108" width="11" height="28" rx="2" fill="url(#swoosh)"/>
   <rect x="83" y="88"  width="11" height="48" rx="2" fill="url(#swoosh)"/>
   <rect x="98" y="68"  width="11" height="68" rx="2" fill="url(#swoosh)"/>
-
   <!-- Arrow shaft (going up-right) -->
   <line x1="103" y1="65" x2="148" y2="22"
         stroke="url(#arrowG)" stroke-width="7" stroke-linecap="round"/>
-
   <!-- Arrow head (triangle) -->
   <polygon points="148,18 158,32 143,32" fill="url(#arrowG)"/>
 </svg>
