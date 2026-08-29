@@ -10,7 +10,6 @@ import {
 import { findNearbyBusinesses } from '../../lib/ai'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { useAuth } from '../../contexts/AuthContext'
-import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
@@ -132,10 +131,10 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-gray-400">{label}</span>
-        <span className="text-gray-300 font-medium">{value}/100</span>
+        <span className="style={{ color: 'var(--text-muted)' }}">{label}</span>
+        <span className="style={{ color: 'var(--text-secondary)' }} font-medium">{value}/100</span>
       </div>
-      <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+      <div className="w-full h-2 rounded-full style={{ background: 'var(--border-strong)' }} overflow-hidden">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
@@ -396,14 +395,14 @@ export default function NearbyCompetitors() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
-      <ScrollReveal>
+      <div>
         <div>
           <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Nearby Competitors</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Discover similar businesses, compare demand & popularity, and find your edge
           </p>
         </div>
-      </ScrollReveal>
+      </div>
       {result && (
         <div className="flex justify-end">
           <Button variant="secondary" onClick={downloadReport} loading={downloading}>
@@ -471,7 +470,7 @@ export default function NearbyCompetitors() {
 
           {/* Type Filter */}
           {availableTypes.length > 2 && (
-            <ScrollReveal delay={0.15}>
+            <div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Filter size={14} className="shrink-0" style={{ color: 'var(--text-muted)' }} />
                 <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Filter by type:</span>
@@ -507,13 +506,13 @@ export default function NearbyCompetitors() {
                 {filterType !== 'All' && (
                   <button
                     onClick={() => setFilterType('All')}
-                    className="px-2 py-1 rounded-full text-xs text-moss-400 hover:bg-moss-400/10 transition-colors"
+                    className="px-2 py-1 rounded-full text-xs style={{ color: 'var(--accent-bright)' }} transition-colors"
                   >
                     Clear
                   </button>
                 )}
               </div>
-            </ScrollReveal>
+            </div>
           )}
 
           {/* Map + Sidebar */}
@@ -651,7 +650,7 @@ export default function NearbyCompetitors() {
 
           {/* Selected Competitor Detail */}
           {visibleSelected && (
-            <ScrollReveal>
+            <div>
               <Card className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div>
@@ -679,11 +678,11 @@ export default function NearbyCompetitors() {
                     <ScoreBar label="Your Progress" value={result.userBusiness.progressScore} color="#8b5cf680" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-400 mb-2">Monthly Revenue</p>
+                    <p className="text-xs style={{ color: 'var(--text-muted)' }} mb-2">Monthly Revenue</p>
                     <p className="text-2xl font-bold text-green-400">
                       ₹{visibleSelected.monthlyRevenue.toLocaleString('en-IN')}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs style={{ color: 'var(--text-muted)' }} mt-1">
                       vs your ₹{result.userBusiness.monthlyRevenue.toLocaleString('en-IN')}
                     </p>
                   </div>
@@ -720,7 +719,7 @@ export default function NearbyCompetitors() {
                   </div>
                 </div>
               </Card>
-            </ScrollReveal>
+            </div>
           )}
 
           {/* Charts */}
@@ -733,11 +732,11 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
-                  <YAxis stroke="var(--text-muted)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
-                  <Line type="monotone" dataKey="demand" stroke="var(--accent-bright)" strokeWidth={2} dot={{ fill: 'var(--accent-bright)', r: 3 }} activeDot={{ r: 5, fill: 'var(--accent-bright)' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="month" stroke="rgba(255,255,255,0.4)" fontSize={11} />
+                  <YAxis stroke="rgba(255,255,255,0.4)" fontSize={11} />
+                  <Tooltip contentStyle={{ background: '#242424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '12px', color: '#f0f0f0' }} />
+                  <Line type="monotone" dataKey="demand" stroke="#21F1A8" strokeWidth={2} dot={{ fill: '#21F1A8', r: 3 }} activeDot={{ r: 5, fill: '#21F1A8' }} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
@@ -750,14 +749,14 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={filteredPopularityComparison} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis type="number" stroke="var(--text-muted)" fontSize={11} domain={[0, 100]} />
-                  <YAxis type="category" dataKey="name" stroke="var(--text-muted)" fontSize={10} width={90}
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis type="number" stroke="rgba(255,255,255,0.4)" fontSize={11} domain={[0, 100]} />
+                  <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} width={90}
                     tickFormatter={(v: string) => (v.length > 12 ? v.slice(0, 10) + '…' : v)} />
-                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
+                  <Tooltip contentStyle={{ background: '#242424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '12px', color: '#f0f0f0' }} />
                   <Bar dataKey="score" radius={[0, 3, 3, 0]}>
                     {filteredPopularityComparison.map((entry, i) => (
-                      <motion.rect key={i} fill={entry.name === 'Your Business' ? 'var(--accent-bright)' : 'var(--info)'} opacity={0.8} />
+                      <motion.rect key={i} fill={entry.name === 'Your Business' ? '#21F1A8' : '#3b82f6'} opacity={0.85} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -774,12 +773,12 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={280}>
                 <RadarChart data={filteredRadarData}>
-                  <PolarGrid stroke="var(--border)" />
-                  <PolarAngleAxis dataKey="subject" stroke="var(--text-muted)" fontSize={11} />
-                  <PolarRadiusAxis stroke="var(--border-strong)" fontSize={10} domain={[0, 100]} />
-                  <Radar name="Popularity" dataKey="popularity" stroke="var(--info)" fill="var(--info)" fillOpacity={0.12} />
-                  <Radar name="Demand" dataKey="demand" stroke="var(--accent-bright)" fill="var(--accent-bright)" fillOpacity={0.12} />
-                  <Radar name="Progress" dataKey="progress" stroke="var(--warning)" fill="var(--warning)" fillOpacity={0.12} />
+                  <PolarGrid stroke="rgba(255,255,255,0.06)" />
+                  <PolarAngleAxis dataKey="subject" stroke="rgba(255,255,255,0.4)" fontSize={11} />
+                  <PolarRadiusAxis stroke="rgba(255,255,255,0.12)" fontSize={10} domain={[0, 100]} />
+                  <Radar name="Popularity" dataKey="popularity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.12} />
+                  <Radar name="Demand" dataKey="demand" stroke="#21F1A8" fill="#21F1A8" fillOpacity={0.12} />
+                  <Radar name="Progress" dataKey="progress" stroke="#eab308" fill="#eab308" fillOpacity={0.12} />
                   <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
                 </RadarChart>
               </ResponsiveContainer>
