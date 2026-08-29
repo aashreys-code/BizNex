@@ -8,7 +8,9 @@ import {
 import { calculateLoan } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors, tooltipContentStyle } from '../../lib/chartColors'
+
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -23,10 +25,11 @@ interface LoanResult {
   monthlyRepaymentSchedule: { month: number; emi: number; principal: number; interest: number; balance: number }[]
 }
 
-const PIE_COLORS = ['var(--accent-bright)', 'var(--warning)', 'var(--info)']
-
 export default function LoanCalculator() {
   const { business, isComplete } = useBusiness()
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
+  const PIE_COLORS = [c.accent, c.warning, c.info]
   const [monthlyIncome, setMonthlyIncome] = useState(business?.monthlyIncome ? String(business.monthlyIncome) : '')
   const [existingLoans, setExistingLoans] = useState(business?.existingLoans ? String(business.existingLoans) : '')
   const [businessType, setBusinessType] = useState(business?.businessType || '')
@@ -63,21 +66,14 @@ export default function LoanCalculator() {
       ]
     : []
 
-  const tooltipStyle = {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--border-strong)',
-    borderRadius: '8px',
-    fontSize: '12px',
-  }
+  const tooltipStyle = tooltipContentStyle(isDark)
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
-        <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Loan Eligibility Calculator</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Calculate your eligibility, EMI, and repayment schedule</p>
-        </div>
-      </ScrollReveal>
+      <div>
+        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Loan Eligibility Calculator</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Calculate your eligibility, EMI, and repayment schedule</p>
+      </div>
 
       <div className="flex justify-end">
         <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
@@ -146,7 +142,7 @@ export default function LoanCalculator() {
                       const x = cx + radius * Math.cos(-midAngle * RADIAN)
                       const y = cy + radius * Math.sin(-midAngle * RADIAN)
                       return (
-                        <text x={x} y={y} fill="var(--text-secondary)" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
+                        <text x={x} y={y} fill={c.label} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
                           {`${name} ${(percent * 100).toFixed(0)}%`}
                         </text>
                       )
@@ -157,7 +153,7 @@ export default function LoanCalculator() {
                     ))}
                   </Pie>
                   <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
-                  <Legend verticalAlign="bottom" height={30} formatter={(value) => <span style={{ color: 'var(--text-secondary)', fontSize: 11 }}>{value}</span>} />
+                  <Legend verticalAlign="bottom" height={30} formatter={(value) => <span style={{ color: c.label, fontSize: 11 }}>{value}</span>} />
                 </PieChart>
               </ResponsiveContainer>
             </Card>
@@ -166,13 +162,13 @@ export default function LoanCalculator() {
               <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Repayment Schedule</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={result.monthlyRepaymentSchedule}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
-                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="month" stroke={c.axis} fontSize={11} />
+                  <YAxis stroke={c.axis} fontSize={11} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
                   <Legend />
-                  <Bar dataKey="principal" fill="var(--accent-bright)" name="Principal" radius={[3, 3, 0, 0]} opacity={0.8} />
-                  <Bar dataKey="interest" fill="var(--warning)" name="Interest" radius={[3, 3, 0, 0]} opacity={0.8} />
+                  <Bar dataKey="principal" fill={c.accent} name="Principal" radius={[3, 3, 0, 0]} opacity={0.85} />
+                  <Bar dataKey="interest" fill={c.warning} name="Interest" radius={[3, 3, 0, 0]} opacity={0.85} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>

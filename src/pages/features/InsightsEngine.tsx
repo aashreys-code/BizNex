@@ -8,7 +8,8 @@ import {
 import { getInsights } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors, tooltipContentStyle } from '../../lib/chartColors'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
@@ -26,11 +27,12 @@ interface InsightData {
   digitalAdoption: string
 }
 
-const PIE_COLORS = ['var(--accent-bright)', 'var(--info)', 'var(--warning)']
-
 export default function InsightsEngine() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
+  const PIE_COLORS = [c.accent, c.info, c.warning]
   const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<InsightData | null>(null)
@@ -63,21 +65,16 @@ export default function InsightsEngine() {
       ]
     : []
 
-  const tooltipStyle = {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--border-strong)',
-    borderRadius: '8px',
-    fontSize: '12px',
-  }
+  const tooltipStyle = tooltipContentStyle(isDark)
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
+      <div>
         <div>
           <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Insights</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover data-driven insights about your area</p>
         </div>
-      </ScrollReveal>
+      </div>
 
       <div className="flex justify-end">
         <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
@@ -139,13 +136,13 @@ export default function InsightsEngine() {
                   score: d.trend === 'growing' ? 80 : d.trend === 'stable' ? 50 : 20,
                   trend: d.trend,
                 }))}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="category" stroke="var(--text-muted)" fontSize={10} />
-                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="category" stroke={c.axis} fontSize={10} />
+                  <YAxis stroke={c.axis} fontSize={11} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar dataKey="score" radius={[3, 3, 0, 0]}>
                     {result.demandTrends.map((d, i) => (
-                      <Cell key={i} fill={d.trend === 'growing' ? 'var(--success)' : d.trend === 'stable' ? 'var(--warning)' : 'var(--danger)'} opacity={0.8} />
+                      <Cell key={i} fill={d.trend === 'growing' ? c.success : d.trend === 'stable' ? c.warning : c.danger} opacity={0.85} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -163,7 +160,7 @@ export default function InsightsEngine() {
                       const x = cx + radius * Math.cos(-midAngle * RADIAN)
                       const y = cy + radius * Math.sin(-midAngle * RADIAN)
                       return (
-                        <text x={x} y={y} fill="var(--text-secondary)" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
+                        <text x={x} y={y} fill={c.label} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={10}>
                           {`${name} ${value}%`}
                         </text>
                       )

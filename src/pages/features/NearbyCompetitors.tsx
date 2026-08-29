@@ -10,6 +10,8 @@ import {
 import { findNearbyBusinesses } from '../../lib/ai'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors, tooltipContentStyle } from '../../lib/chartColors'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Card from '../../components/ui/Card'
@@ -152,6 +154,8 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
 export default function NearbyCompetitors() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [radius, setRadius] = useState(business?.radius ? String(business.radius) : '10')
@@ -732,11 +736,11 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis dataKey="month" stroke="rgba(255,255,255,0.4)" fontSize={11} />
-                  <YAxis stroke="rgba(255,255,255,0.4)" fontSize={11} />
-                  <Tooltip contentStyle={{ background: '#242424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '12px', color: '#f0f0f0' }} />
-                  <Line type="monotone" dataKey="demand" stroke="#21F1A8" strokeWidth={2} dot={{ fill: '#21F1A8', r: 3 }} activeDot={{ r: 5, fill: '#21F1A8' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="month" stroke={c.axis} fontSize={11} />
+                  <YAxis stroke={c.axis} fontSize={11} />
+                  <Tooltip contentStyle={tooltipContentStyle(isDark)} />
+                  <Line type="monotone" dataKey="demand" stroke={c.accent} strokeWidth={2} dot={{ fill: c.accent, r: 3 }} activeDot={{ r: 5, fill: c.accent }} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
@@ -749,14 +753,14 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={filteredPopularityComparison} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis type="number" stroke="rgba(255,255,255,0.4)" fontSize={11} domain={[0, 100]} />
-                  <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.4)" fontSize={10} width={90}
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis type="number" stroke={c.axis} fontSize={11} domain={[0, 100]} />
+                  <YAxis type="category" dataKey="name" stroke={c.axis} fontSize={10} width={90}
                     tickFormatter={(v: string) => (v.length > 12 ? v.slice(0, 10) + '…' : v)} />
-                  <Tooltip contentStyle={{ background: '#242424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px', fontSize: '12px', color: '#f0f0f0' }} />
+                  <Tooltip contentStyle={tooltipContentStyle(isDark)} />
                   <Bar dataKey="score" radius={[0, 3, 3, 0]}>
                     {filteredPopularityComparison.map((entry, i) => (
-                      <motion.rect key={i} fill={entry.name === 'Your Business' ? '#21F1A8' : '#3b82f6'} opacity={0.85} />
+                      <motion.rect key={i} fill={entry.name === 'Your Business' ? c.accent : c.info} opacity={0.85} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -773,13 +777,13 @@ export default function NearbyCompetitors() {
               </h3>
               <ResponsiveContainer width="100%" height={280}>
                 <RadarChart data={filteredRadarData}>
-                  <PolarGrid stroke="rgba(255,255,255,0.06)" />
-                  <PolarAngleAxis dataKey="subject" stroke="rgba(255,255,255,0.4)" fontSize={11} />
-                  <PolarRadiusAxis stroke="rgba(255,255,255,0.12)" fontSize={10} domain={[0, 100]} />
-                  <Radar name="Popularity" dataKey="popularity" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.12} />
-                  <Radar name="Demand" dataKey="demand" stroke="#21F1A8" fill="#21F1A8" fillOpacity={0.12} />
-                  <Radar name="Progress" dataKey="progress" stroke="#eab308" fill="#eab308" fillOpacity={0.12} />
-                  <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: '8px', fontSize: '12px' }} />
+                  <PolarGrid stroke={c.grid} />
+                  <PolarAngleAxis dataKey="subject" stroke={c.axis} fontSize={11} />
+                  <PolarRadiusAxis stroke={c.grid} fontSize={10} domain={[0, 100]} />
+                  <Radar name="Popularity" dataKey="popularity" stroke={c.info} fill={c.info} fillOpacity={0.15} />
+                  <Radar name="Demand" dataKey="demand" stroke={c.accent} fill={c.accent} fillOpacity={0.15} />
+                  <Radar name="Progress" dataKey="progress" stroke={c.warning} fill={c.warning} fillOpacity={0.15} />
+                  <Tooltip contentStyle={tooltipContentStyle(isDark)} />
                 </RadarChart>
               </ResponsiveContainer>
             </Card>

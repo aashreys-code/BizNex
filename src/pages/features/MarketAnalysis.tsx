@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'motion/react'
+
 import { TrendingUp, MapPin, IndianRupee, Loader2, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar,
 } from 'recharts'
 import { analyzeMarket } from '../../lib/ai'
-import { AnimatePresence } from 'motion/react'
+
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors, tooltipContentStyle } from '../../lib/chartColors'
+
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import TextArea from '../../components/ui/TextArea'
@@ -37,6 +39,8 @@ interface MarketResult {
 export default function MarketAnalysis() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
   const [businessIdea, setBusinessIdea] = useState(business?.businessDescription || business?.businessType || '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
   const [investmentAmount, setInvestmentAmount] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
@@ -64,21 +68,14 @@ export default function MarketAnalysis() {
     }
   }
 
-  const tooltipStyle = {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--border-strong)',
-    borderRadius: '8px',
-    fontSize: '12px',
-  }
+  const tooltipStyle = tooltipContentStyle(isDark)
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
-        <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Market Analysis</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Analyze demand, competition, and revenue potential</p>
-        </div>
-      </ScrollReveal>
+      <div>
+        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Market Analysis</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Analyze demand, competition, and revenue potential</p>
+      </div>
 
       {/* Edit Toggle */}
       <div className="flex justify-end">
@@ -90,9 +87,7 @@ export default function MarketAnalysis() {
           <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
-      <AnimatePresence>
-        {showEdit && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+      {showEdit && (
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
@@ -107,13 +102,11 @@ export default function MarketAnalysis() {
                 </Button>
               </div>
             </Card>
-          </motion.div>
         )}
-      </AnimatePresence>
 
       {/* Results */}
       {result && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+        <div className="space-y-5">
           {/* Key Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
@@ -144,11 +137,11 @@ export default function MarketAnalysis() {
               <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Market Demand Trend</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandChart}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
-                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="month" stroke={c.axis} fontSize={11} />
+                  <YAxis stroke={c.axis} fontSize={11} />
                   <Tooltip contentStyle={tooltipStyle} />
-                  <Line type="monotone" dataKey="demand" stroke="var(--accent-bright)" strokeWidth={2} dot={{ fill: 'var(--accent-bright)', r: 3 }} />
+                  <Line type="monotone" dataKey="demand" stroke={c.accent} strokeWidth={2} dot={{ fill: c.accent, r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
@@ -157,22 +150,22 @@ export default function MarketAnalysis() {
               <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Revenue Over 6 Months</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={result.revenueForecast}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                  <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
-                  <YAxis stroke="var(--text-muted)" fontSize={11} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="month" stroke={c.axis} fontSize={11} />
+                  <YAxis stroke={c.axis} fontSize={11} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Revenue']} />
-                  <Bar dataKey="revenue" fill="var(--accent-bright)" radius={[3, 3, 0, 0]} opacity={0.8} />
+                  <Bar dataKey="revenue" fill={c.accent} radius={[3, 3, 0, 0]} opacity={0.85} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
           </div>
 
-          {/* Business Opportunity Assessment (Editorial SWOT) */}
+          {/* Business Opportunity Assessment */}
           <Card>
             <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Business Opportunity Assessment</h3>
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--success)' }}>What Works</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>What Works</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.strengths.map((s, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {s}</p>
@@ -180,7 +173,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--warning)' }}>Watch Out For</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Watch Out For</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.weaknesses.map((w, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {w}</p>
@@ -188,7 +181,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--info)' }}>Where to Grow</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Where to Grow</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.opportunities.map((o, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {o}</p>
@@ -196,7 +189,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--danger)' }}>Key Risks</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Key Risks</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.threats.map((t, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {t}</p>
@@ -238,7 +231,7 @@ export default function MarketAnalysis() {
               Download PDF Report
             </Button>
           </div>
-        </motion.div>
+        </div>
       )}
 
       {/* Loading */}

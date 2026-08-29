@@ -7,7 +7,8 @@ import {
 import { getFundingAdvice } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors, tooltipContentStyle } from '../../lib/chartColors'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -24,6 +25,8 @@ interface FundingResult {
 
 export default function FundingAdvisor() {
   const { business, isComplete } = useBusiness()
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [totalCost, setTotalCost] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [workingCapital, setWorkingCapital] = useState(business?.workingCapital ? String(business.workingCapital) : '')
@@ -53,21 +56,16 @@ export default function FundingAdvisor() {
     }
   }
 
-  const tooltipStyle = {
-    background: 'var(--bg-elevated)',
-    border: '1px solid var(--border-strong)',
-    borderRadius: '8px',
-    fontSize: '12px',
-  }
+  const tooltipStyle = tooltipContentStyle(isDark)
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
+      <div>
         <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>AI Funding Advisor</h1>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Funding Advisor</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Get personalized funding structure recommendations</p>
         </div>
-      </ScrollReveal>
+      </div>
 
       <div className="flex justify-end">
         <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
@@ -119,13 +117,13 @@ export default function FundingAdvisor() {
             <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Monthly Cash Flow</h3>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={result.monthlyCashFlow}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={11} />
-                <YAxis stroke="var(--text-muted)" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                <XAxis dataKey="month" stroke={c.axis} fontSize={11} />
+                <YAxis stroke={c.axis} fontSize={11} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`]} />
                 <Legend />
-                <Bar dataKey="inflow" fill="var(--success)" name="Inflow" radius={[3, 3, 0, 0]} opacity={0.8} />
-                <Bar dataKey="outflow" fill="var(--danger)" name="Outflow" radius={[3, 3, 0, 0]} opacity={0.8} />
+                <Bar dataKey="inflow" fill={c.success} name="Inflow" radius={[3, 3, 0, 0]} opacity={0.85} />
+                <Bar dataKey="outflow" fill={c.danger} name="Outflow" radius={[3, 3, 0, 0]} opacity={0.85} />
               </BarChart>
             </ResponsiveContainer>
           </Card>

@@ -9,6 +9,8 @@ import {
   LineChart, Line,
 } from 'recharts'
 import { ScrollReveal, GlowCard, CountUp } from '../../components/react-bits'
+import { useTheme } from '../../contexts/ThemeContext'
+import { chartColors } from '../../lib/chartColors'
 import Button from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Modal from '../../components/ui/Modal'
@@ -57,6 +59,8 @@ const mockSchemes = [
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'schemes' | 'prompts'>('overview')
   const [showAddScheme, setShowAddScheme] = useState(false)
+  const { isDark } = useTheme()
+  const c = chartColors(isDark)
 
   const tabs = [
     { key: 'overview', label: 'Overview', icon: BarChart3 },
@@ -132,31 +136,31 @@ export default function AdminPanel() {
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">User Growth</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>User Growth</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <LineChart data={userActivityData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="month" stroke="#64748b" />
-                  <YAxis stroke="#64748b" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis dataKey="month" stroke={c.axis} />
+                  <YAxis stroke={c.axis} />
                   <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                    contentStyle={{ background: c.tooltipBg, border: `1px solid ${c.tooltipBorder}`, borderRadius: '8px', color: c.tooltipColor }}
                   />
-                  <Line type="monotone" dataKey="users" stroke="#22c55e" strokeWidth={2} name="Users" />
-                  <Line type="monotone" dataKey="reports" stroke="#f97316" strokeWidth={2} name="Reports" />
+                  <Line type="monotone" dataKey="users" stroke={c.success} strokeWidth={2} name="Users" />
+                  <Line type="monotone" dataKey="reports" stroke={c.accent} strokeWidth={2} name="Reports" />
                 </LineChart>
               </ResponsiveContainer>
             </Card>
             <Card>
-              <h3 className="text-lg font-semibold text-white mb-4">Popular Categories</h3>
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Popular Categories</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={popularCategoriesData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis type="number" stroke="#64748b" />
-                  <YAxis dataKey="category" type="category" stroke="#64748b" fontSize={12} width={100} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
+                  <XAxis type="number" stroke={c.axis} />
+                  <YAxis dataKey="category" type="category" stroke={c.axis} fontSize={12} width={100} />
                   <Tooltip
-                    contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                    contentStyle={{ background: c.tooltipBg, border: `1px solid ${c.tooltipBorder}`, borderRadius: '8px', color: c.tooltipColor }}
                   />
-                  <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="count" fill={c.purple} radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>
