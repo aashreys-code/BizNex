@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { TrendingUp, Search, ArrowUpRight, Building2, MapPin, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Search, ArrowUpRight, Building2, MapPin, AlertTriangle, X, Check, ExternalLink } from 'lucide-react'
 
 export default function ProductPreview() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -15,6 +15,47 @@ export default function ProductPreview() {
     obs.observe(el)
     return () => obs.disconnect()
   }, [])
+
+  const [selectedScheme, setSelectedScheme] = useState<number | null>(null)
+
+  const schemeDetails = [
+    {
+      name: 'MUDRA Loan',
+      fullName: 'Pradhan Mantri MUDRA Yojana',
+      amount: 'Up to ₹10 Lakh',
+      match: '95%',
+      tag: 'Best Match',
+      description: 'Provides loans up to ₹10 lakh to non-corporate, non-farm small/micro enterprises. No collateral required.',
+      eligibility: ['Non-corporate business', 'Micro or small enterprise', 'Annual turnover up to ₹25 crore'],
+      benefits: ['No collateral required', 'Flexible repayment up to 7 years', 'Subsidized interest rates', 'Quick processing'],
+      howToApply: 'Apply through any MUDRA lending partner — banks, NBFCs, or MFIs. Submit business plan and KYC documents.',
+      color: '#21F1A8',
+    },
+    {
+      name: 'PMEGP',
+      fullName: 'Prime Minister Employment Generation Programme',
+      amount: 'Up to ₹25 Lakh',
+      match: '82%',
+      tag: 'High Eligibility',
+      description: 'Credit-linked subsidy scheme for generating self-employment through new micro-enterprises.',
+      eligibility: ['Age 18+', '8th pass minimum', 'Project cost up to ₹50 lakh (manufacturing) / ₹20 lakh (services)'],
+      benefits: ['15–35% subsidy on project cost', 'No income ceiling', 'Covers both manufacturing & services', 'Training provided'],
+      howToApply: 'Apply online at kvic.org.in through District Industries Centre. Complete entrepreneurship training.',
+      color: '#3b82f6',
+    },
+    {
+      name: 'Stand-Up India',
+      fullName: 'Stand-Up India Scheme',
+      amount: '₹10 Lakh – ₹1 Crore',
+      match: '68%',
+      tag: 'Women Entrepreneur',
+      description: 'Facilitates bank loans between ₹10 lakh and ₹1 crore for greenfield enterprises by SC/ST or women entrepreneurs.',
+      eligibility: ['SC/ST or Woman entrepreneur', 'Age 18+', 'Greenfield enterprise', 'Not a copy of existing enterprise'],
+      benefits: ['Loan from ₹10L to ₹1Cr', '7-year repayment period', 'Margin money support available', 'Handholding support'],
+      howToApply: 'Apply through standupmitra.in or your nearest bank branch. Refinance through NCGTC.',
+      color: '#a78bfa',
+    },
+  ]
 
   return (
     <div ref={containerRef} className="relative">
@@ -158,15 +199,18 @@ export default function ProductPreview() {
                 Recommended for You
               </p>
               <div className="space-y-2">
-                {[
-                  { name: 'MUDRA Loan', amount: '₹10 Lakh', match: '95%', tag: 'Best Match' },
-                  { name: 'PMEGP', amount: '₹25 Lakh', match: '82%', tag: 'High Eligibility' },
-                  { name: 'Stand-Up India', amount: '₹1 Crore', match: '68%', tag: 'Women Entrepreneur' },
-                ].map((scheme, i) => (
+                {schemeDetails.map((scheme, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between py-2 px-2.5 rounded-md"
+                    className="flex items-center justify-between py-2 px-2.5 rounded-md cursor-pointer group transition-all duration-150"
                     style={{ background: i === 0 ? 'var(--accent-dim)' : 'transparent' }}
+                    onClick={() => setSelectedScheme(i)}
+                    onMouseEnter={(e) => {
+                      if (i !== 0) e.currentTarget.style.background = 'var(--accent-dim)'
+                    }}
+                    onMouseLeave={(e) => {
+                      if (i !== 0) e.currentTarget.style.background = 'transparent'
+                    }}
                   >
                     <div className="flex items-center gap-2">
                       <Building2 size={14} style={{ color: i === 0 ? 'var(--accent-bright)' : 'var(--text-muted)' }} />
@@ -175,15 +219,26 @@ export default function ProductPreview() {
                         <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{scheme.amount}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-bold" style={{ color: i === 0 ? 'var(--accent-bright)' : 'var(--text-secondary)' }}>
-                        {scheme.match}
-                      </p>
-                      <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{scheme.tag}</p>
+                    <div className="text-right flex items-center gap-2">
+                      <div>
+                        <p className="text-xs font-bold" style={{ color: i === 0 ? 'var(--accent-bright)' : 'var(--text-secondary)' }}>
+                          {scheme.match}
+                        </p>
+                        <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>{scheme.tag}</p>
+                      </div>
+                      <ExternalLink size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--text-muted)' }} />
                     </div>
                   </div>
                 ))}
               </div>
+
+              {/* Scheme Detail Popup */}
+              {selectedScheme !== null && (
+                <SchemePopup
+                  scheme={schemeDetails[selectedScheme]}
+                  onClose={() => setSelectedScheme(null)}
+                />
+              )}
             </div>
           </div>
 
@@ -203,6 +258,156 @@ export default function ProductPreview() {
               Competitor density in your area increased 12% this quarter. Consider differentiating your service offering.
             </p>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Scheme Detail Popup ──────────────────────── */
+interface SchemePopupProps {
+  scheme: {
+    name: string
+    fullName: string
+    amount: string
+    match: string
+    tag: string
+    description: string
+    eligibility: string[]
+    benefits: string[]
+    howToApply: string
+    color: string
+  }
+  onClose: () => void
+}
+
+function SchemePopup({ scheme, onClose }: SchemePopupProps) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ animation: 'fadeIn 0.2s ease-out' }}
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+        onClick={onClose}
+      />
+      {/* Modal */}
+      <div
+        className="relative w-full max-w-md rounded-2xl p-0 overflow-hidden"
+        style={{
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border-strong)',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+          animation: 'slideUp 0.25s ease-out',
+        }}
+      >
+        {/* Header */}
+        <div
+          className="px-6 pt-5 pb-4"
+          style={{ borderBottom: '1px solid var(--border)' }}
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ background: scheme.color }}
+                />
+                <span
+                  className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                  style={{ background: `${scheme.color}18`, color: scheme.color }}
+                >
+                  {scheme.match} Match
+                </span>
+              </div>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+                {scheme.name}
+              </h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {scheme.fullName}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg transition-colors shrink-0"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold"
+            style={{ background: 'var(--accent-dim)', color: scheme.color }}
+          >
+            {scheme.amount}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            {scheme.description}
+          </p>
+
+          {/* Benefits */}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+              Benefits
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {scheme.benefits.map((b, i) => (
+                <div key={i} className="flex items-start gap-1.5">
+                  <Check size={12} className="mt-0.5 shrink-0" style={{ color: scheme.color }} />
+                  <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{b}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Eligibility */}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+              Eligibility
+            </p>
+            <div className="space-y-1">
+              {scheme.eligibility.map((e, i) => (
+                <div key={i} className="flex items-start gap-2 p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+                  <span className="text-[10px] font-bold w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5"
+                    style={{ background: 'var(--accent-dim)', color: scheme.color }}>
+                    {i + 1}
+                  </span>
+                  <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{e}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* How to Apply */}
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+              How to Apply
+            </p>
+            <p className="text-xs leading-relaxed p-3 rounded-lg" style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)' }}>
+              {scheme.howToApply}
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4" style={{ borderTop: '1px solid var(--border)' }}>
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all duration-150"
+            style={{ background: scheme.color, color: '#0e0e0e' }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+          >
+            Got it
+          </button>
         </div>
       </div>
     </div>
