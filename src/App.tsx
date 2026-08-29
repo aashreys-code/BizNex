@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext'
 
 // Pages
 import LandingPage from './pages/LandingPage'
+import ComponentShowcase from './pages/ComponentShowcase'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import Dashboard from './pages/Dashboard'
@@ -64,6 +65,7 @@ export default function App() {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Layout><LandingPage /></Layout>} />
+      <Route path="/showcase" element={<ComponentShowcase />} />
       <Route path="/login" element={<Layout><LoginPage /></Layout>} />
       <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
 
