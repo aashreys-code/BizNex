@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" fill="none">
+  <rect width="480" height="120" rx="12" fill="#FFFFFF"/>
+  <text x="40" y="78" font-family="Manrope, Inter, system-ui, sans-serif" font-weight="800" font-size="56" letter-spacing="-1.5">
+    <tspan fill="#1a1a1a">Biz</tspan><tspan fill="#21F1A8">Nex</tspan>
+  </text>
+</svg>
