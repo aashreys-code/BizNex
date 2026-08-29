@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Heart, Github, Twitter, Linkedin, Mail } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { useTheme } from '../../contexts/ThemeContext'
 
 export default function Footer() {
@@ -24,59 +24,80 @@ export default function Footer() {
 
           {/* Features */}
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Features</h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Market Analysis</a></li>
-              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Business Plans</a></li>
-              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Scheme Finder</a></li>
-              <li><a href="#features" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Loan Calculator</a></li>
+            <h4 className="font-semibold mb-3 text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Features</h4>
+            <ul className="space-y-2">
+              {['Market Analysis', 'Business Plans', 'Scheme Finder', 'Loan Calculator'].map((item) => (
+                <li key={item}>
+                  <a href="#features" className="text-sm transition-colors duration-150" style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                  >
+                    {item}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Resources */}
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Resources</h4>
-            <ul className="space-y-2 text-sm" style={{ color: 'var(--text-muted)' }}>
-              <li><a href="#schemes" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Government Schemes</a></li>
-              <li><a href="#how-it-works" className="hover:underline" style={{ color: 'var(--text-muted)' }}>How It Works</a></li>
-              <li><a href="#" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Documentation</a></li>
-              <li><a href="#contact" className="hover:underline" style={{ color: 'var(--text-muted)' }}>Support</a></li>
+            <h4 className="font-semibold mb-3 text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Resources</h4>
+            <ul className="space-y-2">
+              {[
+                { href: '#how-it-works', label: 'How It Works' },
+                { href: '#team', label: 'Team' },
+                { href: '#contact', label: 'Contact' },
+              ].map((link) => (
+                <li key={link.href}>
+                  <a href={link.href} className="text-sm transition-colors duration-150" style={{ color: 'var(--text-muted)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Connect */}
+          {/* Get Started */}
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>Connect</h4>
-            <div className="flex gap-2">
+            <h4 className="font-semibold mb-3 text-[11px] uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Get Started</h4>
+            <ul className="space-y-2">
               {[
-                { icon: Github, label: 'GitHub' },
-                { icon: Twitter, label: 'Twitter' },
-                { icon: Linkedin, label: 'LinkedIn' },
-                { icon: Mail, label: 'Email' },
-              ].map(({ icon: Icon, label }) => (
-                <a
-                  key={label}
-                  href="#"
-                  aria-label={label}
-                  className="p-2 rounded-lg transition-all duration-150"
-                  style={{ color: 'var(--text-muted)' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)'; (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                >
-                  <Icon size={16} />
-                </a>
+                { to: '/register', label: 'Create Account' },
+                { to: '/login', label: 'Sign In' },
+                { href: '#features', label: 'Explore Features' },
+              ].map((link) => (
+                <li key={link.label}>
+                  {link.to ? (
+                    <Link to={link.to} className="text-sm transition-colors duration-150" style={{ color: 'var(--text-muted)' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)' }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a href={link.href} className="text-sm transition-colors duration-150" style={{ color: 'var(--text-muted)' }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)' }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
+                    >
+                      {link.label}
+                    </a>
+                  )}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </div>
 
         {/* Bottom bar */}
         <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid var(--border)' }}>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            © 2024 BizNex. All rights reserved.
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            © 2025 BizNex. All rights reserved.
           </p>
-          <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
-            Made with <Heart size={14} style={{ color: 'var(--accent-bright)' }} className="fill-current" /> for Rural India
+          <p className="text-xs flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
+            Made with <Heart size={12} style={{ color: 'var(--accent-bright)' }} className="fill-current" /> for Rural India
           </p>
         </div>
       </div>

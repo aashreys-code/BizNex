@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { Menu, X, Sun, Moon, LogOut, LayoutDashboard } from 'lucide-react'
+import { Menu, X, Sun, Moon, LogOut, LayoutDashboard, ArrowRight } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
 import Button from '../ui/Button'
@@ -39,30 +39,22 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-6">
             {isLanding && (
               <>
-                <a href="#features" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
-                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
-                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
-                >
-                  Features
-                </a>
-                <a href="#how-it-works" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
-                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
-                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
-                >
-                  How It Works
-                </a>
-                <a href="#schemes" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
-                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
-                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
-                >
-                  Schemes
-                </a>
-                <a href="#team" className="text-sm font-medium transition-colors" style={{ color: 'var(--text-secondary)' }}
-                  onMouseEnter={(e) => { (e.target as HTMLElement).style.color = 'var(--accent-bright)' }}
-                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = 'var(--text-secondary)' }}
-                >
-                  Team
-                </a>
+                {[
+                  { href: '#features', label: 'Features' },
+                  { href: '#how-it-works', label: 'How It Works' },
+                  { href: '#team', label: 'Team' },
+                ].map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="text-[13px] font-medium transition-colors duration-150"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent-bright)' }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
+                  >
+                    {link.label}
+                  </a>
+                ))}
               </>
             )}
 
@@ -104,8 +96,9 @@ export default function Navbar() {
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button size="sm">
+                  <Button size="sm" className="group">
                     Get Started
+                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
                   </Button>
                 </Link>
               </div>
@@ -137,10 +130,21 @@ export default function Navbar() {
             <div className="px-4 py-3 space-y-2">
               {isLanding && (
                 <>
-                  <a href="#features" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Features</a>
-                  <a href="#how-it-works" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>How It Works</a>
-                  <a href="#schemes" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Schemes</a>
-                  <a href="#team" className="block py-2 text-sm font-medium" style={{ color: 'var(--text-secondary)' }} onClick={() => setIsOpen(false)}>Team</a>
+                  {[
+                    { href: '#features', label: 'Features' },
+                    { href: '#how-it-works', label: 'How It Works' },
+                    { href: '#team', label: 'Team' },
+                  ].map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="block py-2 text-[13px] font-medium"
+                      style={{ color: 'var(--text-secondary)' }}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
                 </>
               )}
               {user ? (
