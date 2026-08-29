@@ -9,7 +9,6 @@ import {
 import Button from '../components/ui/Button'
 import ScrollReveal from '../components/react-bits/ScrollReveal'
 import MagneticButton from '../components/react-bits/MagneticButton'
-import CountUp from '../components/react-bits/CountUp'
 import HeroVisual from '../components/landing/HeroVisual'
 import ProductPreview from '../components/landing/ProductPreview'
 
@@ -93,7 +92,6 @@ const features = [
 
 /* ─── Main Component ──────────────────────────── */
 export default function LandingPage() {
-  const heroStats = useInView(0.2)
   const workflow = useInView(0.1)
 
   return (
@@ -172,18 +170,15 @@ export default function LandingPage() {
 
               {/* Stats row */}
               <ScrollReveal delay={0.4} distance={16}>
-                <div ref={heroStats.ref} className="flex gap-8">
+                <div className="flex gap-8">
                   {[
-                    { value: 63, suffix: 'M+', label: 'MSMEs in India' },
-                    { value: 3, suffix: 'L Cr', label: 'Schemes unutilized' },
-                    { value: 6, suffix: '', label: 'Languages supported' },
+                    { display: '63M+', label: 'MSMEs in India' },
+                    { display: '3L Cr', label: 'Schemes unutilized' },
+                    { display: '6', label: 'Languages supported' },
                   ].map((stat, i) => (
                     <div key={i}>
                       <p className="text-xl font-bold" style={{ color: 'var(--accent-bright)' }}>
-                        {heroStats.visible ? (
-                          <CountUp to={stat.value} duration={1.8} delay={i * 0.15} />
-                        ) : '0'}
-                        <span className="text-sm font-semibold">{stat.suffix}</span>
+                        {stat.display}
                       </p>
                       <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
                         {stat.label}
