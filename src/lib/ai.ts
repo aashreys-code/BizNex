@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ''
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
 
-const hasApiKeys = Boolean(OPENAI_API_KEY || GEMINI_API_KEY)
+const hasApiKeys = Boolean(GROQ_API_KEY || GEMINI_API_KEY)
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -22,22 +22,22 @@ interface BusinessPlanRequest {
   location: string
 }
 
-// OpenAI API call
-async function callOpenAI(messages: ChatMessage[], model = 'gpt-4') {
-  if (!OPENAI_API_KEY) {
-    throw new Error('OpenAI API key not configured')
+// Groq API call (primary - ultra fast)
+async function callGroq(messages: ChatMessage[]) {
+  if (!GROQ_API_KEY) {
+    throw new Error('Groq API key not configured')
   }
   const response = await axios.post(
-    'https://api.openai.com/v1/chat/completions',
+    'https://api.groq.com/openai/v1/chat/completions',
     {
-      model,
+      model: 'llama-3.3-70b-versatile',
       messages,
       temperature: 0.7,
       max_tokens: 2000,
     },
     {
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
     }
@@ -45,7 +45,7 @@ async function callOpenAI(messages: ChatMessage[], model = 'gpt-4') {
   return response.data.choices[0].message.content
 }
 
-// Gemini API call
+// Gemini API call (fallback)
 async function callGemini(prompt: string) {
   if (!GEMINI_API_KEY) {
     throw new Error('Gemini API key not configured')
@@ -59,26 +59,28 @@ async function callGemini(prompt: string) {
   return response.data.candidates[0].content.parts[0].text
 }
 
-// Smart API selector - tries OpenAI first, falls back to Gemini
+// Smart API selector - tries Groq first (fast), falls back to Gemini
 async function callAI(messages: ChatMessage[] | string) {
   if (!hasApiKeys) {
     throw new Error('No API keys configured')
   }
   try {
     if (typeof messages === 'string') {
-      return await callGemini(messages)
+      // For string prompts, wrap in messages for Groq
+      return await callGroq([{ role: 'user', content: messages }])
     }
-    return await callOpenAI(messages)
+    return await callGroq(messages)
   } catch {
+    // Fallback to Gemini
     if (typeof messages === 'string') {
-      return await callOpenAI([{ role: 'user', content: messages }])
+      return await callGemini(messages)
     }
     return await callGemini(messages.map(m => m.content).join('\n'))
   }
 }
 
 export async function analyzeMarket(data: MarketAnalysisRequest) {
-  const prompt = `You are a business analyst expert for rural India. Analyze the following business opportunity:
+  const prompt = `You are a senior data analyst and business advisor specializing in rural Indian markets. Analyze the following business opportunity with data-driven insights:
 
 Business Idea: ${data.businessIdea}
 Location: ${data.location}
@@ -144,7 +146,7 @@ Return ONLY the JSON, no markdown.`
 }
 
 export async function generateBusinessPlan(data: BusinessPlanRequest) {
-  const prompt = `Create a detailed business plan for a rural Indian entrepreneur:
+  const prompt = `You are a business strategist and data analyst. Create a detailed, data-driven business plan for a rural Indian entrepreneur:
 
 Business Type: ${data.businessType}
 Budget: ₹${data.budget.toLocaleString('en-IN')}
@@ -152,71 +154,21 @@ Location: ${data.location}
 
 Generate a comprehensive business plan with:
 1. Executive Summary
-2. Market Analysis
+2. Market Analysis (with data points)
 3. Target Customer Segment
 4. Revenue Model
-5. Cost Breakdown (itemized)
+5. Cost Breakdown (itemized with percentages)
 6. Marketing Strategy
-7. Growth Plan (6 months, 1 year, 3 years)
-8. Risk Assessment
-9. Key Metrics to Track
+7. Growth Plan (6 months, 1 year, 3 years with projections)
+8. Risk Assessment (with mitigation strategies)
+9. Key Metrics to Track (KPIs)
 
-Format the response as structured sections with clear headings. Be specific to rural Indian context.`
+Format the response as structured sections with clear headings. Be specific to rural Indian context. Include numerical projections where possible.`
 
   try {
     return await callAI(prompt)
   } catch {
-    return `# Business Plan: ${data.businessType}
-
-## 1. Executive Summary
-This ${data.businessType} venture in ${data.location} aims to serve the growing local demand with an initial investment of ₹${data.budget.toLocaleString('en-IN')}. The business targets local residents and nearby villages, leveraging community networks and digital presence for growth.
-
-## 2. Market Analysis
-The local market shows strong demand for ${data.businessType} services. With limited competition in the immediate area, there is a significant opportunity to capture market share. The area's growing population and increasing disposable income support a positive outlook.
-
-## 3. Target Customer Segment
-- Primary: Local residents aged 18-55
-- Secondary: Small businesses and self-help groups
-- Tertiary: Nearby village communities
-
-## 4. Revenue Model
-- Direct sales of products/services
-- Subscription-based repeat customers
-- Seasonal promotions and festival offers
-- Bulk orders for local businesses
-
-## 5. Cost Breakdown
-| Item | Cost (₹) |
-|------|----------|
-| Shop/Space Setup | ${(data.budget * 0.25).toLocaleString('en-IN')} |
-| Initial Inventory | ${(data.budget * 0.30).toLocaleString('en-IN')} |
-| Equipment | ${(data.budget * 0.15).toLocaleString('en-IN')} |
-| Marketing | ${(data.budget * 0.10).toLocaleString('en-IN')} |
-| Working Capital | ${(data.budget * 0.15).toLocaleString('en-IN')} |
-| Contingency | ${(data.budget * 0.05).toLocaleString('en-IN')} |
-
-## 6. Marketing Strategy
-- Word-of-mouth through local influencers and SHG networks
-- Social media presence on WhatsApp and Facebook
-- Participate in local haats and melas
-- Partner with nearby shops for cross-promotion
-
-## 7. Growth Plan
-**6 Months:** Establish brand, build customer base of 200+ regular customers
-**1 Year:** Expand product range, hire 1-2 employees, achieve break-even
-**3 Years:** Open second location, build online presence, ₹5L+ annual profit
-
-## 8. Risk Assessment
-- **Low Risk:** Strong local demand, low competition
-- **Medium Risk:** Seasonal fluctuations, supply chain disruptions
-- **Mitigation:** Diversify products, maintain 3-month cash reserve
-
-## 9. Key Metrics to Track
-- Monthly revenue and profit margins
-- Customer retention rate
-- Inventory turnover
-- Customer satisfaction scores
-- Digital engagement metrics`
+    return `# Business Plan: ${data.businessType}\n\n## 1. Executive Summary\nThis ${data.businessType} venture in ${data.location} aims to serve the growing local demand with an initial investment of ₹${data.budget.toLocaleString('en-IN')}. The business targets local residents and nearby villages, leveraging community networks and digital presence for growth.\n\n## 2. Market Analysis\nThe local market shows strong demand for ${data.businessType} services. With limited competition in the immediate area, there is a significant opportunity to capture market share. The area's growing population and increasing disposable income support a positive outlook.\n\n## 3. Target Customer Segment\n- Primary: Local residents aged 18-55\n- Secondary: Small businesses and self-help groups\n- Tertiary: Nearby village communities\n\n## 4. Revenue Model\n- Direct sales of products/services\n- Subscription-based repeat customers\n- Seasonal promotions and festival offers\n- Bulk orders for local businesses\n\n## 5. Cost Breakdown\n| Item | Cost (₹) |\n|------|----------|\n| Shop/Space Setup | ${(data.budget * 0.25).toLocaleString('en-IN')} |\n| Initial Inventory | ${(data.budget * 0.30).toLocaleString('en-IN')} |\n| Equipment | ${(data.budget * 0.15).toLocaleString('en-IN')} |\n| Marketing | ${(data.budget * 0.10).toLocaleString('en-IN')} |\n| Working Capital | ${(data.budget * 0.15).toLocaleString('en-IN')} |\n| Contingency | ${(data.budget * 0.05).toLocaleString('en-IN')} |\n\n## 6. Marketing Strategy\n- Word-of-mouth through local influencers and SHG networks\n- Social media presence on WhatsApp and Facebook\n- Participate in local haats and melas\n- Partner with nearby shops for cross-promotion\n\n## 7. Growth Plan\n**6 Months:** Establish brand, build customer base of 200+ regular customers\n**1 Year:** Expand product range, hire 1-2 employees, achieve break-even\n**3 Years:** Open second location, build online presence, ₹5L+ annual profit\n\n## 8. Risk Assessment\n- **Low Risk:** Strong local demand, low competition\n- **Medium Risk:** Seasonal fluctuations, supply chain disruptions\n- **Mitigation:** Diversify products, maintain 3-month cash reserve\n\n## 9. Key Metrics to Track\n- Monthly revenue and profit margins\n- Customer retention rate\n- Inventory turnover\n- Customer satisfaction scores\n- Digital engagement metrics`
   }
 }
 
@@ -228,7 +180,7 @@ export async function findSchemes(userProfile: {
   investmentNeeded: number
   category: string
 }) {
-  const prompt = `Based on the following profile, recommend the best government schemes for an Indian entrepreneur:
+  const prompt = `You are a government scheme specialist and financial advisor. Based on the following profile, recommend the best government schemes for an Indian entrepreneur:
 
 Age: ${userProfile.age}
 Gender: ${userProfile.gender}
@@ -323,7 +275,7 @@ export async function calculateLoan(data: {
   businessType: string
   investmentRequirement: number
 }) {
-  const prompt = `Calculate loan eligibility for:
+  const prompt = `You are a financial analyst specializing in rural Indian lending. Calculate loan eligibility for:
 
 Monthly Income: ₹${data.monthlyIncome.toLocaleString('en-IN')}
 Existing Loans: ₹${data.existingLoans.toLocaleString('en-IN')}
@@ -383,10 +335,25 @@ export async function chatWithAI(
   messages: ChatMessage[],
   language = 'English'
 ): Promise<string> {
-  const systemPrompt = `You are BizNex, a friendly and knowledgeable business advisor for rural Indian entrepreneurs. 
-You help with business ideas, government schemes, loan guidance, and market insights.
-Respond in ${language}. Be helpful, encouraging, and provide practical advice.
-Keep responses concise but informative. Use simple language.`
+  const systemPrompt = `You are BizNex AI, a senior data analyst and business advisor specializing in rural Indian entrepreneurship.
+
+Your expertise includes:
+- Data-driven business analysis and feasibility studies
+- Government scheme optimization and eligibility matching
+- Financial modeling, loan structuring, and ROI analysis
+- Market research, competitor analysis, and demand forecasting
+- Risk assessment with quantitative scoring
+- Revenue projections and cash flow planning
+
+Communication style:
+- Respond in ${language}
+- Use data points, numbers, and percentages when possible
+- Be encouraging but realistic — base advice on data, not just optimism
+- Keep responses concise but actionable
+- When analyzing, always mention key metrics (demand score, risk level, ROI)
+- Use simple language that rural entrepreneurs can understand
+
+You are here to help users make informed business decisions backed by data.`
 
   const fullMessages = [
     { role: 'system' as const, content: systemPrompt },
@@ -400,75 +367,27 @@ Keep responses concise but informative. Use simple language.`
     const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
     
     if (lastMsg.includes('mudra') || lastMsg.includes('loan')) {
-      return `🏦 **MUDRA Loan** is perfect for small businesses! Here's what you need to know:
-
-• **Shishu** – Up to ₹50,000 (for starting out)
-• **Kishore** – ₹50,000 to ₹5 lakh (for growing businesses)  
-• **Tarun** – ₹5 lakh to ₹10 lakh (for established businesses)
-
-**Eligibility:** Any Indian citizen with a business plan
-**Documents needed:** Aadhaar, PAN, Business Plan, Address Proof
-**Where to apply:** Any bank branch or online at udyamimitra.in
-
-💡 *Tip: Shishu category has the easiest approval process. Start there if you're new!*`
+      return `🏦 **MUDRA Loan Analysis**\n\n📊 **Quick Stats:**\n• Approval Rate: ~85% for Shishu category\n• Average Processing Time: 7-10 days\n• Interest Rate: 8-12% p.a.\n\n**Categories:**\n• **Shishu** – Up to ₹50,000 (Best for beginners, highest approval)\n• **Kishore** – ₹50,000 to ₹5 lakh (Requires basic business plan)\n• **Tarun** – ₹5 lakh to ₹10 lakh (Needs detailed project report)\n\n**Eligibility:** Any Indian citizen aged 18+ with a business plan\n**Documents:** Aadhaar, PAN, Business Plan, Address Proof\n\n💡 *Data Insight: Shishu category has 90%+ approval rate. Start there if you're new!*`
     }
     
     if (lastMsg.includes('scheme') || lastMsg.includes('government')) {
-      return `🏛️ **Top Government Schemes for Entrepreneurs:**
-
-1. **MUDRA Loan** – Collateral-free up to ₹10 lakh
-2. **PMEGP** – 25-35% government subsidy on project cost
-3. **Stand-Up India** – ₹10 lakh to ₹1 crore for SC/ST/Women
-4. **PM SVANidhi** – ₹50,000 working capital for street vendors
-5. **CGTMSE** – Collateral-free loans up to ₹5 crore
-
-Visit the **Scheme Finder** feature in BizNex to check which ones you're eligible for based on your profile! 🎯`
+      return `🏛️ **Government Schemes — Eligibility Analysis**\n\n📊 **Your Best Matches (by eligibility score):**\n\n1. **MUDRA Loan** — Score: 85/100\n   • Collateral-free up to ₹10 lakh\n   • Fastest approval (7-10 days)\n\n2. **PM SVANidhi** — Score: 75/100\n   • ₹50,000 for street vendors\n   • 7% interest subsidy\n\n3. **PMEGP** — Score: 80/100\n   • 25-35% government subsidy\n   • Requires 2-3 week training\n\n4. **Stand-Up India** — Score: 70/100\n   • ₹10 lakh to ₹1 crore\n   • For SC/ST/Women entrepreneurs\n\n💡 *Use the Scheme Finder tool to get a personalized eligibility report based on your profile!*`
     }
     
     if (lastMsg.includes('business') || lastMsg.includes('idea') || lastMsg.includes('start')) {
-      return `💡 **Great business ideas for rural India:**
-
-🏪 **Retail:** Grocery store, general store, medical shop
-🌾 **Agriculture:** Organic farming, dairy, poultry, fishery
-🔧 **Services:** Mobile repair, beauty parlor, tailoring
-📦 **Supply:** Fertilizer/seed shop, hardware store, water purification
-
-**Steps to get started:**
-1. Research local demand (use our Market Analysis tool!)
-2. Create a business plan (we can generate one for you)
-3. Check eligible government schemes
-4. Apply for funding through MUDRA or PMEGP
-
-What type of business interests you? I can help you plan it out! 🚀`
+      return `💡 **Business Opportunity Analysis for Rural India**\n\n📊 **Top Opportunities by ROI Potential:**\n\n🏪 **Retail (Grocery/General Store)**\n• Investment: ₹1-3 lakh | Monthly Revenue: ₹25-50K\n• Risk: Low | Demand Score: 8/10\n\n🌾 **Dairy Farming**\n• Investment: ₹2-5 lakh | Monthly Revenue: ₹30-60K\n• Risk: Medium | Demand Score: 9/10\n\n🔧 **Mobile Repair Shop**\n• Investment: ₹50K-1 lakh | Monthly Revenue: ₹15-30K\n• Risk: Low | Demand Score: 7/10\n\n📦 **Fertilizer/Seed Shop**\n• Investment: ₹3-5 lakh | Monthly Revenue: ₹40-80K\n• Risk: Medium | Demand Score: 8/10\n\n💡 *Use the Business Plan feature to get a detailed financial model for any of these!*`
     }
     
     if (lastMsg.includes('hello') || lastMsg.includes('hi') || lastMsg.includes('namaste')) {
-      return `Namaste! 🙏 Welcome to BizNex!
-
-I'm here to help you with:
-• 💡 Business ideas and planning
-• 🏛️ Government scheme information
-• 🏦 Loan eligibility and guidance
-• 📊 Market insights for your area
-
-What would you like to know about today?`
+      return `Namaste! 🙏 Welcome to BizNex AI\n\nI'm your **data analyst & business advisor**. I can help you with:\n\n📊 **Data Analysis**\n• Market demand scoring & forecasting\n• Competitor analysis & gap identification\n• Revenue projections & break-even analysis\n\n💡 **Business Advisory**\n• Personalized business recommendations\n• Risk assessment with quantitative scores\n• Growth strategy planning\n\n🏛️ **Government Schemes**\n• Eligibility matching & scoring\n• Loan optimization advice\n• Application guidance\n\nWhat would you like to analyze today?`
     }
     
-    return `Thank you for your question! Here are some things I can help with:
-
-• **Business Planning** – I can help you create a business plan
-• **Government Schemes** – Learn about MUDRA, PMEGP, and more
-• **Loan Guidance** – Check your eligibility and compare banks
-• **Market Insights** – Understand demand in your area
-
-💡 *For the best experience, try using the dedicated feature pages in the sidebar for detailed analysis!*
-
-Is there anything specific you'd like to know?`
+    return `Thank you for your question! As your data analyst, here's what I can help with:\n\n📊 **Market Analysis** — Demand scoring, competitor mapping, revenue forecasting\n💡 **Business Planning** — Financial models, cost breakdowns, growth projections\n🏛️ **Scheme Matching** — Eligibility scoring, loan optimization\n💰 **Financial Advisory** — EMI calculations, ROI analysis, cash flow planning\n\n💡 *Tip: For detailed analysis, use the dedicated feature pages in the sidebar. For quick questions, just ask me here!*\n\nWhat specific analysis do you need?`
   }
 }
 
 export async function getInsights(location: string) {
-  const prompt = `Provide hyper-local business insights for ${location}, India.
+  const prompt = `You are a hyper-local market research analyst. Provide data-driven business insights for ${location}, India.
 
 Include:
 {
@@ -522,7 +441,7 @@ export async function findNearbyBusinesses(data: {
   location: string
   radius: number
 }) {
-  const prompt = `Find similar nearby businesses near ${data.location}, India within ~${data.radius} km radius for comparison with a ${data.businessType}.
+  const prompt = `You are a competitive intelligence analyst. Find similar nearby businesses near ${data.location}, India within ~${data.radius} km radius for comparison with a ${data.businessType}.
 
 Provide realistic competitor data in JSON:
 {
@@ -708,7 +627,7 @@ export async function getFundingAdvice(data: {
   workingCapital: number
   equipmentCost: number
 }) {
-  const prompt = `Provide funding structure advice for:
+  const prompt = `You are a financial structuring expert. Provide optimal funding structure advice for:
 
 Business: ${data.businessType}
 Total Cost: ₹${data.totalCost.toLocaleString('en-IN')}

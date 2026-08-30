@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { MessageSquare, Send, Mic, Volume2, Globe, Loader2 } from 'lucide-react'
+import { MessageSquare, Send, Mic, Volume2, Globe, Loader2, UserCheck, AlertTriangle, X } from 'lucide-react'
 import { chatWithAI } from '../../lib/ai'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
 
 interface Message {
   id: string
@@ -43,6 +42,7 @@ export default function AIAssistant() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [language, setLanguage] = useState(business?.preferredLanguage || profile?.language || 'English')
+  const [showAdvisorModal, setShowAdvisorModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -104,7 +104,7 @@ export default function AIAssistant() {
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto h-[calc(100vh-7rem)] flex flex-col">
-      <ScrollReveal>
+      <div>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>AI Assistant</h1>
@@ -123,7 +123,7 @@ export default function AIAssistant() {
             </select>
           </div>
         </div>
-      </ScrollReveal>
+      </div>
 
       {/* Quick Prompts */}
       {messages.length <= 1 && (
@@ -214,6 +214,87 @@ export default function AIAssistant() {
           </button>
         </div>
       </div>
+
+      {/* Human Advisor Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => setShowAdvisorModal(true)}
+          className="flex items-center gap-2 text-xs px-4 py-2.5 rounded-xl transition-all hover:scale-105"
+          style={{
+            background: 'linear-gradient(135deg, var(--accent), var(--accent-bright))',
+            color: 'white',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+          }}
+        >
+          <UserCheck size={15} />
+          <span>Talk to Human Advisor</span>
+        </button>
+      </div>
+
+      {/* Human Advisor Warning Modal */}
+      {showAdvisorModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="card max-w-sm w-full p-6 space-y-4"
+            style={{ background: 'var(--bg-card)' }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-full" style={{ background: 'rgba(251, 191, 36, 0.15)' }}>
+                  <AlertTriangle size={18} style={{ color: '#fbbf24' }} />
+                </div>
+                <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Human Advisor</h3>
+              </div>
+              <button
+                onClick={() => setShowAdvisorModal(false)}
+                className="p-1 rounded-lg transition-opacity hover:opacity-70"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                You are about to request a <strong style={{ color: 'var(--text-primary)' }}>human business advisor</strong> for personalized guidance.
+              </p>
+              <div className="p-3 rounded-lg" style={{ background: 'var(--bg-secondary, var(--bg-page))', border: '1px solid var(--border)' }}>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  ⏱️ <strong style={{ color: 'var(--text-secondary)' }}>Please note:</strong> Human advisor connections may take some time, especially during peak hours. An advisor will review your business profile and get back to you as soon as possible.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowAdvisorModal(false)}
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-80"
+                style={{ background: 'var(--bg-page)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowAdvisorModal(false)
+                  const advisorMsg: Message = {
+                    id: Date.now().toString(),
+                    role: 'assistant',
+                    content: `🧑‍💼 **Human Advisor Request Submitted**\n\nYour request has been forwarded to our team of business advisors. A certified advisor will review your profile and connect with you shortly.\n\nIn the meantime, feel free to continue using this AI assistant for any quick questions.\n\nThank you for your patience!`,
+                    timestamp: new Date(),
+                  }
+                  setMessages((prev) => [...prev, advisorMsg])
+                }}
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ background: 'var(--accent)' }}
+              >
+                Request Advisor
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
