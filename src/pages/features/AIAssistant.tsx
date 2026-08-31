@@ -246,6 +246,7 @@ export default function AIAssistant() {
   const [language, setLanguage] = useState(business?.preferredLanguage || profile?.language || 'English')
   const [showAdvisorModal, setShowAdvisorModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const i18nPrompts = useI18nPrompts()
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -365,7 +366,7 @@ export default function AIAssistant() {
             transition={{ delay: 0.3 }}
             className="grid grid-cols-2 gap-2 pt-2"
           >
-            {useI18nPrompts().map((prompt, i) => (
+            {i18nPrompts.map((prompt, i) => (
               <motion.button
                 key={i}
                 whileHover={{ scale: 1.02 }}
