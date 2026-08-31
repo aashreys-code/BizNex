@@ -1,4 +1,6 @@
 import axios from 'axios'
+import { governmentSchemes, findMatchingSchemes, scoreScheme } from './schemes-data'
+import { findDistrictData, findStateData } from './census-data'
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ''
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
@@ -30,7 +32,7 @@ async function callGroq(messages: ChatMessage[]) {
   const response = await axios.post(
     'https://api.groq.com/openai/v1/chat/completions',
     {
-      model: 'llama-3.3-70b-versatile',
+      model: 'qwen/qwen3.8-27b',
       messages,
       temperature: 0.7,
       max_tokens: 2000,
@@ -51,7 +53,7 @@ async function callGemini(prompt: string) {
     throw new Error('Gemini API key not configured')
   }
   const response = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       contents: [{ parts: [{ text: prompt }] }],
     }
@@ -180,92 +182,27 @@ export async function findSchemes(userProfile: {
   investmentNeeded: number
   category: string
 }) {
-  const prompt = `You are a government scheme specialist and financial advisor. Based on the following profile, recommend the best government schemes for an Indian entrepreneur:
+  // Use real structured scheme data instead of LLM guessing
+  const matched = findMatchingSchemes(userProfile)
+  const scored = matched
+    .map(s => ({
+      ...s,
+      eligibilityScore: scoreScheme(s, userProfile),
+    }))
+    .sort((a, b) => b.eligibilityScore - a.eligibilityScore)
+    .slice(0, 8) // top 8 matches
 
-Age: ${userProfile.age}
-Gender: ${userProfile.gender}
-Business Type: ${userProfile.businessType}
-Annual Income: ₹${userProfile.income.toLocaleString('en-IN')}
-Investment Needed: ₹${userProfile.investmentNeeded.toLocaleString('en-IN')}
-Category: ${userProfile.category}
-
-Recommend from these schemes: PMEGP, MUDRA Loan, Stand-Up India, PM SVANidhi, NRLM, CGTMSE, and any other relevant schemes.
-
-For each scheme, provide:
-{
-  "schemes": [
-    {
-      "name": "Scheme Name",
-      "eligibilityScore": <1-100>,
-      "benefits": "description",
-      "maxLoanAmount": "₹ amount",
-      "interestRate": "percentage",
-      "requiredDocuments": ["doc1", "doc2"],
-      "applicationProcess": "step by step",
-      "applicationLink": "official URL if known"
-    }
-  ]
-}
-Return ONLY the JSON.`
-
-  try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
-  } catch {
-    return {
-      schemes: [
-        {
-          name: 'MUDRA Loan',
-          eligibilityScore: 85,
-          benefits: 'Collateral-free loan up to ₹10 lakh for small businesses. Three categories: Shishu (up to ₹50K), Kishore (₹50K-5L), Tarun (₹5L-10L).',
-          maxLoanAmount: '₹10,00,000',
-          interestRate: '8-12% per annum',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Business Plan', 'Address Proof', 'Passport-size Photo'],
-          applicationProcess: '1. Visit your nearest bank branch or NBFC\n2. Submit application with required documents\n3. Bank verifies and processes within 7-10 days\n4. Loan disbursement directly to your account',
-          applicationLink: 'https://www.udyamimitra.in',
-        },
-        {
-          name: 'PMEGP',
-          eligibilityScore: 80,
-          benefits: 'Government subsidy of 25-35% on project cost. For rural areas, subsidy is 25% for general and 35% for SC/ST/OBC categories.',
-          maxLoanAmount: '₹25,00,000',
-          interestRate: '4-8% per annum (subsidized)',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Project Report', 'Caste Certificate (if applicable)', 'Education qualification proof'],
-          applicationProcess: '1. Register on KVIC portal (kvic.org.in)\n2. Fill online application with project details\n3. Submit at District Industries Center\n4. Training period of 2-3 weeks\n5. Loan processing and disbursement',
-          applicationLink: 'https://www.kvic.org.in',
-        },
-        {
-          name: 'Stand-Up India',
-          eligibilityScore: 70,
-          benefits: 'Loans from ₹10 lakh to ₹1 crore for SC/ST and women entrepreneurs. Covers 75% of project cost.',
-          maxLoanAmount: '₹1,00,00,000',
-          interestRate: 'MCLR + 3% (approx 11-14%)',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Caste Certificate / Women Entrepreneur Proof', 'Project Report', 'Education Documents'],
-          applicationProcess: '1. Apply through standupmitra.in portal\n2. Select your lead bank\n3. Submit project report and documents\n4. Bank processes within 30-45 days',
-          applicationLink: 'https://www.standupmitra.in',
-        },
-        {
-          name: 'PM SVANidhi',
-          eligibilityScore: 75,
-          benefits: 'Working capital loan up to ₹50,000 for street vendors. 7% interest subsidy. First loan is collateral-free.',
-          maxLoanAmount: '₹50,000',
-          interestRate: '7% subsidized (effective ~2-3%)',
-          requiredDocuments: ['Aadhaar Card', 'Vending Certificate / Identity Certificate', 'Bank Account Details'],
-          applicationProcess: '1. Apply on pmvanidhi.mohua.gov.in\n2. Upload identity and vending proof\n3. Loan approved within 7 days\n4. Repay in monthly installments over 1 year',
-          applicationLink: 'https://pmvanidhi.mohua.gov.in',
-        },
-        {
-          name: 'CGTMSE',
-          eligibilityScore: 65,
-          benefits: 'Collateral-free loans up to ₹5 crore for MSMEs. Government guarantees 75% of the loan amount to the bank.',
-          maxLoanAmount: '₹5,00,00,000',
-          interestRate: '8-12% per annum',
-          requiredDocuments: ['Aadhaar Card', 'PAN Card', 'Business Registration', 'GST Returns', 'Bank Statements (6 months)', 'Project Report'],
-          applicationProcess: '1. Visit any CGTMSE-member bank\n2. Submit application with business documents\n3. Bank appraises and submits to CGTMSE\n4. Guarantee sanction within 30 days\n5. Loan disbursement',
-          applicationLink: 'https://www.cgtmse.in',
-        },
-      ],
-    }
+  return {
+    schemes: scored.map(s => ({
+      name: s.name,
+      eligibilityScore: s.eligibilityScore,
+      benefits: s.description,
+      maxLoanAmount: s.maxLoanAmount,
+      interestRate: s.interestRate,
+      requiredDocuments: s.requiredDocuments,
+      applicationProcess: s.applicationProcess,
+      applicationLink: s.applicationLink,
+    }))
   }
 }
 
@@ -331,11 +268,50 @@ Return ONLY the JSON.`
   }
 }
 
+interface BusinessProfileContext {
+  name: string
+  businessType: string
+  businessDescription: string
+  location: string
+  investmentAmount: number
+  monthlyIncome: number
+  existingLoans: number
+  workingCapital: number
+  equipmentCost: number
+  age: number
+  gender: string
+  category: string
+}
+
 export async function chatWithAI(
   messages: ChatMessage[],
-  language = 'English'
+  language = 'English',
+  businessProfile?: BusinessProfileContext | null,
+  userName?: string
 ): Promise<string> {
-  const systemPrompt = `You are BizNex AI, a senior data analyst and business advisor specializing in rural Indian entrepreneurship.
+  let profileContext = ''
+  if (businessProfile) {
+    profileContext = `
+
+## ACTIVE BUSINESS PROFILE
+The user currently has the following business profile selected:
+- Profile Name: ${businessProfile.name}
+- Business Type: ${businessProfile.businessType}
+- Description: ${businessProfile.businessDescription || 'N/A'}
+- Location: ${businessProfile.location}
+- Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}
+- Monthly Income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}
+- Existing Loans: ₹${businessProfile.existingLoans.toLocaleString('en-IN')}
+- Working Capital: ₹${businessProfile.workingCapital.toLocaleString('en-IN')}
+- Equipment Cost: ₹${businessProfile.equipmentCost.toLocaleString('en-IN')}
+- Owner Age: ${businessProfile.age}, Gender: ${businessProfile.gender}, Category: ${businessProfile.category}
+
+Use this profile data to personalize all advice. When the user asks general questions, relate the answer back to their specific business. Reference their investment amount, income, location, and business type in your responses.`
+  }
+
+  const userNameBlock = userName ? `\nThe user's name is ${userName}. Address them by name occasionally.` : ''
+
+  const systemPrompt = `You are BizNex AI, a senior data analyst and business advisor specializing in Indian entrepreneurship.
 
 Your expertise includes:
 - Data-driven business analysis and feasibility studies
@@ -351,7 +327,9 @@ Communication style:
 - Be encouraging but realistic — base advice on data, not just optimism
 - Keep responses concise but actionable
 - When analyzing, always mention key metrics (demand score, risk level, ROI)
-- Use simple language that rural entrepreneurs can understand
+- Use simple language that entrepreneurs can understand
+- Always reference the user's active business profile when giving advice
+${userNameBlock}${profileContext}
 
 You are here to help users make informed business decisions backed by data.`
 
@@ -387,6 +365,49 @@ You are here to help users make informed business decisions backed by data.`
 }
 
 export async function getInsights(location: string) {
+  // First, check our real census data for this location
+  const district = findDistrictData(location)
+  const state = findStateData(location)
+  
+  if (district) {
+    // Return real data from our census database
+    return {
+      population: district.population,
+      literacyRate: district.literacyRate,
+      majorIndustries: district.majorIndustries,
+      demandTrends: district.topBusinessOpportunities.slice(0, 5).map(opp => ({
+        category: opp.split(' ').slice(0, 3).join(' '),
+        trend: 'growing' as const,
+      })),
+      topBusinessOpportunities: district.topBusinessOpportunities,
+      agriculturalProfile: district.agriculturalProfile,
+      employmentStats: district.employmentStats,
+      nearbyMarkets: district.nearbyMarkets,
+      infrastructureScore: district.infrastructureScore,
+      digitalAdoption: district.digitalAdoption,
+    }
+  }
+  
+  if (state) {
+    // Return state-level data
+    return {
+      population: state.population,
+      literacyRate: state.literacyRate,
+      majorIndustries: state.majorSectors,
+      demandTrends: state.majorSectors.slice(0, 5).map(s => ({
+        category: s,
+        trend: 'growing' as const,
+      })),
+      topBusinessOpportunities: state.majorSectors.map(s => `${s}-related opportunities in ${state.capitalCity} region`),
+      agriculturalProfile: `${state.state} economy is driven by ${state.majorSectors.join(', ')}. GDP per capita: ${state.gdpPerCapita}.`,
+      employmentStats: { employed: '35%', selfEmployed: '22%', unemployed: '12%' },
+      nearbyMarkets: ['Weekly Haat', 'District Market', 'APMC Market'],
+      infrastructureScore: 6,
+      digitalAdoption: 'Medium' as const,
+    }
+  }
+  
+  // Fallback: use AI with location name for unknown locations
   const prompt = `You are a hyper-local market research analyst. Provide data-driven business insights for ${location}, India.
 
 Include:

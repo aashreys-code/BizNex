@@ -39,3 +39,6 @@ dist-ssr
 # Supabase
 supabase/.temp
 chrome_stderr.txt
+
+# Dev preview files
+color-preview*.html

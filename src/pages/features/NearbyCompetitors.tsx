@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
@@ -133,10 +134,10 @@ function ScoreBar({ label, value, color }: { label: string; value: number; color
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="style={{ color: 'var(--text-muted)' }}">{label}</span>
-        <span className="style={{ color: 'var(--text-secondary)' }} font-medium">{value}/100</span>
+        <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+        <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{value}/100</span>
       </div>
-      <div className="w-full h-2 rounded-full style={{ background: 'var(--border-strong)' }} overflow-hidden">
+      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--border-strong)' }}>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${value}%` }}
@@ -155,6 +156,7 @@ export default function NearbyCompetitors() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
   const { isDark } = useTheme()
+  const { t } = useTranslation()
   const c = chartColors(isDark)
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
@@ -420,7 +422,7 @@ export default function NearbyCompetitors() {
       <div className="flex justify-end">
         <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
           style={{ color: 'var(--text-muted)' }}>
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('common.hide') : t('common.editDetails')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
@@ -446,8 +448,8 @@ export default function NearbyCompetitors() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Scanning Nearby Businesses...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing competitors and market data in your area.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('competitors.loading')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('competitors.loadingDesc')}</p>
         </Card>
       )}
 
@@ -477,7 +479,7 @@ export default function NearbyCompetitors() {
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Filter size={14} className="shrink-0" style={{ color: 'var(--text-muted)' }} />
-                <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>Filter by type:</span>
+                <span className="text-xs shrink-0" style={{ color: 'var(--text-muted)' }}>{t('competitors.filterByType')}</span>
                 {availableTypes.map((type) => {
                   const active = filterType === type
                   const mc = type === 'All' ? null : getMarkerColor(type)
@@ -527,8 +529,7 @@ export default function NearbyCompetitors() {
                 <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                   <MapPin size={16} style={{ color: 'var(--accent-bright)' }} />
                   Competitor Map
-                </h3>
-                <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Click markers for details — green star is you</p>
+                </h3>                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>{t('competitors.mapHint')}</p>
               </div>
               <div className="h-[420px] relative">
                 <MapContainer
@@ -603,7 +604,7 @@ export default function NearbyCompetitors() {
               </h3>
               <div className="space-y-1.5">
                 {filteredCompetitors.length === 0 && (
-                  <p className="text-xs text-center py-4" style={{ color: 'var(--text-muted)' }}>No businesses match this filter.</p>
+                  <p className="text-xs text-center py-4" style={{ color: 'var(--text-muted)' }}>{t('competitors.noMatchFilter')}</p>
                 )}
                 {filteredCompetitors.map((c, i) => {
                   const mc = getMarkerColor(c.type)
@@ -665,7 +666,7 @@ export default function NearbyCompetitors() {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold" style={{ color: 'var(--accent-bright)' }}>★ {visibleSelected.rating}</p>
-                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Rating</p>
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('competitors.rating')}</p>
                   </div>
                 </div>
 
@@ -695,7 +696,7 @@ export default function NearbyCompetitors() {
                 {/* Strengths / Weaknesses / Specialties */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
-                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--success)' }}>Strengths</h4>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--success)' }}>{t('competitors.strengths')}</h4>
                     <ul className="space-y-0.5">
                       {visibleSelected.strengths.map((s, i) => (
                         <li key={i} className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>• {s}</li>
@@ -703,7 +704,7 @@ export default function NearbyCompetitors() {
                     </ul>
                   </div>
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
-                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--danger)' }}>Weaknesses</h4>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--danger)' }}>{t('competitors.weaknesses')}</h4>
                     <ul className="space-y-0.5">
                       {visibleSelected.weaknesses.map((w, i) => (
                         <li key={i} className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>• {w}</li>
@@ -711,7 +712,7 @@ export default function NearbyCompetitors() {
                     </ul>
                   </div>
                   <div className="p-3 rounded-lg" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--accent-bright)' }}>Specialties</h4>
+                    <h4 className="text-xs font-semibold mb-1.5" style={{ color: 'var(--accent-bright)' }}>{t('competitors.specialties')}</h4>
                     <div className="flex flex-wrap gap-1">
                       {visibleSelected.specialties.map((s, i) => (
                         <span key={i} className="text-[10px] px-1.5 py-0.5 rounded-md"
@@ -792,31 +793,30 @@ export default function NearbyCompetitors() {
           {/* Market Summary & Recommendations */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Market Summary</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('competitors.marketSummary')}</h3>
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Market Saturation</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('competitors.marketSaturation')}</span>
                   <span className="text-xs font-semibold" style={{
                     color: result.marketSummary.marketSaturation === 'Low' ? 'var(--success)' :
                     result.marketSummary.marketSaturation === 'Medium' ? 'var(--warning)' : 'var(--danger)'
                   }}>{result.marketSummary.marketSaturation}</span>
                 </div>
                 <div className="flex items-center justify-between p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Threat Level</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('competitors.threatLevel')}</span>
                   <span className="text-xs font-semibold" style={{
                     color: result.marketSummary.threatLevel === 'Low' ? 'var(--success)' :
                     result.marketSummary.threatLevel === 'Medium' ? 'var(--warning)' : 'var(--danger)'
                   }}>{result.marketSummary.threatLevel}</span>
                 </div>
-                <div className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
-                  <p className="text-[10px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>Best Opportunity</p>
+                <div className="p-2.5 rounded-lg" style={{ background: 'var(--bg-surface)' }}>                    <p className="text-[10px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{t('competitors.bestOpportunity')}</p>
                   <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{result.marketSummary.bestOpportunity}</p>
                 </div>
               </div>
             </Card>
 
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommendations</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('competitors.recommendations')}</h3>
               <ul className="space-y-1.5">
                 {result.recommendations.map((rec, i) => (
                   <li key={i} className="flex items-start gap-2 p-1.5 rounded-lg">

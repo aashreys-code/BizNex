@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-
-import { TrendingUp, MapPin, IndianRupee, Loader2, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { TrendingUp, MapPin, IndianRupee, Loader2, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar,
@@ -40,6 +40,7 @@ export default function MarketAnalysis() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
   const { isDark } = useTheme()
+  const { t } = useTranslation()
   const c = chartColors(isDark)
   const [businessIdea, setBusinessIdea] = useState(business?.businessDescription || business?.businessType || '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
@@ -73,8 +74,8 @@ export default function MarketAnalysis() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Market Analysis</h1>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Analyze demand, competition, and revenue potential</p>
+        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.title')}</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('marketAnalysis.subtitle')}</p>
       </div>
 
       {/* Edit Toggle */}
@@ -84,21 +85,21 @@ export default function MarketAnalysis() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('common.hide') : t('common.editDetails')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       {showEdit && (
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
-                  <TextArea label="Business Idea" value={businessIdea} onChange={(e) => setBusinessIdea(e.target.value)} />
+                  <TextArea label={t('marketAnalysis.businessIdea')} value={businessIdea} onChange={(e) => setBusinessIdea(e.target.value)} />
                 </div>
-                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
-                <Input label="Investment Amount (₹)" type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('marketAnalysis.location')} value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
+                <Input label={t('marketAnalysis.investmentAmount')} type="number" value={investmentAmount} onChange={(e) => setInvestmentAmount(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
               <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleAnalyze() }} loading={loading}>
-                  <TrendingUp size={16} />Refresh Analysis
+                  <TrendingUp size={16} />{t('marketAnalysis.refreshAnalysis')}
                 </Button>
               </div>
             </Card>
@@ -110,10 +111,10 @@ export default function MarketAnalysis() {
           {/* Key Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Market Demand', value: `${result.marketDemandScore}/10` },
-              { label: 'Competition', value: result.competitionLevel },
-              { label: 'Est. Monthly Income', value: `₹${result.estimatedMonthlyIncome.toLocaleString('en-IN')}` },
-              { label: 'Risk Level', value: result.riskLevel },
+              { label: t('marketAnalysis.marketDemand'), value: `${result.marketDemandScore}/10` },
+              { label: t('marketAnalysis.competition'), value: result.competitionLevel },
+              { label: t('marketAnalysis.estMonthlyIncome'), value: `₹${result.estimatedMonthlyIncome.toLocaleString('en-IN')}` },
+              { label: t('marketAnalysis.riskLevel'), value: result.riskLevel },
             ].map((metric, i) => (
               <div key={i} className="card p-3 text-center">
                 <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{metric.label}</p>
@@ -124,7 +125,7 @@ export default function MarketAnalysis() {
 
           {/* Insight */}
           <div className="card p-4" style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)' }}>
-            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--accent-bright)' }}>BizNex Insight</p>
+            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--accent-bright)' }}>{t('marketAnalysis.biznexInsight')}</p>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
               Market demand for {business?.businessType || 'this business'} in {business?.location || 'your area'} is {result.marketDemandScore >= 7 ? 'strong' : result.marketDemandScore >= 5 ? 'moderate' : 'developing'}.
               Competition is {result.competitionLevel.toLowerCase()}. Estimated monthly income: ₹{result.estimatedMonthlyIncome.toLocaleString('en-IN')}.
@@ -134,7 +135,7 @@ export default function MarketAnalysis() {
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Market Demand Trend</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.demandTrend')}</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={result.demandChart}>
                   <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
@@ -147,7 +148,7 @@ export default function MarketAnalysis() {
             </Card>
 
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Revenue Over 6 Months</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.revenueForecast')}</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={result.revenueForecast}>
                   <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
@@ -162,10 +163,10 @@ export default function MarketAnalysis() {
 
           {/* Business Opportunity Assessment */}
           <Card>
-            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Business Opportunity Assessment</h3>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.marketDemand')} Assessment</h3>
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>What Works</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('marketAnalysis.whatWorks')}</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.strengths.map((s, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {s}</p>
@@ -173,7 +174,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Watch Out For</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('marketAnalysis.watchOutFor')}</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.weaknesses.map((w, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {w}</p>
@@ -181,7 +182,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Where to Grow</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('marketAnalysis.whereToGrow')}</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.opportunities.map((o, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {o}</p>
@@ -189,7 +190,7 @@ export default function MarketAnalysis() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Key Risks</p>
+                <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('marketAnalysis.keyRisks')}</p>
                 <div className="space-y-1">
                   {result.swotAnalysis.threats.map((t, i) => (
                     <p key={i} className="text-sm" style={{ color: 'var(--text-secondary)' }}>• {t}</p>
@@ -202,7 +203,7 @@ export default function MarketAnalysis() {
           {/* Resources & Recommendations */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Required Resources</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.requiredResources')}</h3>
               <ul className="space-y-1.5">
                 {result.requiredResources.map((resource, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -213,7 +214,7 @@ export default function MarketAnalysis() {
               </ul>
             </Card>
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommendations</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.recommendations')}</h3>
               <ul className="space-y-1.5">
                 {result.recommendations.map((rec, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
@@ -225,11 +226,10 @@ export default function MarketAnalysis() {
             </Card>
           </div>
 
-          <div className="flex gap-3">
-            <Button variant="secondary">
-              <Download size={16} />
-              Download PDF Report
-            </Button>
+          <div className="card p-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              <strong style={{ color: 'var(--text-secondary)' }}>{t('marketAnalysis.dataSource')}</strong> {t('marketAnalysis.dataSourceDesc')}
+            </p>
           </div>
         </div>
       )}
@@ -238,8 +238,8 @@ export default function MarketAnalysis() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Analyzing Market Data...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Our AI is evaluating market conditions for your business.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('marketAnalysis.analyzing')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('marketAnalysis.analyzingDesc')}</p>
         </Card>
       )}
     </div>

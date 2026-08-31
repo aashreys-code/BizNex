@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { BusinessProvider } from './contexts/BusinessContext'
 import './index.css'
+import './lib/i18n'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -15,6 +16,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <BusinessProvider>
             <App />
+          </BusinessProvider>
           <Toaster
             position="top-right"
             toastOptions={{
@@ -25,7 +27,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 border: '1px solid rgba(34, 197, 94, 0.3)',
               },
             }}
-          />          </BusinessProvider>
+          />
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

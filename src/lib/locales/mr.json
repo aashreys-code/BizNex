@@ -1,0 +1,177 @@
+{
+  "app": { "name": "बिझनेक्स", "tagline": "ग्रामीण भारतासाठी व्यवसाय सल्ला" },
+  "nav": {
+    "overview": "अवलोकन", "business": "व्यवसाय", "funding": "भांडवल", "tools": "साधने", "account": "खाते",
+    "admin": "प्रशासन", "dashboard": "डॅशबोर्ड", "marketAnalysis": "बाजार विश्लेषण", "businessPlan": "व्यवसाय योजना",
+    "competitors": "स्पर्धक", "localInsights": "स्थानीय माहिती", "schemeFinder": "योजना शोधक", "fundingAdvisor": "भांडवल सल्लागार",
+    "loanCalculator": "कर्ज कॅल्क्युलेटर", "aiAssistant": "AI सहाय्यक", "documents": "कागदपत्रे", "businessProfile": "व्यवसाय प्रोफाइल",
+    "adminPanel": "प्रशासन पॅनल", "lightMode": "लाइट मोड", "darkMode": "डार्क मोड", "signOut": "साइन आउट"
+  },
+  "common": {
+    "loading": "लोड होत आहे...", "save": "जतन करा", "cancel": "रद्द", "edit": "संपादित करा",
+    "delete": "हटवा", "search": "शोधा", "refresh": "रिफ्रेश", "back": "मागे", "next": "पुढे",
+    "submit": "सादर करा", "close": "बंद करा", "confirm": "पुष्टी करा", "yes": "हो", "no": "नाही",
+    "success": "यशस्वी", "error": "त्रुटी", "comingSoon": "लवकरच येत आहे", "beta": "बीटा",
+    "required": "आवश्यक", "optional": "पर्यायी", "viewDetails": "तपशील पहा", "hideDetails": "तपशील लपवा",
+    "downloadPDF": "PDF डाउनलोड", "generating": "तयार करत आहे...", "seeAll": "सर्व पहा", "getStarted": "सुरू करा"
+  },
+  "auth": {
+    "login": "साइन इन", "register": "साइन अप", "email": "ईमेल", "password": "पासवर्ड",
+    "name": "पूर्ण नाव", "forgotPassword": "पासवर्ड विसरलात?", "noAccount": "खाते नाही?",
+    "hasAccount": "आधीच खाते आहे?", "loginSuccess": "परत स्वागत!", "registerSuccess": "खाते यशस्वीरित्या तयार केले",
+    "logoutSuccess": "यशस्वीरित्या साइन आउट"
+  },
+  "dashboard": {
+    "welcome": "परत स्वागत, {{name}}", "profiles": "प्रोफाइल्स",
+    "createProfile": "तुमची पहिली व्यवसाय प्रोफाइल तयार करा",
+    "createProfileDesc": "सर्व वैशिष्ट्ये अनलॉक करण्यासाठी व्यवसाय प्रोफाइल जोडा — बाजार विश्लेषण, योजना, कर्ज कॅल्क्युलेटर, स्पर्धक आणि बरेच काही.",
+    "activeProfile": "सक्रिय", "manage": "व्यवस्थापित करा", "quickInsights": "{{name}} साठी त्वरित माहिती",
+    "marketDemand": "बाजार मागणी", "eligibleSchemes": "पात्र योजना", "loanEligible": "कर्ज पात्रता",
+    "fundingPlan": "भांडवल योजना", "nearbyCompetitors": "जवळचे स्पर्धक", "localInsights": "स्थानीय माहिती"
+  },
+  "schemeFinder": {
+    "title": "सरकारी योजना शोधक", "subtitle": "AI जुळवणीसह तुम्हाला पात्र असलेल्या योजना शोधा",
+    "loading": "पात्र योजना शोधत आहे...", "loadingDesc": "खऱ्या सरकारी योजना डेटासह तुमची प्रोफाइल जुळवत आहे.",
+    "editProfile": "प्रोफाइल संपादित करा", "hideProfile": "प्रोफाइल लपवा", "refreshSchemes": "योजना रिफ्रेश करा",
+    "recommendedSchemes": "शिफारस केलेल्या योजना", "matchScore": "{{score}}% जुळवणी",
+    "maxLoan": "कमाल: {{amount}}", "interestRate": "दर: {{rate}}", "applyNow": "आत्ताच अर्ज करा",
+    "whyYouMatch": "तुम्ही का जुळता", "requiredDocuments": "आवश्यक कागदपत्रे", "applicationProcess": "अर्ज प्रक्रिया",
+    "age": "वय", "gender": "लिंग", "male": "पुरुष", "female": "स्त्री", "other": "इतर",
+    "businessType": "व्यवसायाचा प्रकार", "annualIncome": "वार्षिक उत्पन्न (₹)", "investmentNeeded": "आवश्यक गुंतवणूक (₹)",
+    "category": "श्रेणी", "general": "सामान्य", "obc": "OBC", "sc": "SC", "st": "ST",
+    "womenEntrepreneur": "महिला उद्योजक", "minority": "अल्पसंख्यात",
+    "noSchemesFound": "जुळणाऱ्या योजना सापडल्या नाहीत. तुमची प्रोफाइल जुळवून पहा."
+  },
+  "marketAnalysis": {
+    "title": "हायपर-लोकल बाजार विश्लेषण", "subtitle": "मागणी, स्पर्धा आणि उत्पन्न क्षमतेचे विश्लेषण करा",
+    "editDetails": "तपशील संपादित करा", "hideDetails": "तपशील लपवा", "refreshAnalysis": "विश्लेषण रिफ्रेश करा",
+    "businessIdea": "व्यवसाय कल्पना", "location": "स्थान", "investmentAmount": "गुंतवणूक रक्कम (₹)",
+    "analyzing": "बाजार डेटा विश्लेषित करत आहे...", "analyzingDesc": "आमचे AI तुमच्या व्यवसायासाठी बाजार परिस्थिती मूल्यांकन करत आहे.",
+    "marketDemand": "बाजार मागणी", "competition": "स्पर्धा", "estMonthlyIncome": "अंदाजे मासिक उत्पन्न",
+    "riskLevel": "धोक्याचा पातळी", "biznexInsight": "बिझनेक्स अंतर्दृष्टी", "demandTrend": "बाजार मागणी प्रवृत्ती",
+    "revenueForecast": "6 महिन्यांतील अंदाजे उत्पन्न", "whatWorks": "काय काम करते",
+    "watchOutFor": "याचा विचार करा", "whereToGrow": "कुठे वाढवायचे",
+    "keyRisks": "मुख्य धोके", "requiredResources": "आवश्यक संसाधने", "recommendations": "शिफारशी",
+    "downloadReport": "PDF अहवाल डाउनलोड करा", "dataSource": "विश्लेषण AI अंतर्दृष्टी आणि लोकगणना व स्थानीय आर्थिक डेटासह जोडते"
+  },
+  "aiAssistant": {
+    "title": "AI व्यवसाय सल्लागार", "subtitle": "तुमच्या व्यवसाय, योजना किंवा बाजाराबद्दल प्रश्न विचारा",
+    "typeMessage": "तुमचा संदेश टाइप करा...", "thinking": "विचार करत आहे...",
+    "quickPrompts": {
+      "business": "₹1 लाखात कोणता व्यवसाय सुरू करू शकतो?",
+      "mudra": "MUDRA कर्ज पात्रतेबद्दल सांगा",
+      "pmegp": "PMEGP योजनेसाठी कसे अर्ज करायचे?",
+      "dairy": "ग्रामीण भागातील सर्वोत्तम डेयरी शेती पद्धती"
+    },
+    "language": "भाषा", "copy": "कॉपी", "copied": "कॉपी केले!", "regenerate": "पुन्हा तयार करा"
+  },
+  "insights": {
+    "title": "हायपर-लोकल अंतर्दृष्टी", "subtitle": "तुमच्या भागाबद्दल डेटा-आधारित अंतर्दृष्टी शोधा",
+    "editLocation": "स्थान संपादित करा", "refresh": "रिफ्रेश", "population": "लोकसंख्या",
+    "literacyRate": "साक्षरता दर", "infraScore": "पायाभूत सुविधा स्कोअर", "digitalAdoption": "डिजिटल अपनाव",
+    "demandTrends": "स्थानीय मागणी प्रवृत्ती", "employmentDist": "रोजगार वितरण", "majorIndustries": "प्रमुख उद्योग",
+    "nearbyMarkets": "जवळचे बाजार", "topOpportunities": "शीर्ष व्यवसाय संधी", "agriProfile": "शेती प्रोफाइल",
+    "gatheringInsights": "अंतर्दृष्टी गोळा करत आहे...", "gatheringDesc": "तुमच्या स्थानासाठी डेटा विश्लेषण होत आहे.",
+    "dataSource": "डेटा भारताच्या लोकगणना, NSO सर्वेक्षणे आणि स्थानीय आर्थिक निर्देशांकांमधून प्राप्त"
+  },
+  "competitors": {
+    "title": "जवळच्या स्पर्धकांचे विश्लेषण", "subtitle": "स्थानीय व्यवसाय शोधा आणि तुलना करा",
+    "businessType": "व्यवसायाचा प्रकार", "location": "स्थान", "radius": "त्रिज्या (कि.मी.)",
+    "search": "स्पर्धक शोधा", "loading": "स्पर्धक शोधत आहे...",
+    "loadingDesc": "तुलनेसाठी जवळचे व्यवसाय विश्लेषित करत आहे.", "yourBusiness": "तुमचा व्यवसाय",
+    "competitors": "स्पर्धक", "marketOverview": "बाजार आढावा", "totalCompetitors": "एकूण स्पर्धक",
+    "avgDemand": "सरासरी मागणी", "marketSaturation": "बाजार तृप्ती", "threatLevel": "धोक्याचा पातळी",
+    "bestOpportunity": "सर्वोत्तम संधी", "demandTrend": "मागणी प्रवृत्ती", "popularityComparison": "लोकप्रियता तुलना",
+    "recommendations": "शिफारशी", "downloadReport": "PDF अहवाल डाउनलोड करा",
+    "reportTitle": "स्पर्धक तुलना अहवाल", "generated": "तयार केले: {{date}}", "filterAll": "सर्व"
+  },
+  "loanCalculator": {
+    "title": "कर्ज पात्रता कॅल्क्युलेटर", "subtitle": "तुमची कर्ज पात्रता आणि EMI अंदाज काढा",
+    "monthlyIncome": "मासिक उत्पन्न (₹)", "existingLoans": "अस्तित्वात असलेली कर्जे (₹)", "businessType": "व्यवसायाचा प्रकार",
+    "investmentReq": "आवश्यक गुंतवणूक (₹)", "calculate": "पात्रता काढा", "calculating": "काढत आहे...",
+    "eligibilityScore": "पात्रता स्कोअर", "loanAmount": "पात्र कर्ज रक्कम", "estEMI": "अंदाजे EMI",
+    "tenure": "परतफेड कालावधी", "recommendedBanks": "शिफारस केलेल्या बँका",
+    "repaymentSchedule": "मासिक परतफेड वेळापत्रक", "interestRate": "व्याज दर",
+    "processingFee": "प्रक्रिया शुल्क", "month": "महिना", "emi": "EMI", "principal": "मूळ", "interest": "व्याज", "balance": "शिल्लक"
+  },
+  "fundingAdvisor": {
+    "title": "भांडवल धोरण सल्लागार", "subtitle": "तुमच्या व्यवसायासाठी सर्वोत्तम भांडवल योजना तयार करा",
+    "businessType": "व्यवसायाचा प्रकार", "totalCount": "एकूण प्रकल्प खर्च (₹)", "workingCapital": "कार्यशील पूंजी (₹)",
+    "equipmentCost": "उपकरण खर्च (₹)", "getAdvice": "भांडवल सल्ला मिळवा", "calculating": "भांडवल पर्याय विश्लेषित करत आहे...",
+    "selfFunding": "स्व-भांडवल", "governmentLoans": "सरकारी कर्जे", "bankLoans": "बँक कर्जे",
+    "subsidies": "उपलब्ध अनुदान", "fundingPlan": "तुमची भांडवल योजना",
+    "ownContribution": "स्वतःचा वाटा", "loanAmount": "कर्ज रक्कम", "subsidyAmount": "अनुदान रक्कम",
+    "monthlyCashFlow": "मासिक रोख प्रवाह अंदाज"
+  },
+  "documentVerification": {
+    "title": "कागदपत्र पडताळणी", "subtitle": "AI सह तुमची कागदपत्रे अपलोड आणि पडताळा",
+    "comingSoon": "AI-संचालित कागदपत्र पडताळणी लवकरच येत आहे",
+    "comingSoonDesc": "आम्ही OCR आणि AI विश्लेषण वापरून खरोखर कागदपत्र पडताळणी बनवत आहोत. सध्या, अपलोड वैशिष्ट्य हा एक पूर्वावलोकन आहे.",
+    "verified": "पडताळलेले", "processing": "प्रक्रिया", "issuesFound": "समस्या आढळल्या",
+    "requiredDocs": "आवश्यक कागदपत्रे", "uploadDocs": "कागदपत्रे अपलोड करा",
+    "uploadedDocs": "अपलोड केलेली कागदपत्रे", "remove": "हटवा"
+  },
+  "admin": {
+    "title": "प्रशासन पॅनल", "subtitle": "वापरकर्ते, योजना आणि विश्लेषण व्यवस्थापित करा",
+    "comingSoon": "संपूर्ण प्रशासनिक कार्यक्षमता लवकरच येत आहे",
+    "comingSoonDesc": "आम्ही रिअल-टाइम वापरकर्ता व्यवस्थापन, योजना व्यवस्थापन आणि विश्लेषण बनवत आहोत. सध्या, हा पॅनल डेमो डेटा दर्शवतो.",
+    "overview": "आढावा", "users": "वापरकर्ते", "schemes": "योजना", "aiPrompts": "AI प्रॉम्प्ट्स",
+    "totalUsers": "एकूण वापरकर्ते", "reportsGenerated": "अहवाल तयार", "loanApplications": "कर्ज अर्ज",
+    "popularCategories": "लोकप्रिय श्रेणी", "userGrowth": "वापरकर्ता वाढ",
+    "popularCategoriesChart": "लोकप्रिय श्रेणी", "userManagement": "वापरकर्ता व्यवस्थापन",
+    "schemeManagement": "योजना व्यवस्थापन", "addScheme": "योजना जोडा", "schemeName": "योजनेचे नाव",
+    "status": "स्थिती", "applications": "अर्ज", "actions": "कृती", "aiPromptManagement": "AI प्रॉम्प्ट व्यवस्थापन",
+    "exportData": "डेटा निर्यात", "demoData": "डेमो डेटा", "demoDataDesc": "हे प्रदर्शन उद्देशांसाठी उदाहरण मूल्ये आहेत"
+  },
+  "businessProfile": {
+    "title": "व्यवसाय प्रोफाइल", "subtitle": "तुमच्या व्यवसाय तपशील व्यवस्थापित करा",
+    "profiles": "तुमच्या प्रोफाइल्स", "createNew": "नवीन प्रोफाइल तयार करा",
+    "editProfile": "प्रोफाइल संपादित करा", "deleteProfile": "प्रोफाइल हटवा", "profileName": "प्रोफाइलचे नाव",
+    "businessType": "व्यवसायाचा प्रकार", "description": "व्यवसाय वर्णन", "location": "स्थान",
+    "investmentAmount": "गुंतवणूक रक्कम (₹)", "monthlyIncome": "मासिक उत्पन्न (₹)",
+    "existingLoans": "अस्तित्वात असलेली कर्जे (₹)", "workingCapital": "कार्यशील पूंजी (₹)",
+    "equipmentCost": "उपकरण खर्च (₹)", "preferredLanguage": "पसंतीची भाषा",
+    "save": "प्रोफाइल जतन करा", "saved": "प्रोफाइल यशस्वीरित्या जतन केले"
+  },
+  "landing": {
+    "heroTag": "ग्रामीण उद्योजकांसाठी", "heroTitle1": "व्यवसाय सल्ला", "heroTitle2": "बनवले आहे",
+    "heroTitleHighlight": "ग्रामीण भारतासाठी",
+    "heroDesc": "बाजार डेटा, सरकारी योजना, कर्ज मार्गदर्शन आणि बहुभाषी AI — ग्रामीण उद्योजकाला आवश्यक सर्व काही एकाच ठिकाणी.",
+    "getStartedFree": "मोफत सुरू करा", "signIn": "साइन इन",
+    "statMSMEs": "63M+", "statMSMEsLabel": "भारतात MSME", "statSchemes": "3L Cr",
+    "statSchemesLabel": "अनुपयोगी योजना", "statLanguages": "6", "statLanguagesLabel": "समर्थित भाषा",
+    "problemTitle": "समस्या", "problemH1": "ग्रामीण भारतात 63 दशलक्ष MSME आहेत.",
+    "problemH2": "बहुतेकांना व्यवसाय बुद्धिमत्तेचा मर्यादित प्रवेश आहे.",
+    "problemDesc": "उद्योजक स्थानीय मागणी, स्पर्धा किंवा त्यांना पात्र असलेल्या सरकारी योजना समजून घेल्याशिवाय महत्त्वपूर्ण निर्णय घेतात.",
+    "problem1Title": "स्थानीय बाजार डेटा नाही", "problem1Desc": "उद्योजक स्थानीय मागणी आणि स्पर्धा समजून घेल्याशिवाय निर्णय घेतात.",
+    "problem2Title": "योजना जागरूकता अंतर", "problem2Desc": "जागरूकतेच्या अभावामुळे ₹3 लाख कोटी सरकारी योजना वार्षिकरित्या अनुपयोगी आहेत.",
+    "problem3Title": "भाषा अडचणी", "problem3Desc": "बहुतेक डिजिटल साधने इंग्रजीत आहेत, 90% ग्रामीण उद्योजकांना बाहेर टाकतात.",
+    "howItWorks": "हे कसे काम करते", "howItWorksTitle": "कल्पनेपासून कृतीपर्यंत चार टप्प्यांत",
+    "step1Title": "तुमच्या व्यवसायाबद्दल आम्हाला सांगा", "step1Desc": "तुमची कल्पना, स्थान, अर्थसंकल्प आणि उद्दिष्टे शेअर करा.",
+    "step2Title": "तुमचा स्थानीय बाजार समजून घ्या", "step2Desc": "तुमच्या भागासाठी मागणी स्कोअर, स्पर्धा विश्लेषण आणि उत्पन्न अंदाज मिळवा.",
+    "step3Title": "AI-संचालित शिफारशी मिळवा", "step3Desc": "वैयक्तिकृत व्यवसाय योजना, विकास धोरणे आणि स्मार्ट आर्थिक मार्गदर्शन.",
+    "step4Title": "सरकारी समर्थन शोधा", "step4Desc": "तुम्हाला पात्र असलेल्या योजना शोधा — PMEGP, MUDRA, Stand-Up India आणि बरेच काही.",
+    "featuresTitle": "वैशिष्ट्ये", "featuresH": "वाढण्यासाठी तुम्हाला आवश्यक असलेले सर्व काही",
+    "featuresDesc": "ग्रामीण उद्योजशीलतेच्या खरोखर आव्हानांसाठी डिझाइन केलेली शक्तिशाली साधने.",
+    "productTitle": "उत्पादन", "productH": "तुम्हाला काय मिळेल ते पहा",
+    "productDesc": "खरोखर बाजार अंतर्दृष्टी, योजना शिफारशी आणि क्रियाशील मार्गदर्शन — सर्व एकाच डॅशबोर्डवर.",
+    "whyBizNex": "बिझनेक्स का", "whyBizNexH": "खरोखर पद्धतीवर बनवले", "whyBizNexDesc": "प्रत्येक शिफारस अंदाज नाही, डेटावर आधारित आहे.",
+    "credDataDriven": "डेटा-संचालित पद्धती", "credDataDrivenDesc": "प्रादेशिक बाजार डेटा, लोकसांख्यिकी अंतर्दृष्टी आणि खरोखर मागणी सूचकांवर बनवलेले विश्लेषण.",
+    "credAI": "AI-संचालित विश्लेषण", "credAIDesc": "तुमच्या विशिष्ट व्यवसाय कल्पना आणि स्थानीय संदर्भाशी जुळवलेल्या हुशार शिफारशी.",
+    "credMultilingual": "बहुभाषी प्रवेश", "credMultilingualDesc": "समावेशकतेसाठी इंग्रजी, हिंदी, तेलुगू, तमिळ, कन्नड आणि मराठीत उपलब्ध.",
+    "credLocal": "हायपर-लोकल अंतर्दृष्टी", "credLocalDesc": "लोकसंख्या, साक्षरता, मागणी प्रवृत्ती आणि संधींवर गाव आणि जिल्हा स्तरावरचा डेटा.",
+    "credTransparent": "पारदर्शक मार्गदर्शन", "credTransparentDesc": "स्पष्ट पात्रता मानदंड आणि प्रामाणिक शिफारशी — लपवलेले अजेंडे नाही.",
+    "credSchemes": "सरकारी योजना शोध", "credSchemesDesc": "PMEGP, MUDRA, Stand-Up India आणि इतर खरोखर योजनांशी आपोआप जुळवणी.",
+    "featureMarket": "बाजार बुद्धिमत्ता", "featureMarketDesc": "तुमच्या विशिष्ट स्थानासाठी मागणी स्कोअर, स्पर्धा विश्लेषण आणि उत्पन्न अंदाज.",
+    "featurePlan": "व्यवसाय योजना बिल्डर", "featurePlanDesc": "खर्च तपशील आणि विकास धोरणांसह व्यवसाय योजना तयार करा.",
+    "featureScheme": "योजना शोध", "featureSchemeDesc": "पात्रता स्कोरिंगसह PMEGP, MUDRA, Stand-Up India शोधा.",
+    "featureLoan": "कर्ज पात्रता", "featureLoanDesc": "पात्रता, EMI अंदाज आणि परतफेळ कालावधी काढा.",
+    "featureAI": "AI व्यवसाय सल्लागार", "featureAIDesc": "इंग्रजी, हिंदी, तेलुगू, तमिळ, कन्नड किंवा मराठीत चॅट करा.",
+    "featureInsights": "स्थानीय बाजार अंतर्दृष्टी", "featureInsightsDesc": "लोकसंख्या डेटा, साक्षरता दर, मागणी प्रवृत्ती आणि संधी.",
+    "featureFunding": "भांडवल धोरण", "featureFundingDesc": "स्व-भांडवल, कर्जे आणि अनुदान एकत्र करून वैयक्तिकृत भांडवल.",
+    "featureCompetitors": "स्पर्धक विश्लेषण", "featureCompetitorsDesc": "इंटरॅक्टिव्ह नकाशांसह जवळचे व्यवसाय शोधा आणि तुलना करा.",
+    "teamTitle": "टोली", "teamH": "काळजी घेणाऱ्या विकासकर्त्यांनी बनवले", "teamDesc": "ग्रामीण भारतासाठी तंत्रज्ञान बनवणारी टोली.",
+    "ctaH": "तुमचा व्यवसाय वाढवायचा आहे?", "ctaDesc": "बिझनेक्स वापरून हुशार व्यवसाय निर्णय घेणाऱ्या ग्रामीण भारतातील उद्योजकांसोबत सामील व्हा.",
+    "getStartedFreeCta": "मोफत सुरू करा"
+  }
+}

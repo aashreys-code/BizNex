@@ -9,7 +9,6 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness, BusinessProfile as BP } from '../contexts/BusinessContext'
-import { ScrollReveal, GlowCard } from '../components/react-bits'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import TextArea from '../components/ui/TextArea'
@@ -155,7 +154,7 @@ export default function BusinessProfilePage() {
   if (view === 'list') {
     return (
       <div className="space-y-6 max-w-4xl mx-auto">
-        <ScrollReveal>
+        <div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Business Profiles</h1>
@@ -168,10 +167,10 @@ export default function BusinessProfilePage() {
               New Profile
             </Button>
           </div>
-        </ScrollReveal>
+        </div>
 
         {profiles.length === 0 ? (
-          <ScrollReveal delay={0.1}>
+          <div>
             <Card className="p-10 text-center">
               <Building2 size={36} style={{ color: 'var(--text-muted)' }} className="mx-auto mb-3" />
               <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>No Business Profiles Yet</h3>
@@ -183,11 +182,11 @@ export default function BusinessProfilePage() {
                 Create First Profile
               </Button>
             </Card>
-          </ScrollReveal>
+          </div>
         ) : (
           <div className="space-y-3">
             {profiles.map((p, i) => (
-              <ScrollReveal key={p.id} delay={i * 0.05}>
+              <div>
                 <div
                   className="card card-interactive p-4 flex items-center gap-3 cursor-pointer"
                   style={{
@@ -227,7 +226,7 @@ export default function BusinessProfilePage() {
                     </button>
                   </div>
                 </div>
-              </ScrollReveal>
+              </div>
             ))}
           </div>
         )}
@@ -246,7 +245,7 @@ export default function BusinessProfilePage() {
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
-      {/* Header */}        <ScrollReveal>
+      {/* Header */}        <div>
           <div className="flex items-center gap-3 mb-2">
             <button onClick={() => setView('list')} className="p-1.5 rounded-md transition-colors"
               style={{ color: 'var(--text-muted)' }}>
@@ -259,10 +258,10 @@ export default function BusinessProfilePage() {
               </p>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
 
       {/* Step Indicator */}
-      <ScrollReveal delay={0.05}>
+      <div>
         <div className="flex items-center justify-between card p-3">
           {steps.map((s, i) => (
             <div key={i} className="flex items-center gap-2 flex-1">
@@ -290,7 +289,7 @@ export default function BusinessProfilePage() {
             </div>
           ))}
         </div>
-      </ScrollReveal>
+      </div>
 
       {/* Steps */}
       <motion.div

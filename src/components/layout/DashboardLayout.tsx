@@ -1,56 +1,25 @@
 import { useState, useRef, useEffect, ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import {
   LayoutDashboard, TrendingUp, FileText, Search, Calculator,
   MessageSquare, MapPin, DollarSign, Upload, Shield, Building2,
-  Menu, X, LogOut, Sun, Moon, User, ChevronDown,
-  BarChart3,
+  Menu, X, LogOut, Sun, Moon,  ChevronDown,
+  BarChart3, Globe,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
 import { useBusiness } from '../../contexts/BusinessContext'
 
-const navGroups = [
-  {
-    label: 'OVERVIEW',
-    items: [
-      { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    ],
-  },
-  {
-    label: 'BUSINESS',
-    items: [
-      { path: '/market-analysis', label: 'Market Analysis', icon: TrendingUp },
-      { path: '/business-plan', label: 'Business Plan', icon: FileText },
-      { path: '/nearby-competitors', label: 'Competitors', icon: BarChart3 },
-      { path: '/insights', label: 'Local Insights', icon: MapPin },
-    ],
-  },
-  {
-    label: 'FUNDING',
-    items: [
-      { path: '/scheme-finder', label: 'Scheme Finder', icon: Search },
-      { path: '/funding-advisor', label: 'Funding Advisor', icon: DollarSign },
-      { path: '/loan-calculator', label: 'Loan Calculator', icon: Calculator },
-    ],
-  },
-  {
-    label: 'TOOLS',
-    items: [
-      { path: '/ai-assistant', label: 'AI Assistant', icon: MessageSquare },
-      { path: '/document-verification', label: 'Documents', icon: Upload },
-    ],
-  },
-  {
-    label: 'ACCOUNT',
-    items: [
-      { path: '/business-profile', label: 'Business Profile', icon: Building2 },
-    ],
-  },
+const allLanguages = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिन्दी' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'kn', label: 'ಕನ್ನಡ' },
+  { code: 'mr', label: 'मराठी' },
 ]
-
-const allNavItems = navGroups.flatMap(g => g.items)
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -74,6 +43,59 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const userInitial = userName[0]?.toUpperCase() || 'U'
   const { isDark, toggleTheme } = useTheme()
   const { profiles, activeId, business, setActiveId } = useBusiness()
+  const { t, i18n } = useTranslation()
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
+
+  const navGroups = [
+    {
+      label: t('nav.overview'),
+      items: [
+        { path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard },
+      ],
+    },
+    {
+      label: t('nav.business'),
+      items: [
+        { path: '/market-analysis', label: t('nav.marketAnalysis'), icon: TrendingUp },
+        { path: '/business-plan', label: t('nav.businessPlan'), icon: FileText },
+        { path: '/nearby-competitors', label: t('nav.competitors'), icon: BarChart3 },
+        { path: '/insights', label: t('nav.localInsights'), icon: MapPin },
+      ],
+    },
+    {
+      label: t('nav.funding'),
+      items: [
+        { path: '/scheme-finder', label: t('nav.schemeFinder'), icon: Search },
+        { path: '/funding-advisor', label: t('nav.fundingAdvisor'), icon: DollarSign },
+        { path: '/loan-calculator', label: t('nav.loanCalculator'), icon: Calculator },
+      ],
+    },
+    {
+      label: t('nav.tools'),
+      items: [
+        { path: '/ai-assistant', label: t('nav.aiAssistant'), icon: MessageSquare },
+      ],
+    },
+    {
+      label: t('nav.account'),
+      items: [
+        { path: '/business-profile', label: t('nav.businessProfile'), icon: Building2 },
+      ],
+    },
+  ]
+
+  const allNavItems = navGroups.flatMap(g => g.items)
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg-primary)' }}>
@@ -175,6 +197,36 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
           {/* Bottom */}
           <div className="p-3 space-y-0.5" style={{ borderTop: '1px solid var(--border)' }}>
+            {/* Language Selector */}
+            <div className="relative" ref={langRef}>
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
+              >
+                <Globe size={16} />
+                {allLanguages.find(l => l.code === i18n.language)?.label || 'English'}
+                <ChevronDown size={12} className={`ml-auto transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {langOpen && (
+                <div className="absolute bottom-full left-0 mb-1 w-full rounded-lg overflow-hidden z-50"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
+                  {allLanguages.map(lang => (
+                    <button key={lang.code}
+                      onClick={() => { i18n.changeLanguage(lang.code); localStorage.setItem('biznex-lang', lang.code); setLangOpen(false) }}
+                      className="w-full text-left px-3 py-1.5 text-[12px] font-medium transition-colors"
+                      style={{ color: i18n.language === lang.code ? 'var(--accent-bright)' : 'var(--text-secondary)', background: i18n.language === lang.code ? 'var(--accent-dim)' : 'transparent' }}
+                      onMouseEnter={(e) => { if (i18n.language !== lang.code) (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+                      onMouseLeave={(e) => { if (i18n.language !== lang.code) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={toggleTheme}
               className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-150"
@@ -183,7 +235,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
-              {isDark ? 'Light Mode' : 'Dark Mode'}
+              {isDark ? t('nav.lightMode') : t('nav.darkMode')}
             </button>
             <button
               onClick={signOut}
@@ -193,7 +245,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
             >
               <LogOut size={16} />
-              Sign Out
+              {t('nav.signOut')}
             </button>
           </div>
         </div>
@@ -287,16 +339,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     <p className="text-[11px] truncate" style={{ color: 'var(--text-muted)' }}>{profile?.email}</p>
                   </div>
                   <div className="p-1.5">
-                    <button
-                      onClick={() => { setDropdownOpen(false); navigate('/profile') }}
-                      className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors"
-                      style={{ color: 'var(--text-secondary)' }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)' }}
-                    >
-                      <User size={14} />
-                      Profile
-                    </button>
+
                     <button
                       onClick={() => { setDropdownOpen(false); navigate('/business-profile') }}
                       className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors"

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { Mail, Lock, User, Phone, MapPin, Eye, EyeOff } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
 import Button from '../../components/ui/Button'
@@ -49,6 +50,7 @@ const languages = [
 ]
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -91,13 +93,13 @@ export default function RegisterPage() {
       })
 
       if (error) {
-        toast.error(error.message || 'Registration failed')
+        toast.error(error.message || t('common.error'))
       } else {
         toast.success('Account created! Please check your email for verification.')
         navigate('/dashboard')
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t('common.error'))
     } finally {
       setLoading(false)
     }
@@ -113,15 +115,15 @@ export default function RegisterPage() {
       >
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Join BizNex
+            {t('auth.joinBizNex')}
           </h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Create your free account and start your business journey</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('auth.signUpDesc')}</p>
         </div>
 
         <div className="surface-elevated p-6">
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <Input
-              label="Full Name"
+              label={t('auth.name')}
               placeholder="Enter your full name"
               value={formData.name}
               onChange={(e) => updateField('name', e.target.value)}
@@ -131,7 +133,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Email"
+                label={t('auth.email')}
                 type="email"
                 placeholder="you@example.com"
                 value={formData.email}
@@ -140,7 +142,7 @@ export default function RegisterPage() {
                 required
               />
               <Input
-                label="Mobile Number"
+                label={t('auth.mobileNumber')}
                 type="tel"
                 placeholder="+91 XXXXX XXXXX"
                 value={formData.mobile}
@@ -152,7 +154,7 @@ export default function RegisterPage() {
 
             <div className="relative">
               <Input
-                label="Password"
+                label={t('auth.password')}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Min. 6 characters"
                 value={formData.password}
@@ -175,14 +177,14 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Input
-                label="Village"
+                label={t('auth.village')}
                 placeholder="Your village"
                 value={formData.village}
                 onChange={(e) => updateField('village', e.target.value)}
                 icon={<MapPin size={16} />}
               />
               <Input
-                label="District"
+                label={t('auth.district')}
                 placeholder="Your district"
                 value={formData.district}
                 onChange={(e) => updateField('district', e.target.value)}
@@ -192,13 +194,13 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Select
-                label="State"
+                label={t('auth.state')}
                 value={formData.state}
                 onChange={(e) => updateField('state', e.target.value)}
                 options={states}
               />
               <Select
-                label="Preferred Language"
+                label={t('auth.preferredLanguage')}
                 value={formData.language}
                 onChange={(e) => updateField('language', e.target.value)}
                 options={languages}
@@ -206,16 +208,16 @@ export default function RegisterPage() {
             </div>
 
             <Button type="submit" className="w-full" loading={loading}>
-              Create Account
+              {t('auth.createAccount')}
             </Button>
           </form>
         </div>
 
         <div className="mt-5 text-center">
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Already have an account?{' '}
+            {t('auth.hasAccount')}{' '}
             <Link to="/login" className="font-semibold" style={{ color: 'var(--accent-bright)' }}>
-              Sign In
+              {t('auth.login')}
             </Link>
           </p>
         </div>

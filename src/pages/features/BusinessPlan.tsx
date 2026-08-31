@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { FileText, MapPin, IndianRupee, Loader2, Download, Copy, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import { generateBusinessPlan } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
+
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -31,6 +32,7 @@ const businessTypes = [
 export default function BusinessPlan() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
+  const { t } = useTranslation()
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [budget, setBudget] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
@@ -67,12 +69,10 @@ export default function BusinessPlan() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
-        <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>AI Business Plan Generator</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Create a comprehensive business plan in minutes</p>
-        </div>
-      </ScrollReveal>
+      <div>
+        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('businessPlan.title')}</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('businessPlan.subtitle')}</p>
+      </div>
 
       <div className="flex justify-end">
         <button onClick={() => setShowEdit(!showEdit)} className="flex items-center gap-1.5 text-xs font-medium transition-colors"
@@ -80,7 +80,7 @@ export default function BusinessPlan() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('common.hide') : t('common.editDetails')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
@@ -88,13 +88,13 @@ export default function BusinessPlan() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={businessTypes} />
-                <Input label="Budget (₹)" type="number" value={budget} onChange={(e) => setBudget(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
+                <Select label={t('businessPlan.businessType')} value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={businessTypes} />
+                <Input label={t('businessPlan.budget')} type="number" value={budget} onChange={(e) => setBudget(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('businessPlan.location')} value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={16} />} />
               </div>
               <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleGenerate() }} loading={loading}>
-                  <FileText size={16} />Regenerate Plan
+                  <FileText size={16} />{t('businessPlan.regeneratePlan')}
                 </Button>
               </div>
             </Card>
@@ -106,15 +106,15 @@ export default function BusinessPlan() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Your Business Plan</h2>
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{t('businessPlan.yourPlan')}</h2>
               <div className="flex gap-2">
                 <Button variant="ghost" size="sm" onClick={handleCopy}>
                   <Copy size={14} />
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? t('businessPlan.copied') : t('businessPlan.copy')}
                 </Button>
                 <Button variant="secondary" size="sm">
                   <Download size={14} />
-                  Download PDF
+                  {t('businessPlan.downloadPDF')}
                 </Button>
               </div>
             </div>
@@ -128,8 +128,8 @@ export default function BusinessPlan() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Generating Your Business Plan...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Our AI is analyzing your business details and creating a comprehensive plan.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('businessPlan.generating')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('businessPlan.generatingDesc')}</p>
         </Card>
       )}
     </div>

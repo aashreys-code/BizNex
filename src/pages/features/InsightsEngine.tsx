@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { MapPin, Loader2, Users, BookOpen, TrendingUp, Building2, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -31,6 +32,7 @@ export default function InsightsEngine() {
   const { profile } = useAuth()
   const { business, isComplete } = useBusiness()
   const { isDark } = useTheme()
+  const { t } = useTranslation()
   const c = chartColors(isDark)
   const PIE_COLORS = [c.accent, c.info, c.warning]
   const [location, setLocation] = useState(business?.location || profile?.district || '')
@@ -71,8 +73,9 @@ export default function InsightsEngine() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Hyper-Local Insights</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Discover data-driven insights about your area</p>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('insights.title')}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('insights.subtitle')}</p>
+          <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>{t('insights.dataSource')}</p>
         </div>
       </div>
 
@@ -129,7 +132,7 @@ export default function InsightsEngine() {
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Local Demand Trends</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('insights.demandTrends')}</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={result.demandTrends.map(d => ({
                   category: d.category.split(' ').slice(0, 2).join(' '),
@@ -150,7 +153,7 @@ export default function InsightsEngine() {
             </Card>
 
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Employment Distribution</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('insights.employmentDist')}</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie data={employmentData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" labelLine={false}
@@ -179,7 +182,7 @@ export default function InsightsEngine() {
           {/* Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Major Industries</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('insights.majorIndustries')}</h3>
               <div className="flex flex-wrap gap-1.5">
                 {result.majorIndustries.map((industry, i) => (
                   <span key={i} className="text-xs px-2 py-0.5 rounded-md"
@@ -190,7 +193,7 @@ export default function InsightsEngine() {
               </div>
             </Card>
             <Card>
-              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Nearby Markets</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('insights.nearbyMarkets')}</h3>
               <div className="flex flex-wrap gap-1.5">
                 {result.nearbyMarkets.map((market, i) => (
                   <span key={i} className="text-xs px-2 py-0.5 rounded-md"
@@ -203,7 +206,7 @@ export default function InsightsEngine() {
           </div>
 
           <Card>
-            <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Top Business Opportunities</h3>
+            <h3 className="text-sm font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('insights.topOpportunities')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {result.topBusinessOpportunities.map((opp, i) => (
                 <div key={i} className="flex items-center gap-2.5 p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
@@ -218,7 +221,7 @@ export default function InsightsEngine() {
           </Card>
 
           <Card>
-            <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Agricultural Profile</h3>
+            <h3 className="text-sm font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>{t('insights.agriProfile')}</h3>
             <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{result.agriculturalProfile}</p>
           </Card>
         </motion.div>
@@ -227,8 +230,8 @@ export default function InsightsEngine() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Gathering Insights...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing data for your location.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('insights.gatheringInsights')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('insights.gatheringDesc')}</p>
         </Card>
       )}
     </div>

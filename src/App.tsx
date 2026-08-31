@@ -3,12 +3,11 @@ import { useAuth } from './contexts/AuthContext'
 
 // Pages
 import LandingPage from './pages/LandingPage'
-import ComponentShowcase from './pages/ComponentShowcase'
+
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import Dashboard from './pages/Dashboard'
 import BusinessProfile from './pages/BusinessProfile'
-import Profile from './pages/Profile'
 import MarketAnalysis from './pages/features/MarketAnalysis'
 import BusinessPlan from './pages/features/BusinessPlan'
 import SchemeFinder from './pages/features/SchemeFinder'
@@ -65,7 +64,7 @@ export default function App() {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<Layout><LandingPage /></Layout>} />
-      <Route path="/showcase" element={<ComponentShowcase />} />
+
       <Route path="/login" element={<Layout><LoginPage /></Layout>} />
       <Route path="/register" element={<Layout><RegisterPage /></Layout>} />
 
@@ -80,16 +79,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Profile />
-            </DashboardLayout>
-          </ProtectedRoute>
-        }
-      />
+
       <Route
         path="/business-profile"
         element={

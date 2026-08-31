@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Zap } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/AuthContext'
+import { useBusiness } from '../../contexts/BusinessContext'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 
@@ -12,8 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { signIn } = useAuth()
+  const { signIn, demoLogin } = useAuth()
+  const { loadDemoProfiles } = useBusiness()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,16 +26,23 @@ export default function LoginPage() {
     try {
       const { error } = await signIn(email, password)
       if (error) {
-        toast.error(error.message || 'Login failed')
+        toast.error(error.message || t('common.error'))
       } else {
-        toast.success('Welcome back!')
+        toast.success(t('auth.welcomeBack'))
         navigate('/dashboard')
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error(t('common.error'))
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleDemoLogin() {
+    loadDemoProfiles()
+    demoLogin()
+    toast.success('Welcome to Demo Mode!')
+    navigate('/dashboard')
   }
 
   return (
@@ -44,15 +55,15 @@ export default function LoginPage() {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            Welcome back
+            {t('auth.welcomeBack')}
           </h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Sign in to your BizNex account</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('auth.signInDesc')}</p>
         </div>
 
         <div className="surface-elevated p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Email"
+              label={t('auth.email')}
               type="email"
               placeholder="you@example.com"
               value={email}
@@ -63,7 +74,7 @@ export default function LoginPage() {
 
             <div className="relative">
               <Input
-                label="Password"
+                label={t('auth.password')}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
@@ -85,16 +96,41 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" loading={loading}>
-              Sign In
+              {t('auth.login')}
             </Button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" style={{ borderColor: 'var(--border)' }} />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-2" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>{t('common.or')}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleDemoLogin}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              color: 'white',
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)',
+            }}
+          >
+            <Zap size={16} />
+            {t('auth.demoLogin')}
+          </button>
+          <p className="text-center text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>
+            {t('auth.demoLoginDesc')}
+          </p>
         </div>
 
         <div className="mt-5 text-center">
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link to="/register" className="font-semibold" style={{ color: 'var(--accent-bright)' }}>
-              Sign Up
+              {t('auth.register')}
             </Link>
           </p>
         </div>

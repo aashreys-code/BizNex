@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   User, Mail, Phone, MapPin, Globe, Building2,
   ArrowLeft, Calendar, Shield, Briefcase, Pencil, Save, X,
@@ -7,7 +8,6 @@ import {
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness } from '../contexts/BusinessContext'
-import { ScrollReveal } from '../components/react-bits'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
@@ -56,6 +56,7 @@ const languages = [
 export default function Profile() {
   const { profile, updateProfile } = useAuth()
   const { profiles, activeId } = useBusiness()
+  const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
@@ -120,49 +121,49 @@ export default function Profile() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <ScrollReveal>
+      <div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               to="/dashboard"
-              className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              className="p-2 rounded-lg "
             >
               <ArrowLeft size={20} />
             </Link>
-            <h1 className="text-2xl font-bold text-white">My Profile</h1>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{t('profile.title')}</h1>
           </div>
           <div className="flex gap-2">
             {editing ? (
               <>
                 <Button variant="secondary" size="sm" onClick={handleCancel}>
                   <X size={14} />
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button size="sm" onClick={handleSave} loading={saving}>
                   <Save size={14} />
-                  Save Changes
+                  {t('profile.saveChanges')}
                 </Button>
               </>
             ) : (
               <>
                 <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
                   <Pencil size={14} />
-                  Edit Profile
+                  {t('profile.editProfile')}
                 </Button>
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm">
                     <ArrowLeft size={14} />
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
               </>
             )}
           </div>
         </div>
-      </ScrollReveal>
+      </div>
 
       {/* Profile Card */}
-      <ScrollReveal delay={0.05}>
+      <div>
         <Card className="p-8">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             {/* Avatar */}
@@ -201,58 +202,58 @@ export default function Profile() {
             </div>
           </div>
         </Card>
-      </ScrollReveal>
+      </div>
 
       {/* Personal Information */}
-      <ScrollReveal delay={0.1}>
+      <div>
         <Card className="p-6">            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
             <User size={16} style={{ color: 'var(--accent-bright)' }} />
-            Personal Information
+            {t('profile.personalInfo')}
           </h3>
 
           {editing ? (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="Full Name"
+                  label={t('profile.fullName')}
                   value={formData.name}
                   onChange={(e) => updateField('name', e.target.value)}
                   icon={<User size={18} />}
                 />
                 <Input
-                  label="Email"
+                  label={t('profile.email')}
                   type="email"
                   value={formData.email}
                   onChange={(e) => updateField('email', e.target.value)}
                   icon={<Mail size={18} />}
                 />
                 <Input
-                  label="Mobile Number"
+                  label={t('profile.mobile')}
                   type="tel"
                   value={formData.mobile}
                   onChange={(e) => updateField('mobile', e.target.value)}
                   icon={<Phone size={18} />}
                 />
                 <Input
-                  label="Village"
+                  label={t('profile.village')}
                   value={formData.village}
                   onChange={(e) => updateField('village', e.target.value)}
                   icon={<MapPin size={18} />}
                 />
                 <Input
-                  label="District"
+                  label={t('profile.district')}
                   value={formData.district}
                   onChange={(e) => updateField('district', e.target.value)}
                   icon={<MapPin size={18} />}
                 />
                 <Select
-                  label="State"
+                  label={t('profile.state')}
                   value={formData.state}
                   onChange={(e) => updateField('state', e.target.value)}
                   options={states}
                 />
                 <Select
-                  label="Preferred Language"
+                  label={t('auth.preferredLanguage')}
                   value={formData.language}
                   onChange={(e) => updateField('language', e.target.value)}
                   options={languages}
@@ -276,28 +277,28 @@ export default function Profile() {
             </div>
           )}
         </Card>
-      </ScrollReveal>
+      </div>
 
       {/* Business Profiles */}
-      <ScrollReveal delay={0.15}>
+      <div>
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <Building2 size={16} style={{ color: 'var(--accent-bright)' }} />
-              My Businesses
+              {t('profile.myBusinesses')}
             </h3>
             <Link to="/business-profile">
               <Button variant="ghost" size="sm">
-                Manage
+                {t('dashboard.manage')}
               </Button>
             </Link>
           </div>
           {profiles.length === 0 ? (
             <div className="text-center py-8">
               <Building2 size={28} style={{ color: 'var(--text-muted)' }} className="mx-auto mb-2" />
-              <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>No business profiles yet</p>
+              <p className="text-sm mb-3" style={{ color: 'var(--text-secondary)' }}>{t('profile.noBusinesses')}</p>
               <Link to="/business-profile">
-                <Button size="sm">Create One</Button>
+                <Button size="sm">{t('profile.createOne')}</Button>
               </Link>
             </div>
           ) : (
@@ -331,7 +332,7 @@ export default function Profile() {
             </div>
           )}
         </Card>
-      </ScrollReveal>
+      </div>
     </div>
   )
 }

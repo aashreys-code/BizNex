@@ -11,6 +11,8 @@ import ScrollReveal from '../components/react-bits/ScrollReveal'
 import MagneticButton from '../components/react-bits/MagneticButton'
 import HeroVisual from '../components/landing/HeroVisual'
 import ProductPreview from '../components/landing/ProductPreview'
+import { useAuth } from '../contexts/AuthContext'
+import { useBusiness } from '../contexts/BusinessContext'
 
 /* ─── Hook: Intersection Observer ──────────────── */
 function useInView(threshold = 0.15) {
@@ -70,13 +72,11 @@ const workflows = [
   },
 ]
 
-const credibilityItems = [
-  { icon: Target, title: 'Data-Driven Methodology', desc: 'Analysis built on regional market data, demographic insights, and real demand indicators.' },
+const credibilityItems = [    { icon: Target, title: 'Data-Driven Methodology', desc: 'Analysis combining AI insights with Census data, district-level demographics, and government scheme databases.' },
   { icon: Sparkles, title: 'AI-Powered Analysis', desc: 'Intelligent recommendations tailored to your specific business idea and local context.' },
-  { icon: Languages, title: 'Multilingual Access', desc: 'Available in English, Hindi, Telugu, Tamil, Kannada, and Marathi for inclusivity.' },
-  { icon: MapPin, title: 'Hyper-Local Insights', desc: 'Village and district-level data on population, literacy, demand trends, and opportunities.' },
+  { icon: Languages, title: 'Multilingual Access', desc: 'Available in English, Hindi, Telugu, Tamil, Kannada, and Marathi for inclusivity.' },    { icon: MapPin, title: 'Hyper-Local Insights', desc: 'District-level Census data on population, literacy, employment, and business opportunities.' },
   { icon: Shield, title: 'Transparent Guidance', desc: 'Clear eligibility criteria and honest recommendations — no hidden agendas.' },
-  { icon: Globe, title: 'Government Scheme Discovery', desc: 'Automated matching with PMEGP, MUDRA, Stand-Up India, and 20+ other schemes.' },
+  { icon: Globe, title: 'Government Scheme Discovery', desc: 'Automated matching with PMEGP, MUDRA, Stand-Up India, PM SVANidhi, CGTMSE, and more.' },
 ]
 
 const features = [
@@ -87,7 +87,6 @@ const features = [
   { icon: MessageSquare, title: 'AI Business Advisor', desc: 'Chat in English, Hindi, Telugu, Tamil, Kannada, or Marathi.' },
   { icon: MapPin, title: 'Local Market Insights', desc: 'Population data, literacy rates, demand trends, and opportunities.' },
   { icon: DollarSign, title: 'Funding Strategy', desc: 'Personalized funding combining self-funding, loans, and subsidies.' },
-  { icon: Zap, title: 'Real-Time Signals', desc: 'Live market signals and opportunity indicators for your area.' },
 ]
 
 /* ─── Main Component ──────────────────────────── */
@@ -163,6 +162,12 @@ export default function LandingPage() {
                   <Link to="/login">
                     <Button variant="secondary" size="lg">
                       Sign In
+                    </Button>
+                  </Link>
+                  <Link to="/login">
+                    <Button variant="ghost" size="lg" onClick={() => {}}>
+                      <Zap size={16} />
+                      Try Demo
                     </Button>
                   </Link>
                 </div>

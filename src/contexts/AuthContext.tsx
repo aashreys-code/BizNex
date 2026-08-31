@@ -26,6 +26,7 @@ interface AuthContextType {
   loading: boolean
   isAdmin: boolean
   isSupabaseConfigured: boolean
+  isDemo: boolean
   signUp: (data: {
     email: string
     password: string
@@ -37,6 +38,7 @@ interface AuthContextType {
     language: string
   }) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
+  demoLogin: () => void
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   updateProfile: (data: Partial<UserProfile>) => Promise<{ error: string | null }>
@@ -49,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isDemo, setIsDemo] = useState(false)
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -174,11 +177,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error }
   }
 
+  function demoLogin() {
+    const mockUser = {
+      id: 'demo-user-001',
+      aud: 'authenticated',
+      role: 'authenticated',
+      email: 'demo@biznex.local',
+      phone: '',
+      app_metadata: { provider: 'email', providers: ['email'] },
+      user_metadata: { name: 'Demo User', email: 'demo@biznex.local' },
+      identities: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      is_anonymous: false,
+    } as unknown as User
+
+    setUser(mockUser)
+    setProfile({
+      id: 'demo-user-001',
+      name: 'Demo User',
+      email: 'demo@biznex.local',
+      mobile: '+919876543210',
+      village: 'Koramangala',
+      district: 'Bengaluru Urban',
+      state: 'Karnataka',
+      language: 'English',
+      role: 'user',
+      created_at: new Date().toISOString(),
+    })
+    setSession(null)
+    setIsDemo(true)
+    setLoading(false)
+  }
+
   async function signOut() {
-    await supabase.auth.signOut()
+    if (!isDemo) {
+      await supabase.auth.signOut()
+    }
     setUser(null)
     setProfile(null)
     setSession(null)
+    setIsDemo(false)
   }
 
   async function updateProfile(data: Partial<UserProfile>) {
@@ -207,8 +246,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         isAdmin,
         isSupabaseConfigured,
+        isDemo,
         signUp,
         signIn,
+        demoLogin,
         signOut,
         refreshProfile,
         updateProfile,

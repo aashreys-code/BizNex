@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Search, Loader2, ExternalLink, FileCheck, IndianRupee, Clock, Edit3, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { Search, Loader2, ExternalLink, IndianRupee, Edit3, ChevronUp, ChevronDown, CheckCircle2 } from 'lucide-react'
 import { findSchemes } from '../../lib/ai'
 import { AnimatePresence } from 'motion/react'
 import { useBusiness } from '../../contexts/BusinessContext'
-import { ScrollReveal } from '../../components/react-bits'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
 import Select from '../../components/ui/Select'
@@ -23,6 +23,7 @@ interface Scheme {
 
 export default function SchemeFinder() {
   const { business, isComplete } = useBusiness()
+  const { t } = useTranslation()
   const [age, setAge] = useState(business?.age ? String(business.age) : '')
   const [gender, setGender] = useState(business?.gender?.toLowerCase() || '')
   const [businessType, setBusinessType] = useState(business?.businessType || '')
@@ -65,12 +66,12 @@ export default function SchemeFinder() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <ScrollReveal>
+      <div>
         <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Government Scheme Finder</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Find schemes you're eligible for with AI matching</p>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('schemeFinder.title')}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('schemeFinder.subtitle')}</p>
         </div>
-      </ScrollReveal>
+      </div>
 
       {/* Edit Toggle */}
       <div className="flex justify-end">
@@ -79,7 +80,7 @@ export default function SchemeFinder() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Profile'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('schemeFinder.hideProfile') : t('schemeFinder.editProfile')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
@@ -87,16 +88,16 @@ export default function SchemeFinder() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <Input label="Age" type="number" value={age} onChange={(e) => setAge(e.target.value)} />
-                <Select label="Gender" value={gender} onChange={(e) => setGender(e.target.value)} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} />
-                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }, { value: 'food-processing', label: 'Food Processing' }]} />
-                <Input label="Annual Income (₹)" type="number" value={income} onChange={(e) => setIncome(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Input label="Investment Needed (₹)" type="number" value={investmentNeeded} onChange={(e) => setInvestmentNeeded(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Select label="Category" value={category} onChange={(e) => setCategory(e.target.value)} options={[{ value: 'general', label: 'General' }, { value: 'obc', label: 'OBC' }, { value: 'sc', label: 'SC' }, { value: 'st', label: 'ST' }, { value: 'women', label: 'Women Entrepreneur' }, { value: 'minority', label: 'Minority' }]} />
+                <Input label={t('schemeFinder.age')} type="number" value={age} onChange={(e) => setAge(e.target.value)} />
+                <Select label={t('schemeFinder.gender')} value={gender} onChange={(e) => setGender(e.target.value)} options={[{ value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} />
+                <Select label={t('schemeFinder.businessType')} value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }, { value: 'food-processing', label: 'Food Processing' }]} />
+                <Input label={t('schemeFinder.annualIncome')} type="number" value={income} onChange={(e) => setIncome(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('schemeFinder.investmentNeeded')} type="number" value={investmentNeeded} onChange={(e) => setInvestmentNeeded(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Select label={t('schemeFinder.category')} value={category} onChange={(e) => setCategory(e.target.value)} options={[{ value: 'general', label: 'General' }, { value: 'obc', label: 'OBC' }, { value: 'sc', label: 'SC' }, { value: 'st', label: 'ST' }, { value: 'women', label: 'Women Entrepreneur' }, { value: 'minority', label: 'Minority' }]} />
               </div>
               <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleFind() }} loading={loading}>
-                  <Search size={16} />Refresh Schemes
+                  <Search size={16} />{t('schemeFinder.refreshSchemes')}
                 </Button>
               </div>
             </Card>
@@ -107,7 +108,7 @@ export default function SchemeFinder() {
       {/* Results */}
       {schemes.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Recommended Schemes</h2>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>{t('schemeFinder.recommendedSchemes')}</h2>
           {schemes.map((scheme, i) => {
             const isExpanded = expandedScheme === i
             return (
@@ -138,7 +139,7 @@ export default function SchemeFinder() {
                     className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
                     style={{ color: 'var(--accent-bright)' }}>
                     <CheckCircle2 size={14} />
-                    {isExpanded ? 'Hide details' : 'Why you match'}
+                    {isExpanded ? t('common.hideDetails') : t('schemeFinder.whyYouMatch')}
                   </button>
 
                   {/* Expanded Details */}
@@ -149,7 +150,7 @@ export default function SchemeFinder() {
                         <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Required Documents</p>
+                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('schemeFinder.requiredDocuments')}</p>
                               <ul className="space-y-1">
                                 {scheme.requiredDocuments.map((doc, j) => (
                                   <li key={j} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
@@ -160,7 +161,7 @@ export default function SchemeFinder() {
                               </ul>
                             </div>
                             <div>
-                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>Application Process</p>
+                              <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>{t('schemeFinder.applicationProcess')}</p>
                               <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{scheme.applicationProcess}</p>
                             </div>
                           </div>
@@ -179,8 +180,8 @@ export default function SchemeFinder() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Finding Eligible Schemes...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Matching your profile against 50+ government schemes.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('schemeFinder.loading')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('schemeFinder.loadingDesc')}</p>
         </Card>
       )}
     </div>

@@ -67,25 +67,11 @@ export default {
         mono: ['JetBrains Mono', 'monospace'],
       },
       animation: {
-        'float': 'float 6s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
         'slide-up': 'slideUp 0.5s ease-out',
         'slide-down': 'slideDown 0.5s ease-out',
         'fade-in': 'fadeIn 0.5s ease-out',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'liquid': 'liquid 8s ease-in-out infinite',
-        'liquid-fast': 'liquid 4s ease-in-out infinite',
-        'shimmer': 'shimmer 2s linear infinite',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-20px)' },
-        },
-        glow: {
-          '0%': { boxShadow: '0 0 5px rgba(33, 241, 168, 0.2)' },
-          '100%': { boxShadow: '0 0 30px rgba(33, 241, 168, 0.4), 0 0 60px rgba(33, 241, 168, 0.1)' },
-        },
         slideUp: {
           '0%': { transform: 'translateY(20px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
@@ -98,29 +84,9 @@ export default {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
-        liquid: {
-          '0%, 100%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' },
-          '50%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' },
-        },
-        shimmer: {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(100%)' },
-        },
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'hero-gradient': 'linear-gradient(180deg, #0e0e0e 0%, #141414 50%, #0e0e0e 100%)',
-        'moss-gradient': 'linear-gradient(135deg, #5CF5C1 0%, #21F1A8 50%, #1AD692 100%)',
       },
       boxShadow: {
-        'liquid': '0 8px 32px 0 rgba(33, 241, 168, 0.15)',
-        'liquid-lg': '0 16px 64px 0 rgba(33, 241, 168, 0.2)',
-        'liquid-inner': 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.1)',
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        'clay': '8px 8px 16px rgba(0, 0, 0, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.8)',
-        'clay-inset': 'inset 4px 4px 8px rgba(0, 0, 0, 0.06), inset -4px -4px 8px rgba(255, 255, 255, 0.7)',
-        'clay-sm': '4px 4px 8px rgba(0, 0, 0, 0.06), -4px -4px 8px rgba(255, 255, 255, 0.7)',
-        'clay-hover': '6px 6px 12px rgba(0, 0, 0, 0.1), -6px -6px 12px rgba(255, 255, 255, 0.8)',
       },
     },
   },

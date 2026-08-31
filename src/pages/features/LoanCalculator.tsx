@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { Calculator, IndianRupee, Loader2, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -28,6 +29,7 @@ interface LoanResult {
 export default function LoanCalculator() {
   const { business, isComplete } = useBusiness()
   const { isDark } = useTheme()
+  const { t } = useTranslation()
   const c = chartColors(isDark)
   const PIE_COLORS = [c.accent, c.warning, c.info]
   const [monthlyIncome, setMonthlyIncome] = useState(business?.monthlyIncome ? String(business.monthlyIncome) : '')
@@ -71,8 +73,8 @@ export default function LoanCalculator() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Loan Eligibility Calculator</h1>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Calculate your eligibility, EMI, and repayment schedule</p>
+        <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('loanCalculator.title')}</h1>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('loanCalculator.subtitle')}</p>
       </div>
 
       <div className="flex justify-end">
@@ -81,7 +83,7 @@ export default function LoanCalculator() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('common.hide') : t('common.editDetails')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
@@ -89,14 +91,14 @@ export default function LoanCalculator() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Input label="Monthly Income (₹)" type="number" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Input label="Existing Loans (₹)" type="number" value={existingLoans} onChange={(e) => setExistingLoans(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }]} />
-                <Input label="Investment Required (₹)" type="number" value={investmentRequirement} onChange={(e) => setInvestmentRequirement(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('loanCalculator.monthlyIncome')} type="number" value={monthlyIncome} onChange={(e) => setMonthlyIncome(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('loanCalculator.existingLoans')} type="number" value={existingLoans} onChange={(e) => setExistingLoans(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Select label={t('loanCalculator.businessType')} value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy' }, { value: 'retail', label: 'Retail' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }, { value: 'agriculture', label: 'Agriculture' }]} />
+                <Input label={t('loanCalculator.investmentRequired')} type="number" value={investmentRequirement} onChange={(e) => setInvestmentRequirement(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
               <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleCalculate() }} loading={loading}>
-                  <Calculator size={16} />Recalculate
+                  <Calculator size={16} />{t('loanCalculator.recalculate')}
                 </Button>
               </div>
             </Card>
@@ -109,10 +111,10 @@ export default function LoanCalculator() {
           {/* Key Metrics */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
-              { label: 'Eligibility Score', value: `${result.eligibilityScore}/100` },
-              { label: 'Loan Amount', value: `₹${result.eligibleLoanAmount.toLocaleString('en-IN')}` },
-              { label: 'Est. EMI', value: `₹${result.estimatedEMI.toLocaleString('en-IN')}` },
-              { label: 'Repayment Period', value: result.repaymentTenure },
+              { label: t('loanCalculator.eligibilityScore'), value: `${result.eligibilityScore}/100` },
+              { label: t('loanCalculator.loanAmount'), value: `₹${result.eligibleLoanAmount.toLocaleString('en-IN')}` },
+              { label: t('loanCalculator.estEMI'), value: `₹${result.estimatedEMI.toLocaleString('en-IN')}` },
+              { label: t('loanCalculator.repaymentPeriod'), value: result.repaymentTenure },
             ].map((metric, i) => (
               <div key={i} className="card p-3 text-center">
                 <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{metric.label}</p>
@@ -132,7 +134,7 @@ export default function LoanCalculator() {
           {/* Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>EMI Breakdown</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('loanCalculator.emiBreakdown')}</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
                   <Pie data={pieData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" labelLine={false}
@@ -159,7 +161,7 @@ export default function LoanCalculator() {
             </Card>
 
             <Card>
-              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Repayment Schedule</h3>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('loanCalculator.repaymentSchedule')}</h3>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={result.monthlyRepaymentSchedule}>
                   <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
@@ -176,14 +178,14 @@ export default function LoanCalculator() {
 
           {/* Recommended Banks */}
           <Card>
-            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Recommended Banks</h3>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('loanCalculator.recommendedBanks')}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Bank</th>
-                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Interest Rate</th>
-                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>Processing Fee</th>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>{t('loanCalculator.bank')}</th>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>{t('loanCalculator.interestRate')}</th>
+                    <th className="text-left py-2.5 px-3 font-medium" style={{ color: 'var(--text-muted)' }}>{t('loanCalculator.processingFee')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -204,8 +206,8 @@ export default function LoanCalculator() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Calculating Eligibility...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Analyzing your financial profile against bank requirements.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('loanCalculator.calculating')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('loanCalculator.calculatingDesc')}</p>
         </Card>
       )}
     </div>

@@ -251,17 +251,19 @@ export default function ComponentShowcase() {
             <SectionHeader icon={<Sparkles size={20} />} title="Animated List" description="Items animate in sequentially with staggered delays." />
             <div className="mt-8 p-8 rounded-2xl max-w-lg mx-auto" style={{ background: 'var(--surface-primary)' }}>
               <h3 className="font-semibold text-lg mb-4">Your Business Recommendations</h3>
-              <AnimatedList
-                items={[
+              <AnimatedList className="space-y-2">
+                {[
                   '📊 Expand into healthcare services — 34% local demand growth',
                   '💰 Apply for MUDRA Loan — 92% eligibility match',
                   '🏪 Open branch in ECIL — underserved market detected',
                   '📈 Increase inventory by 20% — festive season approaching',
                   '🤝 Partner with local cooperative — shared distribution model',
-                ]}
-                itemClassName="p-3 rounded-lg text-sm mb-2"
-                style={{ background: 'var(--surface-secondary)' }}
-              />
+                ].map((item, i) => (
+                  <div key={i} className="p-3 rounded-lg text-sm" style={{ background: 'var(--surface-secondary)' }}>
+                    {item}
+                  </div>
+                ))}
+              </AnimatedList>
             </div>
           </section>
         </ScrollReveal>

@@ -94,7 +94,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style={{ borderTop: '1px solid var(--border)' }}>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            © 2025 BizNex. All rights reserved.
+            © 2026 BizNex. All rights reserved.
           </p>
           <p className="text-xs flex items-center gap-1.5" style={{ color: 'var(--text-muted)' }}>
             Made with <Heart size={12} style={{ color: 'var(--accent-bright)' }} className="fill-current" /> for Rural India

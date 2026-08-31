@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { DollarSign, Loader2, IndianRupee, Landmark, Gift, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -26,6 +27,7 @@ interface FundingResult {
 export default function FundingAdvisor() {
   const { business, isComplete } = useBusiness()
   const { isDark } = useTheme()
+  const { t } = useTranslation()
   const c = chartColors(isDark)
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [totalCost, setTotalCost] = useState(business?.investmentAmount ? String(business.investmentAmount) : '')
@@ -62,8 +64,8 @@ export default function FundingAdvisor() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <div>
-          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>Funding Advisor</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Get personalized funding structure recommendations</p>
+          <h1 className="text-xl font-bold mb-0.5" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.title')}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('fundingAdvisor.subtitle')}</p>
         </div>
       </div>
 
@@ -73,7 +75,7 @@ export default function FundingAdvisor() {
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
           onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)' }}
         >
-          <Edit3 size={12} />{showEdit ? 'Hide' : 'Edit Details'}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+          <Edit3 size={12} />{showEdit ? t('common.hide') : t('common.editDetails')}{showEdit ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         </button>
       </div>
       <AnimatePresence>
@@ -81,14 +83,14 @@ export default function FundingAdvisor() {
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <Card className="p-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Select label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy Farm' }, { value: 'retail', label: 'Retail Store' }, { value: 'food-processing', label: 'Food Processing' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }]} />
-                <Input label="Total Cost (₹)" type="number" value={totalCost} onChange={(e) => setTotalCost(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Input label="Working Capital (₹)" type="number" value={workingCapital} onChange={(e) => setWorkingCapital(e.target.value)} icon={<IndianRupee size={16} />} />
-                <Input label="Equipment Cost (₹)" type="number" value={equipmentCost} onChange={(e) => setEquipmentCost(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Select label={t('fundingAdvisor.businessType')} value={businessType} onChange={(e) => setBusinessType(e.target.value)} options={[{ value: 'dairy', label: 'Dairy Farm' }, { value: 'retail', label: 'Retail Store' }, { value: 'food-processing', label: 'Food Processing' }, { value: 'manufacturing', label: 'Manufacturing' }, { value: 'services', label: 'Services' }]} />
+                <Input label={t('fundingAdvisor.totalCost')} type="number" value={totalCost} onChange={(e) => setTotalCost(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('fundingAdvisor.workingCapital')} type="number" value={workingCapital} onChange={(e) => setWorkingCapital(e.target.value)} icon={<IndianRupee size={16} />} />
+                <Input label={t('fundingAdvisor.equipmentCost')} type="number" value={equipmentCost} onChange={(e) => setEquipmentCost(e.target.value)} icon={<IndianRupee size={16} />} />
               </div>
               <div className="mt-3">
                 <Button onClick={() => { setShowEdit(false); handleGetAdvice() }} loading={loading}>
-                  <DollarSign size={16} />Refresh Analysis
+                  <DollarSign size={16} />{t('fundingAdvisor.refreshAnalysis')}
                 </Button>
               </div>
             </Card>
@@ -101,9 +103,9 @@ export default function FundingAdvisor() {
           {/* Funding Plan Summary */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
-              { label: 'Own Contribution', value: `₹${result.totalFundingPlan.ownContribution.toLocaleString('en-IN')}` },
-              { label: 'Loan Amount', value: `₹${result.totalFundingPlan.loanAmount.toLocaleString('en-IN')}` },
-              { label: 'Subsidy Amount', value: `₹${result.totalFundingPlan.subsidyAmount.toLocaleString('en-IN')}` },
+              { label: t('fundingAdvisor.ownContribution'), value: `₹${result.totalFundingPlan.ownContribution.toLocaleString('en-IN')}` },
+              { label: t('fundingAdvisor.loanAmount'), value: `₹${result.totalFundingPlan.loanAmount.toLocaleString('en-IN')}` },
+              { label: t('fundingAdvisor.subsidyAmount'), value: `₹${result.totalFundingPlan.subsidyAmount.toLocaleString('en-IN')}` },
             ].map((item, i) => (
               <div key={i} className="card p-3 text-center">
                 <p className="text-[11px] font-medium mb-0.5" style={{ color: 'var(--text-muted)' }}>{item.label}</p>
@@ -114,7 +116,7 @@ export default function FundingAdvisor() {
 
           {/* Cash Flow Chart */}
           <Card>
-            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Projected Monthly Cash Flow</h3>
+            <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.projectedCashFlow')}</h3>
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={result.monthlyCashFlow}>
                 <CartesianGrid strokeDasharray="3 3" stroke={c.grid} />
@@ -133,7 +135,7 @@ export default function FundingAdvisor() {
             <Card>
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign size={14} style={{ color: 'var(--accent-bright)' }} />
-                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Self Funding</h3>
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.selfFunding')}</h3>
               </div>
               <div className="text-center p-3 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
                 <p className="text-lg font-bold" style={{ color: 'var(--accent-bright)' }}>{result.selfFunding.percentage}%</p>
@@ -144,7 +146,7 @@ export default function FundingAdvisor() {
             <Card>
               <div className="flex items-center gap-2 mb-2">
                 <Landmark size={14} style={{ color: 'var(--info)' }} />
-                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Government Loans</h3>
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.governmentLoans')}</h3>
               </div>
               <div className="space-y-2">
                 {result.governmentLoans.map((loan, i) => (
@@ -160,7 +162,7 @@ export default function FundingAdvisor() {
             <Card>
               <div className="flex items-center gap-2 mb-2">
                 <Gift size={14} style={{ color: 'var(--accent-bright)' }} />
-                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>Subsidies</h3>
+                <h3 className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.subsidies')}</h3>
               </div>
               <div className="space-y-2">
                 {result.subsidies.map((sub, i) => (
@@ -179,8 +181,8 @@ export default function FundingAdvisor() {
       {loading && (
         <Card className="p-10 text-center">
           <Loader2 size={36} className="animate-spin mx-auto mb-3" style={{ color: 'var(--accent-bright)' }} />
-          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Analyzing Funding Options...</h3>
-          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Finding the best funding structure for your business.</p>
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('fundingAdvisor.analyzing')}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('fundingAdvisor.analyzingDesc')}</p>
         </Card>
       )}
     </div>
