@@ -60,6 +60,7 @@ interface CompetitorResult {
   demandTrend: { month: string; demand: number }[]
   popularityComparison: { name: string; score: number }[]
   recommendations: string[]
+  dataSource: 'live' | 'simulated'
 }
 
 /* ─── Custom SVG markers (unique per type) ──────────────── */
@@ -407,6 +408,18 @@ export default function NearbyCompetitors() {
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
             Discover similar businesses, compare demand & popularity, and find your edge
           </p>
+          {result && (
+            <span
+              className="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium"
+              style={{
+                background: result.dataSource === 'live' ? 'rgba(34,197,94,0.12)' : 'rgba(234,179,8,0.12)',
+                color: result.dataSource === 'live' ? '#22c55e' : '#eab308',
+                border: `1px solid ${result.dataSource === 'live' ? 'rgba(34,197,94,0.25)' : 'rgba(234,179,8,0.25)'}`,
+              }}
+            >
+              {result.dataSource === 'live' ? '● Live data from OpenStreetMap' : '○ Simulated data — no results found for this area'}
+            </span>
+          )}
         </div>
       </div>
       {result && (

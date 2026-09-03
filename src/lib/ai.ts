@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { governmentSchemes, findMatchingSchemes, scoreScheme } from './schemes-data'
 import { findDistrictData, findStateData } from './census-data'
+import { queryNearbyBusinesses, type OverpassBusiness } from './overpass'
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ''
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
@@ -462,184 +463,326 @@ export async function findNearbyBusinesses(data: {
   location: string
   radius: number
 }) {
-  const prompt = `You are a competitive intelligence analyst. Find similar nearby businesses near ${data.location}, India within ~${data.radius} km radius for comparison with a ${data.businessType}.
+  // Get real local context from census data
+  const district = findDistrictData(data.location)
+  const state = findStateData(data.location)
 
-Provide realistic competitor data in JSON:
-{
-  "userBusiness": {
-    "name": "Your ${data.businessType}",
-    "lat": <latitude>,
-    "lng": <longitude>,
-    "popularity": <1-100>,
-    "demand": <1-100>,
-    "monthlyRevenue": <number>,
-    "rating": <1-5>,
-    "progressScore": <1-100>
-  },
-  "competitors": [
-    {
-      "name": "Business Name",
-      "type": "subtype",
-      "lat": <latitude>,
-      "lng": <longitude>,
-      "distance": <km>,
-      "popularity": <1-100>,
-      "demand": <1-100>,
-      "monthlyRevenue": <number>,
-      "rating": <1-5>,
-      "progressScore": <1-100>,
-      "established": <year>,
-      "strengths": ["..."],
-      "weaknesses": ["..."],
-      "specialties": ["..."]
+    const baseLat = district ? (() => {
+      // Approximate coordinates for known districts
+      const coords: Record<string, [number, number]> = {
+        'anantapur': [14.68, 77.59], 'chittoor': [13.22, 79.11],
+        'visakhapatnam': [17.69, 83.22], 'guntur': [16.31, 80.44],
+        'hyderabad': [17.39, 78.49], 'bengaluru urban': [12.97, 77.59],
+        'madurai': [9.92, 78.12], 'pune': [18.52, 73.86],
+        'lucknow': [26.85, 80.95], 'patna': [25.60, 85.10],
+        'jaipur': [26.92, 75.79], 'indore': [22.72, 75.86],
+        'warangal': [17.97, 79.59], 'nellore': [14.44, 79.99],
+        'kurnool': [15.83, 78.04], 'coimbatore': [11.01, 76.97],
+        'kanpur': [26.45, 80.35], 'nagpur': [21.15, 79.09],
+        'mysore': [12.30, 76.66],
+      }
+      return coords[district.district.toLowerCase()] || [14.68, 77.59]
+    })() : [14.68, 77.59]
+    const [bLat, bLng] = baseLat as [number, number]
+
+    const avgIncome = district?.avgMonthlyIncome || 15000
+    const infraScore = district?.infrastructureScore || 6
+    const digital = district?.digitalAdoption || 'Medium'
+    const industries = district?.majorIndustries || ['Agriculture', 'Retail', 'Services']
+
+    // Try Overpass API first for real business data
+    const businessType = data.businessType.toLowerCase()
+    const overpassResults = await queryNearbyBusinesses(data.businessType, bLat, bLng, data.radius)
+
+    let generatedCompetitors: any[]
+
+    if (overpassResults.length > 0) {
+      // Map real Overpass data to our Competitor interface
+      generatedCompetitors = mapOverpassToCompetitors(overpassResults, bLat, bLng, avgIncome)
+    } else {
+      // Fall back to mock data if Overpass returns nothing
+      generatedCompetitors = generateLocalCompetitors(
+        businessType, data.location, bLat, bLng, avgIncome, data.radius
+      )
     }
-  ],
-  "marketSummary": {
-    "totalCompetitors": <number>,
-    "averageDemand": <1-100>,
-    "averagePopularity": <1-100>,
-    "marketSaturation": "Low|Medium|High",
-    "bestOpportunity": "description",
-    "threatLevel": "Low|Medium|High"
-  },
-  "demandTrend": [{"month": "Jan", "demand": <number>}, ...],
-  "popularityComparison": [{"name": "...", "score": <number>}],
-  "recommendations": ["..."]
-}
-Use realistic coordinates near ${data.location}. Return ONLY the JSON.`
 
-  try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
-  } catch {
-    // Fallback with realistic mock data centered around Anantapur
-    const baseLat = 14.68
-    const baseLng = 77.59
+    const avgPop = Math.round(generatedCompetitors.reduce((s, c) => s + c.popularity, 0) / generatedCompetitors.length)
+    const avgDem = Math.round(generatedCompetitors.reduce((s, c) => s + c.demand, 0) / generatedCompetitors.length)
+    const avgRev = Math.round(generatedCompetitors.reduce((s, c) => s + c.monthlyRevenue, 0) / generatedCompetitors.length)
+
     return {
       userBusiness: {
         name: `Your ${data.businessType}`,
-        lat: baseLat,
-        lng: baseLng,
-        popularity: 45,
-        demand: 62,
-        monthlyRevenue: 35000,
-        rating: 3.8,
-        progressScore: 55,
+        lat: bLat,
+        lng: bLng,
+        popularity: Math.round(avgPop * 0.6),
+        demand: Math.round(avgDem * 0.85),
+        monthlyRevenue: Math.round(avgRev * 0.5),
+        rating: 3.6,
+        progressScore: Math.round(avgPop * 0.55),
       },
-      competitors: [
-        {
-          name: 'Ravi General Store',
-          type: 'Retail',
-          lat: baseLat + 0.012,
-          lng: baseLng + 0.008,
-          distance: 1.8,
-          popularity: 72,
-          demand: 68,
-          monthlyRevenue: 55000,
-          rating: 4.2,
-          progressScore: 70,
-          established: 2018,
-          strengths: ['Prime location', 'Loyal customer base'],
-          weaknesses: ['Limited product range'],
-          specialties: ['Daily essentials', 'Mobile recharge'],
-        },
-        {
-          name: 'Lakshmi Traders',
-          type: 'Wholesale',
-          lat: baseLat - 0.015,
-          lng: baseLng + 0.022,
-          distance: 3.2,
-          popularity: 65,
-          demand: 72,
-          monthlyRevenue: 82000,
-          rating: 4.0,
-          progressScore: 68,
-          established: 2015,
-          strengths: ['Bulk pricing', 'Wide distribution'],
-          weaknesses: ['Higher minimum orders'],
-          specialties: ['Agricultural supplies', 'Fertilizers'],
-        },
-        {
-          name: 'Sri Venkateswara Mart',
-          type: 'Retail',
-          lat: baseLat + 0.008,
-          lng: baseLng - 0.018,
-          distance: 2.5,
-          popularity: 58,
-          demand: 55,
-          monthlyRevenue: 42000,
-          rating: 3.5,
-          progressScore: 52,
-          established: 2020,
-          strengths: ['Competitive prices', 'Home delivery'],
-          weaknesses: ['New brand, low trust'],
-          specialties: ['Groceries', 'Household items'],
-        },
-        {
-          name: 'Kiran Electronics',
-          type: 'Specialty',
-          lat: baseLat - 0.006,
-          lng: baseLng - 0.012,
-          distance: 1.5,
-          popularity: 80,
-          demand: 75,
-          monthlyRevenue: 95000,
-          rating: 4.5,
-          progressScore: 82,
-          established: 2012,
-          strengths: ['Brand partnerships', 'Service center'],
-          weaknesses: ['Premium pricing'],
-          specialties: ['Electronics', 'Appliance repair'],
-        },
-        {
-          name: 'Priya Fashion Hub',
-          type: 'Fashion',
-          lat: baseLat + 0.02,
-          lng: baseLng - 0.005,
-          distance: 2.8,
-          popularity: 70,
-          demand: 65,
-          monthlyRevenue: 68000,
-          rating: 4.1,
-          progressScore: 72,
-          established: 2019,
-          strengths: ['Trendy collection', 'Online presence'],
-          weaknesses: ['Seasonal demand'],
-          specialties: ['Ethnic wear', 'Accessories'],
-        },
-      ],
+      competitors: generatedCompetitors,
       marketSummary: {
-        totalCompetitors: 5,
-        averageDemand: 67,
-        averagePopularity: 69,
-        marketSaturation: 'Medium',
-        bestOpportunity: 'Underserved niche in premium grocery delivery and organic products',
-        threatLevel: 'Medium',
+        totalCompetitors: generatedCompetitors.length,
+        averageDemand: avgDem,
+        averagePopularity: avgPop,
+        marketSaturation: generatedCompetitors.length >= 6 ? 'High' : generatedCompetitors.length >= 4 ? 'Medium' : 'Low',
+        bestOpportunity: getMarketGap(businessType, industries, digital, avgIncome),
+        threatLevel: avgPop > 70 ? 'High' : avgPop > 50 ? 'Medium' : 'Low',
       },
       demandTrend: [
-        { month: 'Jan', demand: 55 }, { month: 'Feb', demand: 58 },
-        { month: 'Mar', demand: 62 }, { month: 'Apr', demand: 60 },
-        { month: 'May', demand: 65 }, { month: 'Jun', demand: 68 },
-        { month: 'Jul', demand: 72 }, { month: 'Aug', demand: 70 },
-        { month: 'Sep', demand: 74 }, { month: 'Oct', demand: 78 },
-        { month: 'Nov', demand: 82 }, { month: 'Dec', demand: 85 },
+        { month: 'Jan', demand: 50 }, { month: 'Feb', demand: 53 },
+        { month: 'Mar', demand: 57 }, { month: 'Apr', demand: 55 },
+        { month: 'May', demand: 60 }, { month: 'Jun', demand: 63 },
+        { month: 'Jul', demand: 67 }, { month: 'Aug', demand: 65 },
+        { month: 'Sep', demand: 70 }, { month: 'Oct', demand: 75 },
+        { month: 'Nov', demand: 80 }, { month: 'Dec', demand: 83 },
       ],
       popularityComparison: [
-        { name: 'Kiran Electronics', score: 80 },
-        { name: 'Ravi General Store', score: 72 },
-        { name: 'Priya Fashion Hub', score: 70 },
-        { name: 'Lakshmi Traders', score: 65 },
-        { name: 'Sri Venkateswara', score: 58 },
-        { name: 'Your Business', score: 45 },
+        ...generatedCompetitors.slice(0, 5).map(c => ({ name: c.name, score: c.popularity })),
+        { name: 'Your Business', score: Math.round(avgPop * 0.55) },
       ],
-      recommendations: [
-        'Focus on unique product categories competitors lack',
-        'Build online presence and delivery capability',
-        'Leverage government schemes for expansion funding',
-        'Partner with local suppliers for better margins',
-      ],
+      marketGaps: generateMarketGaps(businessType, industries, digital, avgIncome, infraScore),
+      recommendations: generateRecommendations(businessType, data.location, avgIncome, digital, infraScore, generatedCompetitors.length),
+      dataSource: (overpassResults.length > 0 ? 'live' : 'simulated') as 'live' | 'simulated',
     }
+}
+
+/** Generate realistic local competitors based on business type and area economics */
+function generateLocalCompetitors(
+  businessType: string,
+  location: string,
+  baseLat: number,
+  baseLng: number,
+  avgIncome: number,
+  radius: number
+) {
+  // Map business types to realistic competitor types
+  const competitorProfiles: Record<string, { type: string; names: string[]; specialties: string[]; strengths: string[]; weaknesses: string[] }[]> = {
+    'grocery': [
+      { type: 'Direct', names: ['Ravi Provision Store', 'Sri Lakshmi Kirana', 'Balaji General Store', 'Suresh & Sons'], specialties: ['Daily essentials', 'Home delivery', 'Credit accounts'], strengths: ['Established customer base', 'Prime location', 'Trust factor'], weaknesses: ['No online presence', 'Limited stock variety'] },
+      { type: 'Indirect', names: ['DMart Nearby', 'Reliance Fresh', 'More Megastore'], specialties: ['Branded products', 'Discount pricing', 'One-stop shop'], strengths: ['Bulk buying power', 'Brand trust', 'Modern systems'], weaknesses: ['Higher prices for small quantities', 'Less personal service'] },
+    ],
+    'dairy': [
+      { type: 'Direct', names: ['Amul Parlour', 'Nandini Dairy', 'Heritage Milk Point', 'Local Milk Cooperative'], specialties: ['Fresh milk', 'Curd & paneer', 'Home delivery'], strengths: ['Brand recognition', 'Daily fresh supply', 'Loyal customers'], weaknesses: ['Limited product range', 'Low margins'] },
+      { type: 'Indirect', names: ['Ghee & Sweets Shop', 'Juice Corner', 'Health Food Store'], specialties: ['Value-added products', 'Health drinks', 'Traditional sweets'], strengths: ['Higher margins', 'Niche market'], weaknesses: ['Seasonal demand', 'Storage requirements'] },
+    ],
+    'tailoring': [
+      { type: 'Direct', names: ['Fashion Stitching Center', 'Ram Tailors', 'Meera Boutique', 'Smart Stitch'], specialties: ['Stitching', 'Alterations', 'Designer wear'], strengths: ['Skilled workers', 'Quick turnaround', 'Local reputation'], weaknesses: ['Outdated designs', 'No online ordering'] },
+      { type: 'Indirect', names: ['Ready-Made Garment Shop', 'Textile Showroom', 'Wedding Collection'], specialties: ['Branded clothing', 'Bulk orders', 'Special occasions'], strengths: ['Variety', 'No wait time'], weaknesses: ['Higher prices', 'Less customization'] },
+    ],
+    'mobile': [
+      { type: 'Direct', names: ['Quick Fix Mobiles', 'Cell Care', 'Mobile Mandi', 'Tech Repair Hub'], specialties: ['Screen repair', 'Software issues', 'Accessories'], strengths: ['Fast service', 'Spare parts availability', 'Walk-in customers'], weaknesses: ['No certification', 'Limited brand service'] },
+      { type: 'Indirect', names: ['Electronics Showroom', 'Smartphone Store', 'Gadget World'], specialties: ['New phones', 'EMI options', 'Brand authorized'], strengths: ['Warranty service', 'Trade-in offers'], weaknesses: ['Higher price points'] },
+    ],
+    'restaurant': [
+      { type: 'Direct', names: ['Annapurna Hotel', 'Spice Garden', 'Green Leaf Restaurant', 'Tiffin Service'], specialties: ['Home-style meals', 'South Indian', 'Thali'], strengths: ['Regular customers', 'Good taste', 'Affordable prices'], weaknesses: ['Slow service', 'Hygiene concerns'] },
+      { type: 'Indirect', names: ['Street Food Stalls', 'Chai Tapri', 'Bakery & Snacks', 'Cloud Kitchen'], specialties: ['Quick bites', 'Snacks', 'Online delivery'], strengths: ['Low prices', 'Convenience'], weaknesses: ['Quality inconsistency', 'No seating'] },
+    ],
+    'beauty': [
+      { type: 'Direct', names: ['Glow Beauty Parlour', 'Lakme Studio', 'Shringar Salon', 'Ruby Beauty Care'], specialties: ['Facial', 'Hair styling', 'Bridal makeup'], strengths: ['Skilled staff', 'Brand products', 'Reputation'], weaknesses: ['High prices', 'Long wait times'] },
+      { type: 'Indirect', names: ['Ayurvedic Spa', 'Mehendi Artist', 'Home Salon Service'], specialties: ['Natural treatments', 'Bridal services', 'Doorstep service'], strengths: ['Personal touch', 'Niche services'], weaknesses: ['Limited capacity', 'No walk-in'] },
+    ],
+    'fertilizer': [
+      { type: 'Direct', names: ['Krishna AgroInputs', 'Green Valley Seeds', 'FarmTech Supply', 'Cooperative Society'], specialties: ['Fertilizers', 'Seeds', 'Pesticides'], strengths: ['Expert advice', 'Bulk rates', 'Government tie-ups'], weaknesses: ['Counterfeit risk', 'Seasonal demand'] },
+      { type: 'Indirect', names: ['Hardware & Irrigation Store', 'Solar Equipment Shop', 'Agricultural Equipment Rental'], specialties: ['Equipment', 'Irrigation', 'Machinery'], strengths: ['Higher margins', 'Essential items'], weaknesses: ['High investment', 'Slow inventory turn'] },
+    ],
   }
+
+  // Find matching profile or generate generic
+  const matchedProfiles = competitorProfiles[businessType] || [
+    { type: 'Direct', names: ['City Center Mart', 'Apollo Store', 'Local Retail Hub', 'Daily Needs Shop'], specialties: ['Core products', 'Local services', 'Daily essentials'], strengths: ['Established', 'Good location', 'Customer loyalty'], weaknesses: ['Limited innovation', 'No digital presence'] },
+    { type: 'Indirect', names: ['Online Delivery Hub', 'Wholesale Market', 'Supermarket Chain'], specialties: ['Convenience', 'Bulk options', 'Variety'], strengths: ['Price advantage', 'Modern systems'], weaknesses: ['Less personal', 'Higher setup cost'] },
+  ]
+
+  const competitors = matchedProfiles.flatMap(profile =>
+    profile.names.slice(0, 3).map((name, i) => ({
+      name,
+      type: profile.type,
+      lat: baseLat + (Math.random() - 0.5) * (radius * 0.008),
+      lng: baseLng + (Math.random() - 0.5) * (radius * 0.008),
+      distance: Math.round((0.5 + Math.random() * (radius - 0.5)) * 10) / 10,
+      popularity: Math.round(50 + Math.random() * 35),
+      demand: Math.round(45 + Math.random() * 40),
+      monthlyRevenue: Math.round((avgIncome * (1.5 + Math.random() * 4)) / 1000) * 1000,
+      rating: Math.round((3.2 + Math.random() * 1.5) * 10) / 10,
+      progressScore: Math.round(40 + Math.random() * 45),
+      established: 2012 + Math.floor(Math.random() * 12),
+      strengths: profile.strengths.slice(0, 2 + Math.floor(Math.random() * 2)),
+      weaknesses: profile.weaknesses.slice(0, 1 + Math.floor(Math.random() * 2)),
+      specialties: profile.specialties.slice(0, 2 + Math.floor(Math.random() * 2)),
+    }))
+  )
+
+  return competitors
+}
+
+/** Map real Overpass API results to our Competitor interface */
+function mapOverpassToCompetitors(
+  businesses: OverpassBusiness[],
+  userLat: number,
+  userLng: number,
+  avgIncome: number
+) {
+  return businesses.map((b) => {
+    // Calculate distance from user's business
+    const R = 6371 // Earth radius in km
+    const dLat = ((b.lat - userLat) * Math.PI) / 180
+    const dLng = ((b.lng - userLng) * Math.PI) / 180
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((userLat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
+    const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+    // Estimate metrics based on distance and business type
+    // Closer businesses tend to be more relevant/established
+    const proximityFactor = Math.max(0.4, 1 - distance / 10)
+    const popularity = Math.round(45 + proximityFactor * 35 + Math.random() * 15)
+    const demand = Math.round(40 + proximityFactor * 30 + Math.random() * 20)
+    const revenue = Math.round((avgIncome * (1 + proximityFactor * 3 + Math.random() * 2)) / 1000) * 1000
+
+    return {
+      name: b.name,
+      type: b.type,
+      lat: b.lat,
+      lng: b.lng,
+      distance: Math.round(distance * 10) / 10,
+      popularity: Math.min(popularity, 95),
+      demand: Math.min(demand, 95),
+      monthlyRevenue: revenue,
+      rating: Math.round((3.0 + proximityFactor * 1.5 + Math.random() * 0.5) * 10) / 10,
+      progressScore: Math.round(35 + proximityFactor * 40 + Math.random() * 10),
+      established: 2010 + Math.floor(Math.random() * 15),
+      strengths: generateStrengths(b),
+      weaknesses: generateWeaknesses(b),
+      specialties: [b.type, ...(b.category === 'shop' ? ['Retail'] : ['Services'])],
+    }
+  })
+}
+
+/** Generate realistic strengths for a real business */
+function generateStrengths(b: OverpassBusiness): string[] {
+  const pool = [
+    'Established local presence',
+    'Loyal customer base',
+    'Prime location',
+    'Competitive pricing',
+    'Quality products',
+    'Good word-of-mouth',
+    'Consistent service',
+    'Wide product range',
+  ]
+  if (b.phone) pool.push('Accepts phone orders')
+  if (b.openingHours) pool.push('Clear operating hours')
+  if (b.website) pool.push('Has online presence')
+  // Pick 2-3 random strengths
+  return pool.sort(() => Math.random() - 0.5).slice(0, 2 + Math.floor(Math.random() * 2))
+}
+
+/** Generate realistic weaknesses for a real business */
+function generateWeaknesses(b: OverpassBusiness): string[] {
+  const pool = [
+    'Limited online presence',
+    'Narrow product selection',
+    'Inconsistent hours',
+    'Higher prices than competitors',
+    'No delivery service',
+    'Small store footprint',
+  ]
+  if (!b.website) pool.push('No website or social media')
+  if (!b.phone) pool.push('Hard to contact remotely')
+  return pool.sort(() => Math.random() - 0.5).slice(0, 1 + Math.floor(Math.random() * 2))
+}
+
+/** Generate market gap analysis based on local context */
+function generateMarketGaps(
+  businessType: string,
+  industries: string[],
+  digital: string,
+  avgIncome: number,
+  infraScore: number
+) {
+  const gaps: { gap: string; opportunity: string; potentialImpact: 'High' | 'Medium' | 'Low' }[] = []
+
+  if (digital === 'Low' || digital === 'Medium') {
+    gaps.push({
+      gap: 'Limited digital presence among local competitors',
+      opportunity: 'Offer online ordering, WhatsApp catalog, or Google Maps listing to capture tech-savvy customers',
+      potentialImpact: 'High',
+    })
+  }
+
+  if (avgIncome < 20000) {
+    gaps.push({
+      gap: 'Price-sensitive market with few budget-friendly options',
+      opportunity: 'Introduce smaller pack sizes, EMI options, or credit-based buying for daily essentials',
+      potentialImpact: 'High',
+    })
+  }
+
+  if (infraScore < 7) {
+    gaps.push({
+      gap: 'Poor logistics and supply chain infrastructure',
+      opportunity: 'Partner with local transport or set up a small warehouse to ensure consistent stock availability',
+      potentialImpact: 'Medium',
+    })
+  }
+
+  if (industries.includes('Agriculture') || industries.some(i => i.toLowerCase().includes('agri'))) {
+    gaps.push({
+      gap: 'Seasonal income fluctuations in agricultural communities',
+      opportunity: 'Diversify with off-season products or services aligned with harvest cycles',
+      potentialImpact: 'Medium',
+    })
+  }
+
+  gaps.push({
+    gap: 'Lack of loyalty programs or repeat-customer incentives',
+    opportunity: 'Introduce a simple points system, referral discounts, or monthly membership for regular buyers',
+    potentialImpact: 'Medium',
+  })
+
+  return gaps
+}
+
+/** Generate actionable recommendations based on local context */
+function generateRecommendations(
+  businessType: string,
+  location: string,
+  avgIncome: number,
+  digital: string,
+  infraScore: number,
+  competitorCount: number
+) {
+  const recs: string[] = []
+
+  if (competitorCount >= 5) {
+    recs.push(`Market has ${competitorCount} competitors — differentiate by offering unique value (home delivery, loyalty rewards, or specialized products)`) 
+  }
+
+  if (digital === 'Low' || digital === 'Medium') {
+    recs.push(`Digital adoption is ${digital.toLowerCase()} in this area — create a Google Business profile and WhatsApp Business account to stand out from competitors who lack online presence`)
+  }
+
+  if (avgIncome < 15000) {
+    recs.push(`Average income in ${location} is ₹${avgIncome.toLocaleString('en-IN')}/month — price products for affordability and consider offering credit/EMI options`)
+  } else if (avgIncome > 25000) {
+    recs.push(`Average income in ${location} is ₹${avgIncome.toLocaleString('en-IN')}/month — customers can afford premium products; consider adding a premium tier`)
+  }
+
+  recs.push('Apply for PMEGP or MUDRA loan to fund expansion — government subsidies can cover 25-35% of your investment')
+  recs.push('Visit local APMC markets and haats weekly to understand competitor pricing and spot supply chain opportunities')
+  recs.push('Build relationships with local SHGs and farmer cooperatives for bulk buying advantages and steady customer base')
+
+  return recs
+}
+
+/** Get a specific market gap based on business type and area */
+function getMarketGap(businessType: string, industries: string[], digital: string, avgIncome: number): string {
+  if (digital === 'Low') return `Most ${businessType} competitors in this area lack any digital presence — first-mover advantage in online visibility`
+  if (avgIncome < 15000) return `Price-sensitive market with few budget-friendly ${businessType} options — opportunity for affordable offerings`
+  if (industries.some(i => i.toLowerCase().includes('agri'))) return `Agricultural economy with seasonal demand cycles — opportunity for off-season diversification`
+  return `Growing market with moderate competition — room for a quality-focused ${businessType} with modern customer experience`
 }
 
 export async function getFundingAdvice(data: {
