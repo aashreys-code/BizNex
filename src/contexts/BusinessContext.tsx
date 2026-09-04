@@ -14,6 +14,17 @@ export interface BusinessProfile {
   location: string
   radius: number
 
+  // Structured location (new)
+  locationData?: {
+    village?: string
+    block?: string
+    district: string
+    state: string
+    lat: number
+    lng: number
+    source?: string // e.g. "OpenStreetMap Nominatim"
+  }
+
   // Financial
   investmentAmount: number
   monthlyIncome: number
