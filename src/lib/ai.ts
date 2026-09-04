@@ -37,8 +37,9 @@ export async function analyzeMarket(data: MarketAnalysisRequest) {
   try {
     return await callServerAI('analyze-market', { prompt })
   } catch {
+    // AI not available — return deterministic fallback with source label
     return {
-      marketDemandScore: 7,
+      marketDemandScore: 6,
       competitionLevel: 'Medium',
       estimatedMonthlyIncome: 25000,
       growthPotential: 'High',
@@ -207,27 +208,46 @@ export async function chatWithAI(
 
   try {
     return await callServerAI('chat', { messages: fullMessages, systemPrompt })
-  } catch {
-    // Smart mock responses based on the user's last message
+  } catch (err: any) {
+    // AI API is not configured — provide deterministic responses from financial engine
     const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
     
-    if (lastMsg.includes('mudra') || lastMsg.includes('loan')) {
-      return `🏦 **MUDRA Loan Analysis**\n\n📊 **Quick Stats:**\n• Approval Rate: ~85% for Shishu category\n• Average Processing Time: 7-10 days\n• Interest Rate: 8-12% p.a.\n\n**Categories:**\n• **Shishu** – Up to ₹50,000 (Best for beginners, highest approval)\n• **Kishore** – ₹50,000 to ₹5 lakh (Requires basic business plan)\n• **Tarun** – ₹5 lakh to ₹10 lakh (Needs detailed project report)\n\n**Eligibility:** Any Indian citizen aged 18+ with a business plan\n**Documents:** Aadhaar, PAN, Business Plan, Address Proof\n\n💡 *Data Insight: Shishu category has 90%+ approval rate. Start there if you're new!*`
+    // Build context-aware deterministic responses using the financial engine
+    const projectCost = businessProfile ? Math.round(businessProfile.investmentAmount / 0.10) : 0
+    const finance = businessProfile ? Math.round(projectCost * 0.90) : 0
+    
+    const aiUnavailable = `> ⚠️ *AI assistant is not configured. Showing deterministic analysis from BizNex engine.\n> To enable full AI chat, set GROQ_API_KEY in your Vercel environment variables.*\n\n`
+    
+    if (lastMsg.includes('mudra') || lastMsg.includes('loan') || lastMsg.includes('finance')) {
+      return `${aiUnavailable}🏦 **Loan & Financing Analysis**\n\n` +
+        (businessProfile ? `**Your Profile:**\n• Business: ${businessProfile.businessType}\n• Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}\n• Location: ${businessProfile.location}\n\n` : '') +
+        `**Project Cost Calculation:**\n• Your margin (10%): ₹${(businessProfile?.investmentAmount || 0).toLocaleString('en-IN')}\n• Total project cost: ₹${projectCost.toLocaleString('en-IN')}\n• Institutional finance (90%): ₹${finance.toLocaleString('en-IN')}\n\n` +
+        (projectCost <= 140000 ? `**Recommended: Micro Finance Scheme**\n• Interest: 6.5% p.a.\n• Repayment: 3 years\n• Moratorium: 3 months\n` : '') +
+        (projectCost > 140000 && projectCost <= 5000000 ? `**Recommended: Term Loan Scheme**\n• Interest: 8% p.a.\n• Repayment: 7 years\n• Moratorium: 6 months\n` : '') +
+        `\n💡 *Use the Loan Calculator for detailed EMI breakdown.*`
     }
     
     if (lastMsg.includes('scheme') || lastMsg.includes('government')) {
-      return `🏛️ **Government Schemes — Eligibility Analysis**\n\n📊 **Your Best Matches (by eligibility score):**\n\n1. **MUDRA Loan** — Score: 85/100\n   • Collateral-free up to ₹10 lakh\n   • Fastest approval (7-10 days)\n\n2. **PM SVANidhi** — Score: 75/100\n   • ₹50,000 for street vendors\n   • 7% interest subsidy\n\n3. **PMEGP** — Score: 80/100\n   • 25-35% government subsidy\n   • Requires 2-3 week training\n\n4. **Stand-Up India** — Score: 70/100\n   • ₹10 lakh to ₹1 crore\n   • For SC/ST/Women entrepreneurs\n\n💡 *Use the Scheme Finder tool to get a personalized eligibility report based on your profile!*`
-    }
-    
-    if (lastMsg.includes('business') || lastMsg.includes('idea') || lastMsg.includes('start')) {
-      return `💡 **Business Opportunity Analysis for Rural India**\n\n📊 **Top Opportunities by ROI Potential:**\n\n🏪 **Retail (Grocery/General Store)**\n• Investment: ₹1-3 lakh | Monthly Revenue: ₹25-50K\n• Risk: Low | Demand Score: 8/10\n\n🌾 **Dairy Farming**\n• Investment: ₹2-5 lakh | Monthly Revenue: ₹30-60K\n• Risk: Medium | Demand Score: 9/10\n\n🔧 **Mobile Repair Shop**\n• Investment: ₹50K-1 lakh | Monthly Revenue: ₹15-30K\n• Risk: Low | Demand Score: 7/10\n\n📦 **Fertilizer/Seed Shop**\n• Investment: ₹3-5 lakh | Monthly Revenue: ₹40-80K\n• Risk: Medium | Demand Score: 8/10\n\n💡 *Use the Business Plan feature to get a detailed financial model for any of these!*`
+      return `${aiUnavailable}🏛️ **Government Schemes**\n\n` +
+        (businessProfile ? `Based on your profile (${businessProfile.businessType}, ₹${businessProfile.investmentAmount.toLocaleString('en-IN')} investment):\n\n` : '') +
+        `**Schemes to explore:**\n• **MUDRA** — Collateral-free up to ₹10 lakh\n• **PMEGP** — 25-35% government subsidy (new businesses)\n• **Stand-Up India** — ₹10L to ₹1Cr (SC/ST/Women)\n• **PM SVANidhi** — ₹50K for vendors\n\n💡 *Use the Scheme Finder for personalized eligibility matching.*`
     }
     
     if (lastMsg.includes('hello') || lastMsg.includes('hi') || lastMsg.includes('namaste')) {
-      return `Namaste! 🙏 Welcome to BizNex AI\n\nI'm your **data analyst & business advisor**. I can help you with:\n\n📊 **Data Analysis**\n• Market demand scoring & forecasting\n• Competitor analysis & gap identification\n• Revenue projections & break-even analysis\n\n💡 **Business Advisory**\n• Personalized business recommendations\n• Risk assessment with quantitative scores\n• Growth strategy planning\n\n🏛️ **Government Schemes**\n• Eligibility matching & scoring\n• Loan optimization advice\n• Application guidance\n\nWhat would you like to analyze today?`
+      return `${aiUnavailable}Namaste! 🙏 I'm BizNex AI.\n\nI can help with:\n• Market analysis for your area\n• Loan and funding guidance\n• Government scheme matching\n• Business planning\n\n` +
+        (businessProfile ? `I see you're planning a **${businessProfile.businessType}** in ${businessProfile.location}. What would you like to know?` : 'Tell me about your business idea!')
     }
     
-    return `Thank you for your question! As your data analyst, here's what I can help with:\n\n📊 **Market Analysis** — Demand scoring, competitor mapping, revenue forecasting\n💡 **Business Planning** — Financial models, cost breakdowns, growth projections\n🏛️ **Scheme Matching** — Eligibility scoring, loan optimization\n💰 **Financial Advisory** — EMI calculations, ROI analysis, cash flow planning\n\n💡 *Tip: For detailed analysis, use the dedicated feature pages in the sidebar. For quick questions, just ask me here!*\n\nWhat specific analysis do you need?`
+    if (lastMsg.includes('viable') || lastMsg.includes('feasible') || lastMsg.includes('work')) {
+      if (businessProfile) {
+        return `${aiUnavailable}📊 **Feasibility for ${businessProfile.businessType}**\n\n` +
+          `**Financial Summary:**\n• Project cost: ₹${projectCost.toLocaleString('en-IN')}\n• Your contribution: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')} (10%)\n• Potential financing: ₹${finance.toLocaleString('en-IN')} (90%)\n• Expected monthly income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}\n\n` +
+          `**Key Indicators:**\n• Revenue/investment ratio: ${businessProfile.investmentAmount > 0 ? ((businessProfile.monthlyIncome * 12) / businessProfile.investmentAmount * 100).toFixed(0) : 0}% annually\n• ${businessProfile.monthlyIncome > finance * 0.01 ? 'Monthly income can support loan repayment' : 'Monthly income may be tight for repayment — consider reducing project scope'}\n\n💡 *Generate a full Feasibility Report from the Dashboard for detailed analysis.*`
+      }
+    }
+    
+    return `${aiUnavailable}I can help you with:\n\n• **Market analysis** — See businesses around you\n• **Funding** — Calculate project cost and loans\n• **Schemes** — Find government funding you qualify for\n• **Business plan** — Get a complete plan\n\n` +
+      (businessProfile ? `I see your **${businessProfile.businessType}** in ${businessProfile.location}. Ask me anything about it!` : 'Tell me about your business idea to get started.')
   }
 }
 
