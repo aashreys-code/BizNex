@@ -181,7 +181,19 @@ export async function chatWithAI(
 ): Promise<string> {
   let profileContext = ''
   if (businessProfile) {
-    profileContext = `\n\n## ACTIVE BUSINESS PROFILE\nThe user currently has the following business profile selected:\n- Profile Name: ${businessProfile.name}\n- Business Type: ${businessProfile.businessType}\n- Description: ${businessProfile.businessDescription || 'N/A'}\n- Location: ${businessProfile.location}\n- Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}\n- Monthly Income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}\n- Existing Loans: ₹${businessProfile.existingLoans.toLocaleString('en-IN')}\n- Working Capital: ₹${businessProfile.workingCapital.toLocaleString('en-IN')}\n- Equipment Cost: ₹${businessProfile.equipmentCost.toLocaleString('en-IN')}\n- Owner Age: ${businessProfile.age}, Gender: ${businessProfile.gender}, Category: ${businessProfile.category}\n\nUse this profile data to personalize all advice. When the user asks general questions, relate the answer back to their specific business. Reference their investment amount, income, location, and business type in your responses.`
+    // Calculate financial context from the profile
+    const projectCost = Math.round(businessProfile.investmentAmount / 0.10)
+    const institutionalFinance = Math.round(projectCost * 0.90)
+    
+    // Determine applicable schemes
+    const applicableSchemes: string[] = []
+    if (projectCost <= 140000) applicableSchemes.push('Micro Finance Scheme (6.5% p.a., 3yr, 3mo moratorium)')
+    if (projectCost > 140000 && projectCost <= 5000000) applicableSchemes.push('Term Loan Scheme (8% p.a., 7yr, 6mo moratorium)')
+    if (projectCost <= 50000) applicableSchemes.push('MUDRA Shishu (up to ₹50K, collateral-free)')
+    if (projectCost > 50000 && projectCost <= 500000) applicableSchemes.push('MUDRA Kishore (up to ₹5L, collateral-free)')
+    if (businessProfile.age >= 18) applicableSchemes.push('PMEGP (25-35% subsidy for new businesses)')
+    
+    profileContext = `\n\n## ACTIVE BUSINESS PROFILE\nThe user currently has the following business profile selected:\n- Profile Name: ${businessProfile.name}\n- Business Type: ${businessProfile.businessType}\n- Description: ${businessProfile.businessDescription || 'N/A'}\n- Location: ${businessProfile.location}\n- Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}\n- Monthly Income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}\n- Existing Loans: ₹${businessProfile.existingLoans.toLocaleString('en-IN')}\n- Working Capital: ₹${businessProfile.workingCapital.toLocaleString('en-IN')}\n- Equipment Cost: ₹${businessProfile.equipmentCost.toLocaleString('en-IN')}\n- Owner Age: ${businessProfile.age}, Gender: ${businessProfile.gender}, Category: ${businessProfile.category}\n\n## CALCULATED FINANCIAL DATA (deterministic, do not override)\n- Project Cost: ₹${projectCost.toLocaleString('en-IN')} (= margin ÷ 0.10)\n- Your Contribution (10%): ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}\n- Institutional Finance (90%): ₹${institutionalFinance.toLocaleString('en-IN')}\n- Applicable Schemes: ${applicableSchemes.join('; ') || 'None identified'}\n\nUse this profile data to personalize all advice. When the user asks about money, loans, or feasibility, reference the CALCULATED FINANCIAL DATA above. The AI should EXPLAIN these calculations, not invent new ones. Never suggest different project cost calculations than what is shown above.`
   }
 
   const userNameBlock = userName ? `\nThe user's name is ${userName}. Address them by name occasionally.` : ''

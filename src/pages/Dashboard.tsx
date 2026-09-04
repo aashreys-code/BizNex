@@ -12,11 +12,39 @@ import {
   calculateProjectCost, calculateViabilityScore, recommendSchemes,
   formatCurrency 
 } from '../lib/financial-engine'
+import { generateFeasibilityReport } from '../lib/feasibility-report'
+import { useState } from 'react'
 
 export default function Dashboard() {
   const { profile } = useAuth()
   const { profiles, business, isComplete } = useBusiness()
   const { t } = useTranslation()
+  const [downloading, setDownloading] = useState(false)
+
+  function handleDownloadReport() {
+    if (!business) return
+    setDownloading(true)
+    try {
+      const doc = generateFeasibilityReport({
+        businessName: business.name,
+        businessType: business.businessType,
+        businessDescription: business.businessDescription,
+        location: business.location,
+        investmentAmount: business.investmentAmount,
+        monthlyIncome: business.monthlyIncome,
+        existingLoans: business.existingLoans,
+        workingCapital: business.workingCapital,
+        equipmentCost: business.equipmentCost,
+        age: business.age,
+        gender: business.gender,
+        category: business.category,
+        isNewBusiness: true,
+      })
+      doc.save(`biznex-feasibility-${business.name.replace(/\s+/g, '-').toLowerCase()}.pdf`)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   // Build a financial profile from the business context
   const finProfile = business ? {
@@ -287,14 +315,18 @@ export default function Dashboard() {
             Generate a full feasibility report with market analysis, financial structuring, and scheme recommendations.
           </p>
           <div className="flex gap-2 justify-center flex-wrap">
+            <Button size="sm" onClick={handleDownloadReport} loading={downloading}>
+              <FileText size={14} />
+              Generate Full Report
+            </Button>
             <Link to="/market-analysis">
-              <Button size="sm">
+              <Button variant="secondary" size="sm">
                 <TrendingUp size={14} />
                 View Market Opportunity
               </Button>
             </Link>
             <Link to="/funding-advisor">
-              <Button variant="secondary" size="sm">
+              <Button variant="ghost" size="sm">
                 <DollarSign size={14} />
                 Optimize Funding
               </Button>
