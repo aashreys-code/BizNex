@@ -176,6 +176,15 @@ export default function SchemeFinder() {
         </div>
       )}
 
+      {/* No results */}
+      {!loading && schemes.length === 0 && (
+        <Card className="p-10 text-center">
+          <Search size={36} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{t('schemeFinder.noSchemes') || 'No matching schemes found'}</h3>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{t('schemeFinder.noSchemesDesc') || 'Try adjusting your profile details or category to find eligible schemes.'}</p>
+        </Card>
+      )}
+
       {/* Loading */}
       {loading && (
         <Card className="p-10 text-center">

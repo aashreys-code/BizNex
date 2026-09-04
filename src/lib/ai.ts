@@ -2,11 +2,11 @@ import axios from 'axios'
 import { governmentSchemes, findMatchingSchemes, scoreScheme } from './schemes-data'
 import { findDistrictData, findStateData } from './census-data'
 import { queryNearbyBusinesses, type OverpassBusiness } from './overpass'
+import { geocodeLocation } from './geocoding'
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || ''
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || ''
-
-const hasApiKeys = Boolean(GROQ_API_KEY || GEMINI_API_KEY)
+// API base URL - in production this hits Vercel serverless functions,
+// in dev it proxies to localhost:5000 (see vite.config.ts)
+const API_BASE = '/api'
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
@@ -25,94 +25,17 @@ interface BusinessPlanRequest {
   location: string
 }
 
-// Groq API call (primary - ultra fast)
-async function callGroq(messages: ChatMessage[]) {
-  if (!GROQ_API_KEY) {
-    throw new Error('Groq API key not configured')
-  }
-  const response = await axios.post(
-    'https://api.groq.com/openai/v1/chat/completions',
-    {
-      model: 'qwen/qwen3.8-27b',
-      messages,
-      temperature: 0.7,
-      max_tokens: 2000,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    }
-  )
-  return response.data.choices[0].message.content
-}
-
-// Gemini API call (fallback)
-async function callGemini(prompt: string) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('Gemini API key not configured')
-  }
-  const response = await axios.post(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      contents: [{ parts: [{ text: prompt }] }],
-    }
-  )
-  return response.data.candidates[0].content.parts[0].text
-}
-
-// Smart API selector - tries Groq first (fast), falls back to Gemini
-async function callAI(messages: ChatMessage[] | string) {
-  if (!hasApiKeys) {
-    throw new Error('No API keys configured')
-  }
-  try {
-    if (typeof messages === 'string') {
-      // For string prompts, wrap in messages for Groq
-      return await callGroq([{ role: 'user', content: messages }])
-    }
-    return await callGroq(messages)
-  } catch {
-    // Fallback to Gemini
-    if (typeof messages === 'string') {
-      return await callGemini(messages)
-    }
-    return await callGemini(messages.map(m => m.content).join('\n'))
-  }
+// Call the serverless API route for AI requests
+async function callServerAI(type: string, payload: Record<string, any>): Promise<any> {
+  const response = await axios.post(`${API_BASE}/ai`, { type, payload })
+  return response.data.result
 }
 
 export async function analyzeMarket(data: MarketAnalysisRequest) {
-  const prompt = `You are a senior data analyst and business advisor specializing in rural Indian markets. Analyze the following business opportunity with data-driven insights:
-
-Business Idea: ${data.businessIdea}
-Location: ${data.location}
-Investment Amount: ₹${data.investmentAmount.toLocaleString('en-IN')}
-
-Provide a comprehensive market analysis in JSON format:
-{
-  "marketDemandScore": <1-10>,
-  "competitionLevel": "<Low|Medium|High>",
-  "estimatedMonthlyIncome": <number in INR>,
-  "growthPotential": "<Low|Medium|High>",
-  "riskLevel": "<Low|Medium|High>",
-  "requiredResources": ["list", "of", "resources"],
-  "targetCustomers": "<description>",
-  "demandChart": [{"month": "Jan", "demand": <number>}, ...],
-  "revenueForecast": [{"month": "Jan", "revenue": <number>}, ...],
-  "swotAnalysis": {
-    "strengths": ["..."],
-    "weaknesses": ["..."],
-    "opportunities": ["..."],
-    "threats": ["..."]
-  },
-  "recommendations": ["..."]
-}
-Return ONLY the JSON, no markdown.`
+  const prompt = `You are a senior data analyst and business advisor specializing in rural Indian markets. Analyze the following business opportunity with data-driven insights:\n\nBusiness Idea: ${data.businessIdea}\nLocation: ${data.location}\nInvestment Amount: ₹${data.investmentAmount.toLocaleString('en-IN')}\n\nProvide a comprehensive market analysis in JSON format:\n{\n  \"marketDemandScore\": <1-10>,\n  \"competitionLevel\": \"<Low|Medium|High>\",\n  \"estimatedMonthlyIncome\": <number in INR>,\n  \"growthPotential\": \"<Low|Medium|High>\",\n  \"riskLevel\": \"<Low|Medium|High>\",\n  \"requiredResources\": [\"list\", \"of\", \"resources\"],\n  \"targetCustomers\": \"<description>\",\n  \"demandChart\": [{\"month\": \"Jan\", \"demand\": <number>}, ...],\n  \"revenueForecast\": [{\"month\": \"Jan\", \"revenue\": <number>}, ...],\n  \"swotAnalysis\": {\n    \"strengths\": [\"...\"],\n    \"weaknesses\": [\"...\"],\n    \"opportunities\": [\"...\"],\n    \"threats\": [\"...\"]\n  },\n  \"recommendations\": [\"...\"]\n}\nReturn ONLY the JSON, no markdown.`
 
   try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
+    return await callServerAI('analyze-market', { prompt })
   } catch {
     return {
       marketDemandScore: 7,
@@ -149,27 +72,10 @@ Return ONLY the JSON, no markdown.`
 }
 
 export async function generateBusinessPlan(data: BusinessPlanRequest) {
-  const prompt = `You are a business strategist and data analyst. Create a detailed, data-driven business plan for a rural Indian entrepreneur:
-
-Business Type: ${data.businessType}
-Budget: ₹${data.budget.toLocaleString('en-IN')}
-Location: ${data.location}
-
-Generate a comprehensive business plan with:
-1. Executive Summary
-2. Market Analysis (with data points)
-3. Target Customer Segment
-4. Revenue Model
-5. Cost Breakdown (itemized with percentages)
-6. Marketing Strategy
-7. Growth Plan (6 months, 1 year, 3 years with projections)
-8. Risk Assessment (with mitigation strategies)
-9. Key Metrics to Track (KPIs)
-
-Format the response as structured sections with clear headings. Be specific to rural Indian context. Include numerical projections where possible.`
+  const prompt = `You are a business strategist and data analyst. Create a detailed, data-driven business plan for a rural Indian entrepreneur:\n\nBusiness Type: ${data.businessType}\nBudget: ₹${data.budget.toLocaleString('en-IN')}\nLocation: ${data.location}\n\nGenerate a comprehensive business plan with:\n1. Executive Summary\n2. Market Analysis (with data points)\n3. Target Customer Segment\n4. Revenue Model\n5. Cost Breakdown (itemized with percentages)\n6. Marketing Strategy\n7. Growth Plan (6 months, 1 year, 3 years with projections)\n8. Risk Assessment (with mitigation strategies)\n9. Key Metrics to Track (KPIs)\n\nFormat the response as structured sections with clear headings. Be specific to rural Indian context. Include numerical projections where possible.`
 
   try {
-    return await callAI(prompt)
+    return await callServerAI('generate-plan', { prompt })
   } catch {
     return `# Business Plan: ${data.businessType}\n\n## 1. Executive Summary\nThis ${data.businessType} venture in ${data.location} aims to serve the growing local demand with an initial investment of ₹${data.budget.toLocaleString('en-IN')}. The business targets local residents and nearby villages, leveraging community networks and digital presence for growth.\n\n## 2. Market Analysis\nThe local market shows strong demand for ${data.businessType} services. With limited competition in the immediate area, there is a significant opportunity to capture market share. The area's growing population and increasing disposable income support a positive outlook.\n\n## 3. Target Customer Segment\n- Primary: Local residents aged 18-55\n- Secondary: Small businesses and self-help groups\n- Tertiary: Nearby village communities\n\n## 4. Revenue Model\n- Direct sales of products/services\n- Subscription-based repeat customers\n- Seasonal promotions and festival offers\n- Bulk orders for local businesses\n\n## 5. Cost Breakdown\n| Item | Cost (₹) |\n|------|----------|\n| Shop/Space Setup | ${(data.budget * 0.25).toLocaleString('en-IN')} |\n| Initial Inventory | ${(data.budget * 0.30).toLocaleString('en-IN')} |\n| Equipment | ${(data.budget * 0.15).toLocaleString('en-IN')} |\n| Marketing | ${(data.budget * 0.10).toLocaleString('en-IN')} |\n| Working Capital | ${(data.budget * 0.15).toLocaleString('en-IN')} |\n| Contingency | ${(data.budget * 0.05).toLocaleString('en-IN')} |\n\n## 6. Marketing Strategy\n- Word-of-mouth through local influencers and SHG networks\n- Social media presence on WhatsApp and Facebook\n- Participate in local haats and melas\n- Partner with nearby shops for cross-promotion\n\n## 7. Growth Plan\n**6 Months:** Establish brand, build customer base of 200+ regular customers\n**1 Year:** Expand product range, hire 1-2 employees, achieve break-even\n**3 Years:** Open second location, build online presence, ₹5L+ annual profit\n\n## 8. Risk Assessment\n- **Low Risk:** Strong local demand, low competition\n- **Medium Risk:** Seasonal fluctuations, supply chain disruptions\n- **Mitigation:** Diversify products, maintain 3-month cash reserve\n\n## 9. Key Metrics to Track\n- Monthly revenue and profit margins\n- Customer retention rate\n- Inventory turnover\n- Customer satisfaction scores\n- Digital engagement metrics`
   }
@@ -213,27 +119,10 @@ export async function calculateLoan(data: {
   businessType: string
   investmentRequirement: number
 }) {
-  const prompt = `You are a financial analyst specializing in rural Indian lending. Calculate loan eligibility for:
-
-Monthly Income: ₹${data.monthlyIncome.toLocaleString('en-IN')}
-Existing Loans: ₹${data.existingLoans.toLocaleString('en-IN')}
-Business Type: ${data.businessType}
-Investment Required: ₹${data.investmentRequirement.toLocaleString('en-IN')}
-
-Provide in JSON:
-{
-  "eligibilityScore": <1-100>,
-  "eligibleLoanAmount": <number>,
-  "estimatedEMI": <number>,
-  "repaymentTenure": "X years",
-  "recommendedBanks": [{"name": "...", "interestRate": "...", "processingFee": "..."}],
-  "monthlyRepaymentSchedule": [{"month": 1, "emi": <number>, "principal": <number>, "interest": <number>, "balance": <number>}]
-}
-Return ONLY the JSON.`
+  const prompt = `You are a financial analyst specializing in rural Indian lending. Calculate loan eligibility for:\n\nMonthly Income: ₹${data.monthlyIncome.toLocaleString('en-IN')}\nExisting Loans: ₹${data.existingLoans.toLocaleString('en-IN')}\nBusiness Type: ${data.businessType}\nInvestment Required: ₹${data.investmentRequirement.toLocaleString('en-IN')}\n\nProvide in JSON:\n{\n  \"eligibilityScore\": <1-100>,\n  \"eligibleLoanAmount\": <number>,\n  \"estimatedEMI\": <number>,\n  \"repaymentTenure\": \"X years\",\n  \"recommendedBanks\": [{\"name\": \"...\", \"interestRate\": \"...\", \"processingFee\": \"...\"}],\n  \"monthlyRepaymentSchedule\": [{\"month\": 1, \"emi\": <number>, \"principal\": <number>, \"interest\": <number>, \"balance\": <number>}]\n}\nReturn ONLY the JSON.`
 
   try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
+    return await callServerAI('calculate-loan', { prompt })
   } catch {
     const loanAmount = Math.min(data.investmentRequirement, data.monthlyIncome * 24)
     const interestRate = 0.09 / 12
@@ -292,47 +181,12 @@ export async function chatWithAI(
 ): Promise<string> {
   let profileContext = ''
   if (businessProfile) {
-    profileContext = `
-
-## ACTIVE BUSINESS PROFILE
-The user currently has the following business profile selected:
-- Profile Name: ${businessProfile.name}
-- Business Type: ${businessProfile.businessType}
-- Description: ${businessProfile.businessDescription || 'N/A'}
-- Location: ${businessProfile.location}
-- Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}
-- Monthly Income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}
-- Existing Loans: ₹${businessProfile.existingLoans.toLocaleString('en-IN')}
-- Working Capital: ₹${businessProfile.workingCapital.toLocaleString('en-IN')}
-- Equipment Cost: ₹${businessProfile.equipmentCost.toLocaleString('en-IN')}
-- Owner Age: ${businessProfile.age}, Gender: ${businessProfile.gender}, Category: ${businessProfile.category}
-
-Use this profile data to personalize all advice. When the user asks general questions, relate the answer back to their specific business. Reference their investment amount, income, location, and business type in your responses.`
+    profileContext = `\n\n## ACTIVE BUSINESS PROFILE\nThe user currently has the following business profile selected:\n- Profile Name: ${businessProfile.name}\n- Business Type: ${businessProfile.businessType}\n- Description: ${businessProfile.businessDescription || 'N/A'}\n- Location: ${businessProfile.location}\n- Investment: ₹${businessProfile.investmentAmount.toLocaleString('en-IN')}\n- Monthly Income: ₹${businessProfile.monthlyIncome.toLocaleString('en-IN')}\n- Existing Loans: ₹${businessProfile.existingLoans.toLocaleString('en-IN')}\n- Working Capital: ₹${businessProfile.workingCapital.toLocaleString('en-IN')}\n- Equipment Cost: ₹${businessProfile.equipmentCost.toLocaleString('en-IN')}\n- Owner Age: ${businessProfile.age}, Gender: ${businessProfile.gender}, Category: ${businessProfile.category}\n\nUse this profile data to personalize all advice. When the user asks general questions, relate the answer back to their specific business. Reference their investment amount, income, location, and business type in your responses.`
   }
 
   const userNameBlock = userName ? `\nThe user's name is ${userName}. Address them by name occasionally.` : ''
 
-  const systemPrompt = `You are BizNex AI, a senior data analyst and business advisor specializing in Indian entrepreneurship.
-
-Your expertise includes:
-- Data-driven business analysis and feasibility studies
-- Government scheme optimization and eligibility matching
-- Financial modeling, loan structuring, and ROI analysis
-- Market research, competitor analysis, and demand forecasting
-- Risk assessment with quantitative scoring
-- Revenue projections and cash flow planning
-
-Communication style:
-- Respond in ${language}
-- Use data points, numbers, and percentages when possible
-- Be encouraging but realistic — base advice on data, not just optimism
-- Keep responses concise but actionable
-- When analyzing, always mention key metrics (demand score, risk level, ROI)
-- Use simple language that entrepreneurs can understand
-- Always reference the user's active business profile when giving advice
-${userNameBlock}${profileContext}
-
-You are here to help users make informed business decisions backed by data.`
+  const systemPrompt = `You are BizNex AI, a senior data analyst and business advisor specializing in Indian entrepreneurship.\n\nYour expertise includes:\n- Data-driven business analysis and feasibility studies\n- Government scheme optimization and eligibility matching\n- Financial modeling, loan structuring, and ROI analysis\n- Market research, competitor analysis, and demand forecasting\n- Risk assessment with quantitative scoring\n- Revenue projections and cash flow planning\n\nCommunication style:\n- Respond in ${language}\n- Use data points, numbers, and percentages when possible\n- Be encouraging but realistic — base advice on data, not just optimism\n- Keep responses concise but actionable\n- When analyzing, always mention key metrics (demand score, risk level, ROI)\n- Use simple language that entrepreneurs can understand\n- Always reference the user's active business profile when giving advice\n${userNameBlock}${profileContext}\n\nYou are here to help users make informed business decisions backed by data.`
 
   const fullMessages = [
     { role: 'system' as const, content: systemPrompt },
@@ -340,7 +194,7 @@ You are here to help users make informed business decisions backed by data.`
   ]
 
   try {
-    return await callAI(fullMessages)
+    return await callServerAI('chat', { messages: fullMessages, systemPrompt })
   } catch {
     // Smart mock responses based on the user's last message
     const lastMsg = messages[messages.length - 1]?.content?.toLowerCase() || ''
@@ -409,26 +263,10 @@ export async function getInsights(location: string) {
   }
   
   // Fallback: use AI with location name for unknown locations
-  const prompt = `You are a hyper-local market research analyst. Provide data-driven business insights for ${location}, India.
-
-Include:
-{
-  "population": "estimated number",
-  "literacyRate": "percentage",
-  "majorIndustries": ["industry1", "industry2"],
-  "demandTrends": [{"category": "...", "trend": "growing|stable|declining"}],
-  "topBusinessOpportunities": ["..."],
-  "agriculturalProfile": "description",
-  "employmentStats": {"employed": "X%", "selfEmployed": "X%", "unemployed": "X%"},
-  "nearbyMarkets": ["market1", "market2"],
-  "infrastructureScore": <1-10>,
-  "digitalAdoption": "Low|Medium|High"
-}
-Return ONLY the JSON.`
+  const prompt = `You are a hyper-local market research analyst. Provide data-driven business insights for ${location}, India.\n\nInclude:\n{\n  \"population\": \"estimated number\",\n  \"literacyRate\": \"percentage\",\n  \"majorIndustries\": [\"industry1\", \"industry2\"],\n  \"demandTrends\": [{\"category\": \"...\", \"trend\": \"growing|stable|declining\"}],\n  \"topBusinessOpportunities\": [\"...\"],\n  \"agriculturalProfile\": \"description\",\n  \"employmentStats\": {\"employed\": \"X%\", \"selfEmployed\": \"X%\", \"unemployed\": \"X%\"},\n  \"nearbyMarkets\": [\"market1\", \"market2\"],\n  \"infrastructureScore\": <1-10>,\n  \"digitalAdoption\": \"Low|Medium|High\"\n}\nReturn ONLY the JSON.`
 
   try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
+    return await callServerAI('get-insights', { prompt })
   } catch {
     return {
       population: '2,50,000',
@@ -461,50 +299,64 @@ Return ONLY the JSON.`
 export async function findNearbyBusinesses(data: {
   businessType: string
   location: string
-  radius: number
+  radius?: number
 }) {
+  const radius = data.radius || 12
+
   // Get real local context from census data
   const district = findDistrictData(data.location)
   const state = findStateData(data.location)
 
-    const baseLat = district ? (() => {
-      // Approximate coordinates for known districts
-      const coords: Record<string, [number, number]> = {
-        'anantapur': [14.68, 77.59], 'chittoor': [13.22, 79.11],
-        'visakhapatnam': [17.69, 83.22], 'guntur': [16.31, 80.44],
-        'hyderabad': [17.39, 78.49], 'bengaluru urban': [12.97, 77.59],
-        'madurai': [9.92, 78.12], 'pune': [18.52, 73.86],
-        'lucknow': [26.85, 80.95], 'patna': [25.60, 85.10],
-        'jaipur': [26.92, 75.79], 'indore': [22.72, 75.86],
-        'warangal': [17.97, 79.59], 'nellore': [14.44, 79.99],
-        'kurnool': [15.83, 78.04], 'coimbatore': [11.01, 76.97],
-        'kanpur': [26.45, 80.35], 'nagpur': [21.15, 79.09],
-        'mysore': [12.30, 76.66],
-      }
-      return coords[district.district.toLowerCase()] || [14.68, 77.59]
-    })() : [14.68, 77.59]
-    const [bLat, bLng] = baseLat as [number, number]
+  // Use Nominatim geocoding for real coordinates from any location string
+  let bLat: number
+  let bLng: number
 
-    const avgIncome = district?.avgMonthlyIncome || 15000
-    const infraScore = district?.infrastructureScore || 6
-    const digital = district?.digitalAdoption || 'Medium'
-    const industries = district?.majorIndustries || ['Agriculture', 'Retail', 'Services']
-
-    // Try Overpass API first for real business data
-    const businessType = data.businessType.toLowerCase()
-    const overpassResults = await queryNearbyBusinesses(data.businessType, bLat, bLng, data.radius)
-
-    let generatedCompetitors: any[]
-
-    if (overpassResults.length > 0) {
-      // Map real Overpass data to our Competitor interface
-      generatedCompetitors = mapOverpassToCompetitors(overpassResults, bLat, bLng, avgIncome)
-    } else {
-      // Fall back to mock data if Overpass returns nothing
-      generatedCompetitors = generateLocalCompetitors(
-        businessType, data.location, bLat, bLng, avgIncome, data.radius
-      )
+  const geo = await geocodeLocation(data.location)
+  if (geo) {
+    bLat = geo.lat
+    bLng = geo.lng
+  } else if (district) {
+    // Fallback to known district coordinates
+    const coords: Record<string, [number, number]> = {
+      'anantapur': [14.68, 77.59], 'chittoor': [13.22, 79.11],
+      'visakhapatnam': [17.69, 83.22], 'guntur': [16.31, 80.44],
+      'hyderabad': [17.39, 78.49], 'bengaluru urban': [12.97, 77.59],
+      'madurai': [9.92, 78.12], 'pune': [18.52, 73.86],
+      'lucknow': [26.85, 80.95], 'patna': [25.60, 85.10],
+      'jaipur': [26.92, 75.79], 'indore': [22.72, 75.86],
+      'warangal': [17.97, 79.59], 'nellore': [14.44, 79.99],
+      'kurnool': [15.83, 78.04], 'coimbatore': [11.01, 76.97],
+      'kanpur': [26.45, 80.35], 'nagpur': [21.15, 79.09],
+      'mysore': [12.30, 76.66],
     }
+    const fallback = coords[district.district.toLowerCase()]
+    bLat = fallback ? fallback[0] : 14.68
+    bLng = fallback ? fallback[1] : 77.59
+  } else {
+    bLat = 14.68
+    bLng = 77.59
+  }
+
+  const avgIncome = district?.avgMonthlyIncome || 15000
+  const infraScore = district?.infrastructureScore || 6
+  const digital = district?.digitalAdoption || 'Medium'
+  const industries = district?.majorIndustries || ['Agriculture', 'Retail', 'Services']
+
+  // Try Overpass API first for real business data
+  const businessType = data.businessType.toLowerCase()
+  const overpassResults = await queryNearbyBusinesses(data.businessType, bLat, bLng, radius)
+
+  let generatedCompetitors: any[]
+
+  if (overpassResults.length > 0) {
+    // Map real Overpass data to our Competitor interface
+    generatedCompetitors = mapOverpassToCompetitors(overpassResults, bLat, bLng, avgIncome)
+  } else {
+    // Fall back to mock data if Overpass returns nothing
+    generatedCompetitors = generateLocalCompetitors(
+      businessType, data.location, bLat, bLng, avgIncome, radius
+    )
+  }
 
     const avgPop = Math.round(generatedCompetitors.reduce((s, c) => s + c.popularity, 0) / generatedCompetitors.length)
     const avgDem = Math.round(generatedCompetitors.reduce((s, c) => s + c.demand, 0) / generatedCompetitors.length)
@@ -547,6 +399,9 @@ export async function findNearbyBusinesses(data: {
       dataSource: (overpassResults.length > 0 ? 'live' : 'simulated') as 'live' | 'simulated',
     }
 }
+
+// Keep backward compat — old callers may still pass radius
+export type { }
 
 /** Generate realistic local competitors based on business type and area economics */
 function generateLocalCompetitors(
@@ -791,27 +646,10 @@ export async function getFundingAdvice(data: {
   workingCapital: number
   equipmentCost: number
 }) {
-  const prompt = `You are a financial structuring expert. Provide optimal funding structure advice for:
-
-Business: ${data.businessType}
-Total Cost: ₹${data.totalCost.toLocaleString('en-IN')}
-Working Capital: ₹${data.workingCapital.toLocaleString('en-IN')}
-Equipment Cost: ₹${data.equipmentCost.toLocaleString('en-IN')}
-
-Recommend a funding structure with:
-{
-  "selfFunding": {"percentage": <number>, "amount": <number>},
-  "governmentLoans": [{"scheme": "...", "amount": <number>, "subsidy": "..."}],
-  "bankLoans": [{"bank": "...", "amount": <number>, "interestRate": "..."}],
-  "subsidies": [{"name": "...", "amount": <number>, "eligibility": "..."}],
-  "totalFundingPlan": {"ownContribution": <number>, "loanAmount": <number>, "subsidyAmount": <number>},
-  "monthlyCashFlow": [{"month": "M1", "inflow": <number>, "outflow": <number>}]
-}
-Return ONLY the JSON.`
+  const prompt = `You are a financial structuring expert. Provide optimal funding structure advice for:\n\nBusiness: ${data.businessType}\nTotal Cost: ₹${data.totalCost.toLocaleString('en-IN')}\nWorking Capital: ₹${data.workingCapital.toLocaleString('en-IN')}\nEquipment Cost: ₹${data.equipmentCost.toLocaleString('en-IN')}\n\nRecommend a funding structure with:\n{\n  \"selfFunding\": {\"percentage\": <number>, \"amount\": <number>},\n  \"governmentLoans\": [{\"scheme\": \"...\", \"amount\": <number>, \"subsidy\": \"...\"}],\n  \"bankLoans\": [{\"bank\": \"...\", \"amount\": <number>, \"interestRate\": \"...\"}],\n  \"subsidies\": [{\"name\": \"...\", \"amount\": <number>, \"eligibility\": \"...\"}],\n  \"totalFundingPlan\": {\"ownContribution\": <number>, \"loanAmount\": <number>, \"subsidyAmount\": <number>},\n  \"monthlyCashFlow\": [{\"month\": \"M1\", \"inflow\": <number>, \"outflow\": <number>}]\n}\nReturn ONLY the JSON.`
 
   try {
-    const result = await callAI(prompt)
-    return JSON.parse(result)
+    return await callServerAI('get-funding', { prompt })
   } catch {
     return {
       selfFunding: { percentage: 30, amount: data.totalCost * 0.3 },

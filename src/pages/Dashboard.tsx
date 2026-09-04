@@ -51,7 +51,7 @@ export default function Dashboard() {
           <Link to="/business-profile">
             <Button>
               <Plus size={16} />
-              Create Business Profile
+              {t('dashboard.createBusinessProfile')}
             </Button>
           </Link>
         </div>
@@ -100,33 +100,33 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               {
-                icon: TrendingUp, label: 'Market Demand', value: '7/10',
-                sub: `${business?.businessType} in ${business?.location?.split(',')[0]}`,
+                icon: TrendingUp, label: t('dashboard.marketDemand'), value: '7/10',
+                sub: t('dashboard.typeInLocation', { type: business?.businessType, location: business?.location?.split(',')[0] }),
                 path: '/market-analysis',
               },
               {
-                icon: Search, label: 'Eligible Schemes',                value: '5',
-                sub: `${business?.category} category`,
+                icon: Search, label: t('dashboard.eligibleSchemes'), value: '5',
+                sub: t('dashboard.category', { category: business?.category }),
                 path: '/scheme-finder',
               },
               {
-                icon: Calculator, label: 'Loan Eligible', value: `₹${business?.investmentAmount ? (business.investmentAmount * 2).toLocaleString('en-IN') : '—'}`,
-                sub: business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : 'Add income for estimate',
+                icon: Calculator, label: t('dashboard.loanEligible'), value: `₹${business?.investmentAmount ? (business.investmentAmount * 2).toLocaleString('en-IN') : '—'}`,
+                sub: business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : t('dashboard.addIncomeForEstimate'),
                 path: '/loan-calculator',
               },
               {
-                icon: DollarSign, label: 'Funding Plan', value: `${business?.investmentAmount ? Math.round(business.investmentAmount * 0.3 / 1000) : 0}K own`,
-                sub: `${business?.investmentAmount ? `${Math.round(business.investmentAmount * 0.7 / 1000)}K loan + subsidy` : 'Add costs for plan'}`,
+                icon: DollarSign, label: t('dashboard.fundingPlan'), value: t('dashboard.kOwn', { amount: business?.investmentAmount ? Math.round(business.investmentAmount * 0.3 / 1000) : 0 }),
+                sub: business?.investmentAmount ? t('dashboard.kLoanSubsidy', { amount: Math.round(business.investmentAmount * 0.7 / 1000) }) : t('dashboard.addCostsForPlan'),
                 path: '/funding-advisor',
               },
               {
-                icon: Store, label: 'Nearby Competitors', value: '5 found',
-                sub: `${business?.radius || 10} km radius`,
+                icon: Store, label: t('dashboard.nearbyCompetitors'), value: t('dashboard.found', { count: 5 }),
+                sub: t('dashboard.kmRadius', { radius: 12 }),
                 path: '/nearby-competitors',
               },
               {
-                icon: MapPin, label: 'Local Insights', value: business?.location?.split(',')[0] || '—',
-                sub: 'Population, demand, opportunities',
+                icon: MapPin, label: t('dashboard.localInsights'), value: business?.location?.split(',')[0] || '—',
+                sub: t('dashboard.localInsightsDesc'),
                 path: '/insights',
               },
             ].map((card, i) => (

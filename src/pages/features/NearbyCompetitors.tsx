@@ -2,13 +2,14 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { MapPin, Loader2, Store, TrendingUp, Star, Users, BarChart3, Target, Filter, X, Download, Edit3, ChevronUp, ChevronDown } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
 } from 'recharts'
 import { findNearbyBusinesses } from '../../lib/ai'
+import { geocodeLocation } from '../../lib/geocoding'
 import { useBusiness } from '../../contexts/BusinessContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -161,13 +162,13 @@ export default function NearbyCompetitors() {
   const c = chartColors(isDark)
   const [businessType, setBusinessType] = useState(business?.businessType || '')
   const [location, setLocation] = useState(business?.location || profile?.district || '')
-  const [radius, setRadius] = useState(business?.radius ? String(business.radius) : '10')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<CompetitorResult | null>(null)
   const [selectedCompetitor, setSelectedCompetitor] = useState<Competitor | null>(null)
   const [filterType, setFilterType] = useState('All')
   const [downloading, setDownloading] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
+  const [geoCoords, setGeoCoords] = useState<[number, number] | null>(null)
 
   useEffect(() => {
     if (!result && !loading) handleSearch()
@@ -336,10 +337,14 @@ export default function NearbyCompetitors() {
     if (!type || !loc) return
     setLoading(true)
     try {
+      // Geocode the location for real map coordinates
+      const geo = await geocodeLocation(loc)
+      if (geo) {
+        setGeoCoords([geo.lat, geo.lng])
+      }
       const data = await findNearbyBusinesses({
         businessType: type,
         location: loc,
-        radius: Number(radius || business?.radius || 10),
       })
       setResult(data)
       setSelectedCompetitor(null)
@@ -351,9 +356,8 @@ export default function NearbyCompetitors() {
     }
   }
 
-  const mapCenter: [number, number] = result
-    ? [result.userBusiness.lat, result.userBusiness.lng]
-    : [14.68, 77.59]
+  const mapCenter: [number, number] = geoCoords
+    ?? (result ? [result.userBusiness.lat, result.userBusiness.lng] : [14.68, 77.59])
 
   const availableTypes = useMemo(() => {
     if (!result) return []
@@ -442,10 +446,9 @@ export default function NearbyCompetitors() {
         {showEdit && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <Card className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <Input label="Business Type" value={businessType} onChange={(e) => setBusinessType(e.target.value)} icon={<Store size={18} />} />
                 <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} icon={<MapPin size={18} />} />
-                <Input label="Search Radius (km)" type="number" value={radius} onChange={(e) => setRadius(e.target.value)} icon={<Target size={18} />} />
               </div>
               <div className="mt-4">
                 <Button onClick={() => { setShowEdit(false); handleSearch() }} loading={loading}>
@@ -547,7 +550,7 @@ export default function NearbyCompetitors() {
               <div className="h-[420px] relative">
                 <MapContainer
                   center={mapCenter}
-                  zoom={13}
+                  zoom={14}
                   scrollWheelZoom={true}
                   className="h-full w-full"
                   style={{ background: '#141414' }}
@@ -556,7 +559,25 @@ export default function NearbyCompetitors() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                   />
+                  <TileLayer
+                    attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png"
+                    opacity={0.15}
+                  />
                   <FlyTo center={mapCenter} />
+
+                  {/* 12 km radius circle */}
+                  <Circle
+                    center={mapCenter}
+                    radius={12000}
+                    pathOptions={{
+                      color: '#21F1A8',
+                      fillColor: '#21F1A8',
+                      fillOpacity: 0.04,
+                      weight: 1.5,
+                      dashArray: '6 4',
+                    }}
+                  />
 
                   {/* User marker */}
                   <Marker

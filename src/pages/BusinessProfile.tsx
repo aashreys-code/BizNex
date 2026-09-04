@@ -372,23 +372,13 @@ export default function BusinessProfilePage() {
               value={form.businessDescription}
               onChange={(e) => update('businessDescription', e.target.value)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Location (District, State)"
-                placeholder="e.g., Anantapur, Andhra Pradesh"
-                value={form.location}
-                onChange={(e) => update('location', e.target.value)}
-                icon={<MapPin size={18} />}
-              />
-              <Input
-                label="Competitor Search Radius (km)"
-                type="number"
-                placeholder="10"
-                value={form.radius}
-                onChange={(e) => update('radius', Number(e.target.value) || 10)}
-                icon={<MapPin size={18} />}
-              />
-            </div>
+            <Input
+              label="Location (District, State)"
+              placeholder="e.g., Anantapur, Andhra Pradesh"
+              value={form.location}
+              onChange={(e) => update('location', e.target.value)}
+              icon={<MapPin size={18} />}
+            />
           </Card>
         )}
 

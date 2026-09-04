@@ -33,7 +33,17 @@
     "createProfileDesc": "Add a business profile to unlock all features — market analysis, schemes, loan calculator, competitors, and more.",
     "activeProfile": "Active", "manage": "Manage", "quickInsights": "Quick Insights for {{name}}",
     "marketDemand": "Market Demand", "eligibleSchemes": "Eligible Schemes", "loanEligible": "Loan Eligible",
-    "fundingPlan": "Funding Plan", "nearbyCompetitors": "Nearby Competitors", "localInsights": "Local Insights"
+    "fundingPlan": "Funding Plan", "nearbyCompetitors": "Nearby Competitors", "localInsights": "Local Insights",
+    "createBusinessProfile": "Create Business Profile",
+    "typeInLocation": "{{type}} in {{location}}",
+    "category": "{{category}} category",
+    "kOwn": "{{amount}}K own",
+    "kLoanSubsidy": "{{amount}}K loan + subsidy",
+    "addCostsForPlan": "Add costs for plan",
+    "found": "{{count}} found",
+    "kmRadius": "{{radius}} km radius",
+    "addIncomeForEstimate": "Add income for estimate",
+    "localInsightsDesc": "Population, demand, opportunities"
   },
   "schemeFinder": {
     "title": "Government Scheme Finder", "subtitle": "Find schemes you're eligible for with AI matching",
@@ -116,10 +126,10 @@
     "gatheringInsights": "Gathering Insights...", "gatheringDesc": "Analyzing data for your location."
   },
   "competitors": {
-    "title": "Nearby Competitor Analysis", "subtitle": "Discover and compare local businesses",
-    "businessType": "Business Type", "location": "Location", "radius": "Radius (km)",
+    "title": "Nearby Competitor Analysis", "subtitle": "Discover and compare local businesses within 12 km",
+    "businessType": "Business Type", "location": "Location",
     "search": "Search Competitors", "loading": "Scanning Nearby Businesses...",
-    "loadingDesc": "Analyzing competitors and market data in your area.",
+    "loadingDesc": "Querying OpenStreetMap for real businesses in your area.",
     "yourBusiness": "Your Business", "competitors": "Competitors",
     "marketSummary": "Market Summary", "totalCompetitors": "Total Competitors",
     "avgDemand": "Avg Demand", "marketSaturation": "Market Saturation",
@@ -130,7 +140,7 @@
     "strengths": "Strengths", "weaknesses": "Weaknesses", "specialties": "Specialties",
     "rating": "Rating", "monthlyRevenue": "Monthly Revenue",
     "noMatchFilter": "No businesses match this filter.",
-    "mapHint": "Click markers for details — green star is you"
+    "mapHint": "Real businesses within 12 km — click markers for details"
   },
   "documentVerification": {
     "title": "Document Verification", "subtitle": "Upload and verify your documents with AI",

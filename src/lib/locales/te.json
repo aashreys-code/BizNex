@@ -27,7 +27,17 @@
     "createProfileDesc": "అన్ని ఫీచర్లను అన్‌లాక్ చేయడానికి వ్యాపార ప్రొఫైల్ జోడించండి — మార్కెట్ విశ్లేషణ, పథకాలు, రుణ కాలిక్యులేటర్, పోటీదారులు మరియు మరిన్ని.",
     "activeProfile": "సక్రియం", "manage": "నిర్వహించండి", "quickInsights": "{{name}} కోసం త్వరిత సమాచారం",
     "marketDemand": "మార్కెట్ డిమాండ్", "eligibleSchemes": "అర్హత పథకాలు", "loanEligible": "రుణ అర్హత",
-    "fundingPlan": "నిధుల ప్రణాళిక", "nearbyCompetitors": "సమీప పోటీదారులు", "localInsights": "స్థానిక సమాచారం"
+    "fundingPlan": "నిధుల ప్రణాళిక", "nearbyCompetitors": "సమీప పోటీదారులు", "localInsights": "స్థానిక సమాచారం",
+    "createBusinessProfile": "వ్యాపార ప్రొఫైల్ సృష్టించండి",
+    "typeInLocation": "{{location}} లో {{type}}",
+    "category": "{{category}} వర్గం",
+    "kOwn": "{{amount}}K సొంత",
+    "kLoanSubsidy": "{{amount}}K రుణ + సబ్సిడీ",
+    "addCostsForPlan": "ప్రణాళిక కోసం ఖర్చులు జోడించండి",
+    "found": "{{count}} కనుగొనబడింది",
+    "kmRadius": "{{radius}} కి.మీ. వ్యాసార్ధం",
+    "addIncomeForEstimate": "అంచనా కోసం ఆదాయం జోడించండి",
+    "localInsightsDesc": "జనాభా, డిమాండ్, అవకాశాలు"
   },
   "schemeFinder": {
     "title": "ప్రభుత్వ పథకం ఫైండర్", "subtitle": "AI మ్యాచింగ్‌తో మీకు అర్హత ఉన్న పథకాలను కనుగొనండి",
@@ -75,10 +85,10 @@
     "dataSource": "డేటా భారత జనగణన, NSO సర్వేలు మరియు స్థానిక ఆర్థిక సూచికల నుండి పొందబడింది"
   },
   "competitors": {
-    "title": "సమీప పోటీదారుల విశ్లేషణ", "subtitle": "స్థానిక వ్యాపారాలను కనుగొని పోల్చండి",
-    "businessType": "వ్యాపార రకం", "location": "ప్రదేశం", "radius": "వ్యాసార్ధం (కి.మీ.)",
+    "title": "సమీప పోటీదారుల విశ్లేషణ", "subtitle": "12 కి.మీ. లోపు వాస్తవ వ్యాపారాలను కనుగొని పోల్చండి",
+    "businessType": "వ్యాపార రకం", "location": "ప్రదేశం",
     "search": "పోటీదారులను శోధించండి", "loading": "పోటీదారులను కనుగొంటోంది...",
-    "loadingDesc": "పోల్చడానికి సమీప వ్యాపారాలను విశ్లేషిస్తోంది.", "yourBusiness": "మీ వ్యాపారం",
+    "loadingDesc": "OpenStreetMap నుండి వాస్తవ వ్యాపారాలను శోధిస్తోంది.", "yourBusiness": "మీ వ్యాపారం",
     "competitors": "పోటీదారులు", "marketOverview": "మార్కెట్ అవలోకనం", "totalCompetitors": "మొత్తం పోటీదారులు",
     "avgDemand": "సగటు డిమాండ్", "marketSaturation": "మార్కెట్ సంతృప్తి", "threatLevel": "ముప్పు స్థాయి",
     "bestOpportunity": "ఉత్తమ అవకాశం", "demandTrend": "డిమాండ్ ట్రెండ్", "popularityComparison": "ప్రజాదరణ పోలిక",

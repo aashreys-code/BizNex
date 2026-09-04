@@ -27,7 +27,17 @@
     "createProfileDesc": "அனைத்து அம்சங்களையும் திறக்க ஒரு வணிக சுயவிவரத்தைச் சேர்க்கவும் — சந்தை பகுப்பாய்வு, திட்டங்கள், கடன் கால்குலேட்டர், போட்டியாளர்கள் மற்றும் பல.",
     "activeProfile": "செயலில்", "manage": "நிர்வகி", "quickInsights": "{{name}} க்கான விரைவு நுண்ணறிவு",
     "marketDemand": "சந்தை தேவை", "eligibleSchemes": "தகுதி திட்டங்கள்", "loanEligible": "கடன் தகுதி",
-    "fundingPlan": "நிதி திட்டம்", "nearbyCompetitors": "அருகிலுள்ள போட்டியாளர்கள்", "localInsights": "உள்ளூர் நுண்ணறிவு"
+    "fundingPlan": "நிதி திட்டம்", "nearbyCompetitors": "அருகிலுள்ள போட்டியாளர்கள்", "localInsights": "உள்ளூர் நுண்ணறிவு",
+    "createBusinessProfile": "வணிக சுயவிவரம் உருவாக்குங்கள்",
+    "typeInLocation": "{{location}} இல் {{type}}",
+    "category": "{{category}} வகை",
+    "kOwn": "{{amount}}K சொந்த",
+    "kLoanSubsidy": "{{amount}}K கடன் + மானியம்",
+    "addCostsForPlan": "திட்டத்திற்கான செலவுகளைச் சேர்க்கவும்",
+    "found": "{{count}} கிடைத்தது",
+    "kmRadius": "{{radius}} கி.மீ. ஆரம்",
+    "addIncomeForEstimate": "மதிப்பீட்டிற்கு வருமானம் சேர்க்கவும்",
+    "localInsightsDesc": "மக்கள்தொகை, தேவை, வாய்ப்புகள்"
   },
   "schemeFinder": {
     "title": "அரசு திட்ட தேடல்", "subtitle": "AI பொருத்தத்துடன் உங்களுக்கு தகுதியான திட்டங்களைக் கண்டறியுங்கள்",
@@ -75,10 +85,10 @@
     "dataSource": "தரவு இந்தியாவின் மக்கள்தொகை கணக்கெடுப்பு, NSO ஆய்வுகள் மற்றும் உள்ளூர் பொருளாதார குறிகாட்டிகளிலிருந்து பெறப்பட்டது"
   },
   "competitors": {
-    "title": "அருகிலுள்ள போட்டியாளர் பகுப்பாய்வு", "subtitle": "உள்ளூர் வணிகங்களைக் கண்டறிந்து ஒப்பிடுங்கள்",
-    "businessType": "வணிக வகை", "location": "இடம்", "radius": "ஆரம் (கி.மீ.)",
+    "title": "அருகிலுள்ள போட்டியாளர் பகுப்பாய்வு", "subtitle": "12 கி.மீ. க்குள் உள்ள உண்மையான வணிகங்களைக் கண்டறிந்து ஒப்பிடுங்கள்",
+    "businessType": "வணிக வகை", "location": "இடம்",
     "search": "போட்டியாளர்களைத் தேடு", "loading": "போட்டியாளர்களைத் தேடுகிறது...",
-    "loadingDesc": "ஒப்பீட்டிற்கு அருகிலுள்ள வணிகங்களை பகுப்பாய்வு செய்கிறது.", "yourBusiness": "உங்கள் வணிகம்",
+    "loadingDesc": "OpenStreetMap இலிருந்து உண்மையான வணிகங்களைத் தேடுகிறது.", "yourBusiness": "உங்கள் வணிகம்",
     "competitors": "போட்டியாளர்கள்", "marketOverview": "சந்தை மேலோட்டம்", "totalCompetitors": "மொத்த போட்டியாளர்கள்",
     "avgDemand": "சராசரி தேவை", "marketSaturation": "சந்தை நிரப்புதல்", "threatLevel": "அச்சுறுத்தல் நிலை",
     "bestOpportunity": "சிறந்த வாய்ப்பு", "demandTrend": "தேவை போக்கு", "popularityComparison": "பிரபல ஒப்பீடு",

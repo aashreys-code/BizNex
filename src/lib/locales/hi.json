@@ -33,7 +33,17 @@
     "createProfileDesc": "सभी सुविधाओं को अनलॉक करने के लिए एक व्यापार प्रोफ़ाइल जोड़ें — बाज़ार विश्लेषण, योजनाएं, ऋण कैलकुलेटर, प्रतिस्पर्धी, और बहुत कुछ।",
     "activeProfile": "सक्रिय", "manage": "प्रबंधित करें", "quickInsights": "{{name}} के लिए त्वरित जानकारी",
     "marketDemand": "बाज़ार माँग", "eligibleSchemes": "पात्र योजनाएं", "loanEligible": "ऋण पात्र",
-    "fundingPlan": "फंडिंग योजना", "nearbyCompetitors": "निकटतम प्रतिस्पर्धी", "localInsights": "स्थानीय जानकारी"
+    "fundingPlan": "फंडिंग योजना", "nearbyCompetitors": "निकटतम प्रतिस्पर्धी", "localInsights": "स्थानीय जानकारी",
+    "createBusinessProfile": "व्यापार प्रोफ़ाइल बनाएं",
+    "typeInLocation": "{{location}} में {{type}}",
+    "category": "{{category}} श्रेणी",
+    "kOwn": "{{amount}}K अपना",
+    "kLoanSubsidy": "{{amount}}K ऋण + सब्सिडी",
+    "addCostsForPlan": "योजना के लिए लागत जोड़ें",
+    "found": "{{count}} मिले",
+    "kmRadius": "{{radius}} किमी त्रिज्या",
+    "addIncomeForEstimate": "अनुमान के लिए आय जोड़ें",
+    "localInsightsDesc": "जनसंख्या, माँग, अवसर"
   },
   "schemeFinder": {
     "title": "सरकारी योजना खोजक", "subtitle": "AI मिलान के साथ अपने लिए पात्र योजनाएं खोजें",
@@ -116,10 +126,10 @@
     "gatheringInsights": "जानकारी एकत्र हो रही है...", "gatheringDesc": "आपके स्थान का डेटा विश्लेषण हो रहा है।"
   },
   "competitors": {
-    "title": "निकटतम प्रतिस्पर्धी विश्लेषण", "subtitle": "स्थानीय व्यवसायों की खोज और तुलना करें",
-    "businessType": "व्यवसाय का प्रकार", "location": "स्थान", "radius": "त्रिज्या (किमी)",
+    "title": "निकटतम प्रतिस्पर्धी विश्लेषण", "subtitle": "12 किमी के भीतर स्थानीय व्यवसायों की खोज और तुलना करें",
+    "businessType": "व्यवसाय का प्रकार", "location": "स्थान",
     "search": "प्रतिस्पर्धी खोजें", "loading": "निकटतम व्यवसायों की जांच हो रही है...",
-    "loadingDesc": "तुलना के लिए निकटतम व्यवसायों का विश्लेषण।",
+    "loadingDesc": "OpenStreetMap से वास्तविक व्यवसाय खोजे जा रहे हैं।",
     "yourBusiness": "आपका व्यवसाय", "competitors": "प्रतिस्पर्धी",
     "marketSummary": "बाज़ार अवलोकन", "totalCompetitors": "कुल प्रतिस्पर्धी",
     "avgDemand": "औसत माँग", "marketSaturation": "बाज़ार संतृप्ति",
@@ -130,7 +140,7 @@
     "strengths": "ताकत", "weaknesses": "कमज़ोरियां", "specialties": "विशेषताएं",
     "rating": "रेटिंग", "monthlyRevenue": "मासिक राजस्व",
     "noMatchFilter": "कोई व्यवसाय इस फ़िल्टर से मेल नहीं खाता।",
-    "mapHint": "विवरण के लिए मार्कर पर क्लिक करें — हरा सितारा आप हैं"
+    "mapHint": "12 किमी के भीतर वास्तविक व्यवसाय — मार्कर पर क्लिक करें"
   },
   "documentVerification": {
     "title": "दस्तावेज़ सत्यापन", "subtitle": "AI के साथ अपने दस्तावेज़ अपलोड और सत्यापित करें",

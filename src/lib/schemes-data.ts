@@ -463,19 +463,25 @@ export function findMatchingSchemes(profile: {
   investmentNeeded: number
   category: string
 }): SchemeData[] {
-  return governmentSchemes.filter(scheme => {
-    // Age check
+  const normalisedBizType = profile.businessType.toLowerCase()
+
+  // First pass: strict match on all criteria
+  const strict = governmentSchemes.filter(scheme => {
     if (profile.age < scheme.minAge || profile.age > scheme.maxAge) return false
-    
-    // Category check
     if (!scheme.category.includes('all') && !scheme.category.includes(profile.category.toLowerCase())) return false
-    
-    // Income check
     if (scheme.maxIncome > 0 && profile.income > scheme.maxIncome) return false
-    
-    // Business type check
-    if (!scheme.businessTypes.includes('all') && !scheme.businessTypes.includes(profile.businessType.toLowerCase())) return false
-    
+    if (!scheme.businessTypes.includes('all') && !scheme.businessTypes.includes(normalisedBizType)) return false
+    return true
+  })
+
+  if (strict.length > 0) return strict
+
+  // Second pass: relax business-type filter so users with unlisted business types
+  // (e.g. "gaming", "IT services") still see schemes they could be eligible for
+  return governmentSchemes.filter(scheme => {
+    if (profile.age < scheme.minAge || profile.age > scheme.maxAge) return false
+    if (!scheme.category.includes('all') && !scheme.category.includes(profile.category.toLowerCase())) return false
+    if (scheme.maxIncome > 0 && profile.income > scheme.maxIncome) return false
     return true
   })
 }

@@ -27,7 +27,17 @@
     "createProfileDesc": "ಎಲ್ಲಾ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಲು ವ್ಯವಹಾರ ಪ್ರೊಫೈಲ್ ಸೇರಿಸಿ — ಮಾರುಕಟ್ಟೆ ವಿಶ್ಲೇಷಣೆ, ಯೋಜನೆಗಳು, ಸಾಲ ಕ್ಯಾಲ್ಕುಲೇಟರ್, ಸ್ಪರ್ಧಿಗಳು ಮತ್ತು ಇನ್ನಷ್ಟು.",
     "activeProfile": "ಸಕ್ರಿಯ", "manage": "ನಿರ್ವಹಿಸಿ", "quickInsights": "{{name}} ಗಾಗಿ ತ್ವರಿತ ಮಾಹಿತಿ",
     "marketDemand": "ಮಾರುಕಟ್ಟೆ ಬೇಡಿಕೆ", "eligibleSchemes": "ಅರ್ಹ ಯೋಜನೆಗಳು", "loanEligible": "ಸಾಲ ಅರ್ಹತೆ",
-    "fundingPlan": "ಹಣಕಾಸು ಯೋಜನೆ", "nearbyCompetitors": "ಹತ್ತಿರದ ಸ್ಪರ್ಧಿಗಳು", "localInsights": "ಸ್ಥಳೀಯ ಮಾಹಿತಿ"
+    "fundingPlan": "ಹಣಕಾಸು ಯೋಜನೆ", "nearbyCompetitors": "ಹತ್ತಿರದ ಸ್ಪರ್ಧಿಗಳು", "localInsights": "ಸ್ಥಳೀಯ ಮಾಹಿತಿ",
+    "createBusinessProfile": "ವ್ಯವಹಾರ ಪ್ರೊಫೈಲ್ ರಚಿಸಿ",
+    "typeInLocation": "{{location}} ನಲ್ಲಿ {{type}}",
+    "category": "{{category}} ವರ್ಗ",
+    "kOwn": "{{amount}}K ಸ್ವಂತ",
+    "kLoanSubsidy": "{{amount}}K ಸಾಲ + ಸಬ್ಸಿಡಿ",
+    "addCostsForPlan": "ಯೋಜನೆಗಾಗಿ ವೆಚ್ಚಗಳನ್ನು ಸೇರಿಸಿ",
+    "found": "{{count}} ಕಂಡುಬಂದಿದೆ",
+    "kmRadius": "{{radius}} ಕಿ.ಮೀ. ವ್ಯಾಪ್ತಿ",
+    "addIncomeForEstimate": "ಅಂದಾಜಿಗಾಗಿ ಆದಾಯ ಸೇರಿಸಿ",
+    "localInsightsDesc": "ಜನಸಂಖ್ಯೆ, ಬೇಡಿಕೆ, ಅವಕಾಶಗಳು"
   },
   "schemeFinder": {
     "title": "ಸರ್ಕಾರಿ ಯೋಜನೆ ಫೈಂಡರ್", "subtitle": "AI ಹೊಂದಾಣಿಕೆಯೊಂದಿಗೆ ನಿಮಗೆ ಅರ್ಹವಾದ ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ",
@@ -75,10 +85,10 @@
     "dataSource": "ಡೇಟಾ ಭಾರತದ ಜನಗಣತಿ, NSO ಸಮೀಕ್ಷೆಗಳು ಮತ್ತು ಸ್ಥಳೀಯ ಆರ್ಥಿಕ ಸೂಚ್ಯಂಕಗಳಿಂದ ಪಡೆಯಲಾಗಿದೆ"
   },
   "competitors": {
-    "title": "ಹತ್ತಿರದ ಸ್ಪರ್ಧಿ ವಿಶ್ಲೇಷಣೆ", "subtitle": "ಸ್ಥಳೀಯ ವ್ಯವಹಾರಗಳನ್ನು ಕಂಡುಹಿಡಿದು ಹೋಲಿಸಿ",
-    "businessType": "ವ್ಯವಹಾರ ಪ್ರಕಾರ", "location": "ಸ್ಥಳ", "radius": "ವ್ಯಾಸಾರ್ಧ (ಕಿ.ಮೀ.)",
+    "title": "ಹತ್ತಿರದ ಸ್ಪರ್ಧಿ ವಿಶ್ಲೇಷಣೆ", "subtitle": "12 ಕಿ.ಮೀ. ಒಳಗಿನ ನಿಜವಾದ ವ್ಯವಹಾರಗಳನ್ನು ಕಂಡುಹಿಡಿದು ಹೋಲಿಸಿ",
+    "businessType": "ವ್ಯವಹಾರ ಪ್ರಕಾರ", "location": "ಸ್ಥಳ",
     "search": "ಸ್ಪರ್ಧಿಗಳನ್ನು ಹುಡುಕಿ", "loading": "ಸ್ಪರ್ಧಿಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ...",
-    "loadingDesc": "ಹೋಲಿಕೆಗಾಗಿ ಹತ್ತಿರದ ವ್ಯವಹಾರಗಳನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ.", "yourBusiness": "ನಿಮ್ಮ ವ್ಯವಹಾರ",
+    "loadingDesc": "OpenStreetMap ನಿಂದ ನಿಜವಾದ ವ್ಯವಹಾರಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ.", "yourBusiness": "ನಿಮ್ಮ ವ್ಯವಹಾರ",
     "competitors": "ಸ್ಪರ್ಧಿಗಳು", "marketOverview": "ಮಾರುಕಟ್ಟೆ ಅವಲೋಕನ", "totalCompetitors": "ಒಟ್ಟು ಸ್ಪರ್ಧಿಗಳು",
     "avgDemand": "ಸರಾಸರಿ ಬೇಡಿಕೆ", "marketSaturation": "ಮಾರುಕಟ್ಟೆ ತೃಪ್ತಿ", "threatLevel": "ಬೆದರಿಕೆ ಮಟ್ಟ",
     "bestOpportunity": "ಅತ್ಯುತ್ತಮ ಅವಕಾಶ", "demandTrend": "ಬೇಡಿಕೆ ಪ್ರವೃತ್ತಿ", "popularityComparison": "ಜನಪ್ರಿಯತೆ ಹೋಲಿಕೆ",

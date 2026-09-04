@@ -27,7 +27,17 @@
     "createProfileDesc": "सर्व वैशिष्ट्ये अनलॉक करण्यासाठी व्यवसाय प्रोफाइल जोडा — बाजार विश्लेषण, योजना, कर्ज कॅल्क्युलेटर, स्पर्धक आणि बरेच काही.",
     "activeProfile": "सक्रिय", "manage": "व्यवस्थापित करा", "quickInsights": "{{name}} साठी त्वरित माहिती",
     "marketDemand": "बाजार मागणी", "eligibleSchemes": "पात्र योजना", "loanEligible": "कर्ज पात्रता",
-    "fundingPlan": "भांडवल योजना", "nearbyCompetitors": "जवळचे स्पर्धक", "localInsights": "स्थानीय माहिती"
+    "fundingPlan": "भांडवल योजना", "nearbyCompetitors": "जवळचे स्पर्धक", "localInsights": "स्थानीय माहिती",
+    "createBusinessProfile": "व्यवसाय प्रोफाइल तयार करा",
+    "typeInLocation": "{{location}} मध्ये {{type}}",
+    "category": "{{category}} श्रेणी",
+    "kOwn": "{{amount}}K स्वतःचे",
+    "kLoanSubsidy": "{{amount}}K कर्ज + सब्सिडी",
+    "addCostsForPlan": "योजनेसाठी खर्च जोडा",
+    "found": "{{count}} सापडले",
+    "kmRadius": "{{radius}} किमी व्यास",
+    "addIncomeForEstimate": "अंदाजासाठी उत्पन्न जोडा",
+    "localInsightsDesc": "लोकसंख्या, मागणी, संधी"
   },
   "schemeFinder": {
     "title": "सरकारी योजना शोधक", "subtitle": "AI जुळवणीसह तुम्हाला पात्र असलेल्या योजना शोधा",
@@ -75,10 +85,10 @@
     "dataSource": "डेटा भारताच्या लोकगणना, NSO सर्वेक्षणे आणि स्थानीय आर्थिक निर्देशांकांमधून प्राप्त"
   },
   "competitors": {
-    "title": "जवळच्या स्पर्धकांचे विश्लेषण", "subtitle": "स्थानीय व्यवसाय शोधा आणि तुलना करा",
-    "businessType": "व्यवसायाचा प्रकार", "location": "स्थान", "radius": "त्रिज्या (कि.मी.)",
+    "title": "जवळच्या स्पर्धकांचे विश्लेषण", "subtitle": "12 किमी आतील वास्तविक व्यवसाय शोधा आणि तुलना करा",
+    "businessType": "व्यवसायाचा प्रकार", "location": "स्थान",
     "search": "स्पर्धक शोधा", "loading": "स्पर्धक शोधत आहे...",
-    "loadingDesc": "तुलनेसाठी जवळचे व्यवसाय विश्लेषित करत आहे.", "yourBusiness": "तुमचा व्यवसाय",
+    "loadingDesc": "OpenStreetMap वरून वास्तविक व्यवसाय शोधले जात आहे.", "yourBusiness": "तुमचा व्यवसाय",
     "competitors": "स्पर्धक", "marketOverview": "बाजार आढावा", "totalCompetitors": "एकूण स्पर्धक",
     "avgDemand": "सरासरी मागणी", "marketSaturation": "बाजार तृप्ती", "threatLevel": "धोक्याचा पातळी",
     "bestOpportunity": "सर्वोत्तम संधी", "demandTrend": "मागणी प्रवृत्ती", "popularityComparison": "लोकप्रियता तुलना",
