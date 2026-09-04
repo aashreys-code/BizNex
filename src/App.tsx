@@ -17,6 +17,7 @@ import InsightsEngine from './pages/features/InsightsEngine'
 import FundingAdvisor from './pages/features/FundingAdvisor'
 import DocumentVerification from './pages/features/DocumentVerification'
 import NearbyCompetitors from './pages/features/NearbyCompetitors'
+import WholesaleFinder from './pages/features/WholesaleFinder'
 import AdminPanel from './pages/admin/AdminPanel'
 
 // Layout
@@ -176,6 +177,16 @@ export default function App() {
           <ProtectedRoute>
             <DashboardLayout>
               <NearbyCompetitors />
+            </DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/wholesale-suppliers"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <WholesaleFinder />
             </DashboardLayout>
           </ProtectedRoute>
         }

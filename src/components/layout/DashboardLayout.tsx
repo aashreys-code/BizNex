@@ -6,7 +6,7 @@ import {
   LayoutDashboard, TrendingUp, FileText, Search, Calculator,
   MessageSquare, MapPin, DollarSign, Upload, Shield, Building2,
   Menu, X, LogOut, Sun, Moon,  ChevronDown,
-  BarChart3, Globe,
+  BarChart3, Globe, Package,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -60,6 +60,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { path: '/market-analysis', label: t('nav.marketAnalysis'), icon: TrendingUp },
         { path: '/business-plan', label: t('nav.businessPlan'), icon: FileText },
         { path: '/nearby-competitors', label: t('nav.competitors'), icon: BarChart3 },
+        { path: '/wholesale-suppliers', label: 'Suppliers', icon: Package },
         { path: '/insights', label: t('nav.localInsights'), icon: MapPin },
       ],
     },
