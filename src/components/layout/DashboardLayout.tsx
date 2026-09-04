@@ -70,9 +70,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         { path: '/funding-advisor', label: t('nav.fundingAdvisor'), icon: DollarSign },
         { path: '/loan-calculator', label: t('nav.loanCalculator'), icon: Calculator },
       ],
-    },
-    {
-      label: t('nav.tools'),
+    },    { label: t('nav.tools'),
       items: [
         { path: '/ai-assistant', label: t('nav.aiAssistant'), icon: MessageSquare },
       ],

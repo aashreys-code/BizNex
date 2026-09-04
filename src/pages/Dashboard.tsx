@@ -3,16 +3,40 @@ import { useTranslation } from 'react-i18next'
 import {
   TrendingUp, FileText, Search, Calculator, MessageSquare,
   MapPin, DollarSign, ArrowRight, Building2,
-  CheckCircle2, Store, Plus,
+  CheckCircle2, Store, Plus, AlertTriangle, Target, BarChart3,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useBusiness } from '../contexts/BusinessContext'
 import Button from '../components/ui/Button'
+import { 
+  calculateProjectCost, calculateViabilityScore, recommendSchemes,
+  formatCurrency 
+} from '../lib/financial-engine'
 
 export default function Dashboard() {
   const { profile } = useAuth()
   const { profiles, business, isComplete } = useBusiness()
   const { t } = useTranslation()
+
+  // Build a financial profile from the business context
+  const finProfile = business ? {
+    availableMargin: business.investmentAmount,
+    projectCost: 0,
+    businessType: business.businessType,
+    monthlyExpectedRevenue: business.monthlyIncome,
+    monthlyOperatingCost: Math.round(business.monthlyIncome * 0.65),
+    isNewBusiness: true,
+    existingLoans: business.existingLoans,
+    age: business.age,
+    gender: business.gender,
+    category: business.category,
+    location: business.location,
+    isRural: true,
+  } : null
+
+  const viability = finProfile ? calculateViabilityScore(finProfile, 0, 6) : null
+  const projectBreakdown = business ? calculateProjectCost(business.investmentAmount) : null
+  const applicableSchemes = finProfile ? recommendSchemes(finProfile) : []
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -57,8 +81,81 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Active profile info */}
-      {business && (
+      {/* ─── BIZNEX BUSINESS READINESS SCORE ─── */}
+      {business && viability && (
+        <div className="card p-5" style={{ borderLeft: '3px solid var(--accent-bright)' }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center"
+                style={{ background: 'var(--accent-dim)' }}>
+                <Target size={20} style={{ color: 'var(--accent-bright)' }} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                  BIZNEX BUSINESS READINESS
+                </h2>
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  Based on your {business.name} profile
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-3xl font-bold" style={{ color: 'var(--accent-bright)' }}>
+                {viability.totalScore}
+                <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>/100</span>
+              </div>
+              <p className="text-xs font-semibold" style={{ 
+                color: viability.grade === 'Strong' ? 'var(--success)' : 
+                       viability.grade === 'Good' ? 'var(--accent-bright)' :
+                       viability.grade === 'Moderate' ? 'var(--warning)' : 'var(--danger)' 
+              }}>
+                {viability.grade}
+              </p>
+            </div>
+          </div>
+
+          {/* Score breakdown bars */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+            {[
+              { label: 'Market Opportunity', value: viability.breakdown.marketOpportunity },
+              { label: 'Financial Feasibility', value: viability.breakdown.financialFeasibility },
+              { label: 'Funding Fit', value: viability.breakdown.fundingFit },
+              { label: 'Risk Level', value: viability.breakdown.riskLevel },
+              { label: 'Competition', value: viability.breakdown.competitionFit },
+              { label: 'Preparedness', value: viability.breakdown.preparedness },
+            ].map((item, i) => (
+              <div key={i}>
+                <div className="flex justify-between text-[10px] mb-1">
+                  <span style={{ color: 'var(--text-muted)' }}>{item.label}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{item.value}/100</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border-strong)' }}>
+                  <div 
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ 
+                      width: `${item.value}%`,
+                      background: item.value >= 70 ? 'var(--success)' : item.value >= 45 ? 'var(--accent-bright)' : 'var(--warning)'
+                    }} 
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recommendation */}
+          <div className="p-3 rounded-lg" style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--accent-bright)' }}>
+              Recommended Next Step
+            </p>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              {viability.recommendation}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ─── PROJECT COST OVERVIEW ─── */}
+      {business && projectBreakdown && (
         <div className="card p-4" style={{ borderLeft: '3px solid var(--accent-bright)' }}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
@@ -74,7 +171,6 @@ export default function Dashboard() {
                 {[
                   business.businessType,
                   business.location,
-                  business.investmentAmount ? `₹${business.investmentAmount.toLocaleString('en-IN')}` : null,
                   business.category,
                 ].filter(Boolean).map((tag, i) => (
                   <span key={i} className="text-[11px] px-2 py-0.5 rounded-md"
@@ -88,10 +184,38 @@ export default function Dashboard() {
               <Button variant="ghost" size="sm">{t('dashboard.manage')}</Button>
             </Link>
           </div>
+
+          {/* Financial summary row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+            <div className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Project Cost</p>
+              <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                {formatCurrency(projectBreakdown.projectCost)}
+              </p>
+            </div>
+            <div className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Your Contribution (10%)</p>
+              <p className="text-sm font-bold" style={{ color: 'var(--accent-bright)' }}>
+                {formatCurrency(projectBreakdown.beneficiaryMargin)}
+              </p>
+            </div>
+            <div className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Potential Financing (90%)</p>
+              <p className="text-sm font-bold" style={{ color: 'var(--info)' }}>
+                {formatCurrency(projectBreakdown.institutionalFinancing)}
+              </p>
+            </div>
+            <div className="text-center p-2 rounded-lg" style={{ background: 'var(--bg-surface)' }}>
+              <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Matching Schemes</p>
+              <p className="text-sm font-bold" style={{ color: 'var(--accent-bright)' }}>
+                {applicableSchemes.length}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Quick Insights */}
+      {/* ─── FEATURE CARDS ─── */}
       {isComplete && (
         <div>
           <h2 className="text-sm font-semibold mb-3" style={{ color: 'var(--text-secondary)' }}>
@@ -100,32 +224,38 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               {
-                icon: TrendingUp, label: t('dashboard.marketDemand'), value: '7/10',
-                sub: t('dashboard.typeInLocation', { type: business?.businessType, location: business?.location?.split(',')[0] }),
+                icon: TrendingUp, label: t('dashboard.marketDemand'), 
+                value: projectBreakdown ? formatCurrency(projectBreakdown.projectCost) : '—',
+                sub: 'Estimated project cost',
                 path: '/market-analysis',
               },
               {
-                icon: Search, label: t('dashboard.eligibleSchemes'), value: '5',
-                sub: t('dashboard.category', { category: business?.category }),
+                icon: Search, label: t('dashboard.eligibleSchemes'), 
+                value: `${applicableSchemes.length}`,
+                sub: applicableSchemes.length > 0 ? applicableSchemes[0].schemeName : 'No schemes found',
                 path: '/scheme-finder',
               },
               {
-                icon: Calculator, label: t('dashboard.loanEligible'), value: `₹${business?.investmentAmount ? (business.investmentAmount * 2).toLocaleString('en-IN') : '—'}`,
-                sub: business?.monthlyIncome ? `₹${business.monthlyIncome.toLocaleString('en-IN')}/mo income` : t('dashboard.addIncomeForEstimate'),
+                icon: Calculator, label: t('dashboard.loanEligible'), 
+                value: projectBreakdown ? formatCurrency(projectBreakdown.institutionalFinancing) : '—',
+                sub: 'Potential institutional finance',
                 path: '/loan-calculator',
               },
               {
-                icon: DollarSign, label: t('dashboard.fundingPlan'), value: t('dashboard.kOwn', { amount: business?.investmentAmount ? Math.round(business.investmentAmount * 0.3 / 1000) : 0 }),
-                sub: business?.investmentAmount ? t('dashboard.kLoanSubsidy', { amount: Math.round(business.investmentAmount * 0.7 / 1000) }) : t('dashboard.addCostsForPlan'),
+                icon: DollarSign, label: t('dashboard.fundingPlan'), 
+                value: business?.investmentAmount ? formatCurrency(business.investmentAmount) : '—',
+                sub: 'Available margin capital',
                 path: '/funding-advisor',
               },
               {
-                icon: Store, label: t('dashboard.nearbyCompetitors'), value: t('dashboard.found', { count: 5 }),
-                sub: t('dashboard.kmRadius', { radius: 12 }),
+                icon: Store, label: t('dashboard.nearbyCompetitors'), 
+                value: t('dashboard.found', { count: '—' }),
+                sub: `${business?.radius || 10} km radius`,
                 path: '/nearby-competitors',
               },
               {
-                icon: MapPin, label: t('dashboard.localInsights'), value: business?.location?.split(',')[0] || '—',
+                icon: MapPin, label: t('dashboard.localInsights'), 
+                value: business?.location?.split(',')[0] || '—',
                 sub: t('dashboard.localInsightsDesc'),
                 path: '/insights',
               },
@@ -142,6 +272,33 @@ export default function Dashboard() {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ─── CTA: Generate Report ─── */}
+      {business && viability && viability.totalScore > 30 && (
+        <div className="card p-5 text-center" style={{ background: 'var(--accent-dim)', border: '1px solid var(--border)' }}>
+          <BarChart3 size={24} className="mx-auto mb-2" style={{ color: 'var(--accent-bright)' }} />
+          <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+            Ready for a Complete Analysis?
+          </h3>
+          <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+            Generate a full feasibility report with market analysis, financial structuring, and scheme recommendations.
+          </p>
+          <div className="flex gap-2 justify-center flex-wrap">
+            <Link to="/market-analysis">
+              <Button size="sm">
+                <TrendingUp size={14} />
+                View Market Opportunity
+              </Button>
+            </Link>
+            <Link to="/funding-advisor">
+              <Button variant="secondary" size="sm">
+                <DollarSign size={14} />
+                Optimize Funding
+              </Button>
+            </Link>
           </div>
         </div>
       )}
