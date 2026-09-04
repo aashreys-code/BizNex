@@ -48,27 +48,21 @@ function StaggerReveal({ children, delay = 0 }: { children: ReactNode; delay?: n
 const workflows = [
   {
     num: '01',
-    title: 'Tell Us About Your Business',
-    desc: 'Share your idea, location, budget, and goals. We understand the local context.',
-    icon: Building2,
-  },
-  {
-    num: '02',
-    title: 'Understand Your Local Market',
-    desc: 'Get demand scores, competition analysis, and revenue forecasts for your area.',
+    title: 'Understand Your Market',
+    desc: 'Get hyper-local demand scores, competitor analysis, and revenue forecasts for your area.',
     icon: BarChart3,
   },
   {
-    num: '03',
-    title: 'Receive AI-Powered Recommendations',
-    desc: 'Personalized business plans, growth strategies, and smart financial guidance.',
-    icon: Sparkles,
+    num: '02',
+    title: 'Structure Your Funding',
+    desc: 'Calculate project cost, find eligible government schemes, and plan your EMI.',
+    icon: DollarSign,
   },
   {
-    num: '04',
-    title: 'Discover Government Support',
-    desc: 'Find schemes you qualify for — PMEGP, MUDRA, Stand-Up India and more.',
-    icon: Shield,
+    num: '03',
+    title: 'Build With Confidence',
+    desc: 'Get a complete feasibility report with break-even analysis and actionable recommendations.',
+    icon: Sparkles,
   },
 ]
 
@@ -132,10 +126,10 @@ export default function LandingPage() {
                   className="text-[2.5rem] sm:text-[3rem] lg:text-[3.5rem] font-bold leading-[1.08] mb-5"
                   style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
                 >
-                  Business advisory
+                  Turn Local Knowledge Into
                   <br />
-                  built for{' '}
-                  <span style={{ color: 'var(--accent-bright)' }}>rural India</span>
+                  a{' '}
+                  <span style={{ color: 'var(--accent-bright)' }}>Fundable Business</span>
                 </h1>
               </ScrollReveal>
 
@@ -144,8 +138,9 @@ export default function LandingPage() {
                   className="text-base sm:text-lg mb-8 max-w-md leading-relaxed"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Market data, government schemes, loan guidance, and multilingual AI —
-                  everything a rural entrepreneur needs in one place.
+                  BizNex combines hyper-local market intelligence, financial structuring
+                  and government scheme discovery to help rural entrepreneurs make
+                  better business decisions.
                 </p>
               </ScrollReveal>
 
@@ -154,20 +149,14 @@ export default function LandingPage() {
                   <MagneticButton>
                     <Link to="/register">
                       <Button size="lg" className="min-w-[180px]">
-                        Get started free
+                        Analyze My Business
                         <ArrowRight size={18} />
                       </Button>
                     </Link>
                   </MagneticButton>
-                  <Link to="/login">
+                  <Link to="#how-it-works">
                     <Button variant="secondary" size="lg">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/login">
-                    <Button variant="ghost" size="lg" onClick={() => {}}>
-                      <Zap size={16} />
-                      Try Demo
+                      Explore How It Works
                     </Button>
                   </Link>
                 </div>
@@ -313,9 +302,7 @@ export default function LandingPage() {
                 opacity: workflow.visible ? 0.5 : 0,
                 transition: 'opacity 0.6s ease 0.3s',
               }}
-            />
-
-            <div className="grid md:grid-cols-4 gap-8 md:gap-6">
+            />              <div className="grid md:grid-cols-3 gap-8 md:gap-6">
               {workflows.map((step, i) => (
                 <div
                   key={i}
