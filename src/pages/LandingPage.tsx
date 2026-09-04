@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import {
   ArrowRight, ChevronRight, TrendingUp, FileText, Search, Calculator,
   MessageSquare, MapPin, DollarSign, Globe, Languages, BarChart3,
-  Shield, Sparkles, Users, Building2, Zap, Target,
+  Shield, Sparkles, Users, Building2, Zap, Target, Package,
 } from 'lucide-react'
 import Button from '../components/ui/Button'
 import ScrollReveal from '../components/react-bits/ScrollReveal'
@@ -74,13 +74,13 @@ const credibilityItems = [    { icon: Target, title: 'Data-Driven Methodology', 
 ]
 
 const features = [
-  { icon: TrendingUp, title: 'Market Intelligence', desc: 'Demand scores, competition analysis, and revenue forecasts for your specific location.' },
-  { icon: FileText, title: 'Business Plan Builder', desc: 'Generate business plans with cost breakdowns and growth strategies.' },
-  { icon: Search, title: 'Scheme Discovery', desc: 'Find PMEGP, MUDRA, Stand-Up India with eligibility scoring.' },
-  { icon: Calculator, title: 'Loan Eligibility', desc: 'Calculate eligibility, EMI estimates, and repayment timelines.' },
-  { icon: MessageSquare, title: 'AI Business Advisor', desc: 'Chat in English, Hindi, Telugu, Tamil, Kannada, or Marathi.' },
-  { icon: MapPin, title: 'Local Market Insights', desc: 'Population data, literacy rates, demand trends, and opportunities.' },
-  { icon: DollarSign, title: 'Funding Strategy', desc: 'Personalized funding combining self-funding, loans, and subsidies.' },
+  { icon: MapPin, title: 'See Businesses Around You', desc: 'Find similar businesses near you and understand the competition in your area.' },
+  { icon: TrendingUp, title: 'Plan Your Money', desc: 'Calculate costs, find government funding, and plan your investment wisely.' },
+  { icon: Search, title: 'Find Government Schemes', desc: 'Discover PMEGP, MUDRA, Stand-Up India and other schemes you qualify for.' },
+  { icon: Package, title: 'Find Suppliers & Wholesale', desc: 'Know where to buy materials and how much to spend on initial stock.' },
+  { icon: MessageSquare, title: 'Ask in Your Language', desc: 'Chat with BizNex AI in Hindi, Telugu, Tamil, Kannada, or Marathi.' },
+  { icon: FileText, title: 'Get Your Business Plan', desc: 'Generate a complete plan with cost breakdown and growth strategy.' },
+  { icon: DollarSign, title: 'Loan & EMI Calculator', desc: 'See exactly how much you can borrow and what your monthly payment will be.' },
 ]
 
 /* ─── Main Component ──────────────────────────── */
@@ -126,10 +126,11 @@ export default function LandingPage() {
                   className="text-[2.5rem] sm:text-[3rem] lg:text-[3.5rem] font-bold leading-[1.08] mb-5"
                   style={{ color: 'var(--text-primary)', letterSpacing: '-0.035em' }}
                 >
-                  Turn Local Knowledge Into
+                  Know Your Market.
                   <br />
-                  a{' '}
-                  <span style={{ color: 'var(--accent-bright)' }}>Fundable Business</span>
+                  <span style={{ color: 'var(--accent-bright)' }}>Plan Your Money.</span>
+                  <br />
+                  Build With Confidence.
                 </h1>
               </ScrollReveal>
 
@@ -138,9 +139,9 @@ export default function LandingPage() {
                   className="text-base sm:text-lg mb-8 max-w-md leading-relaxed"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  BizNex combines hyper-local market intelligence, financial structuring
-                  and government scheme discovery to help rural entrepreneurs make
-                  better business decisions.
+                  BizNex helps rural entrepreneurs understand local demand, nearby
+                  competition, sourcing options and government funding — before they
+                  invest.
                 </p>
               </ScrollReveal>
 
@@ -149,7 +150,7 @@ export default function LandingPage() {
                   <MagneticButton>
                     <Link to="/register">
                       <Button size="lg" className="min-w-[180px]">
-                        Analyze My Business
+                        Start My Business Analysis
                         <ArrowRight size={18} />
                       </Button>
                     </Link>

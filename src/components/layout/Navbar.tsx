@@ -1,16 +1,41 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { Menu, X, Sun, Moon, LogOut, LayoutDashboard, ArrowRight } from 'lucide-react'
+import { Menu, X, Sun, Moon, LogOut, LayoutDashboard, ArrowRight, Globe, ChevronDown } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../contexts/AuthContext'
 import { useTheme } from '../../contexts/ThemeContext'
 import Button from '../ui/Button'
 
+const allLanguages = [
+  { code: 'en', label: 'English', native: 'English' },
+  { code: 'hi', label: 'हिन्दी', native: 'Hindi' },
+  { code: 'te', label: 'తెలుగు', native: 'Telugu' },
+  { code: 'ta', label: 'தமிழ்', native: 'Tamil' },
+  { code: 'kn', label: 'ಕನ್ನಡ', native: 'Kannada' },
+  { code: 'mr', label: 'मराठी', native: 'Marathi' },
+]
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
   const { user, signOut } = useAuth()
   const { isDark, toggleTheme } = useTheme()
+  const { i18n } = useTranslation()
   const location = useLocation()
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const currentLang = allLanguages.find(l => l.code === i18n.language) || allLanguages[0]
 
   const isLanding = location.pathname === '/'
 
@@ -57,6 +82,38 @@ export default function Navbar() {
                 ))}
               </>
             )}
+
+            {/* Language Selector */}
+            <div className="relative" ref={langRef}>
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+              >
+                <Globe size={14} />
+                <span className="hidden sm:inline">{currentLang.native}</span>
+                <ChevronDown size={12} className={`transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-full mt-1 w-36 rounded-lg overflow-hidden z-50"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-strong)', boxShadow: 'var(--shadow-lg)' }}>
+                  {allLanguages.map(lang => (
+                    <button key={lang.code}
+                      onClick={() => { i18n.changeLanguage(lang.code); localStorage.setItem('biznex-lang', lang.code); setLangOpen(false) }}
+                      className="w-full text-left px-3 py-2 text-[13px] font-medium transition-colors flex items-center gap-2"
+                      style={{ color: i18n.language === lang.code ? 'var(--accent-bright)' : 'var(--text-secondary)', background: i18n.language === lang.code ? 'var(--accent-dim)' : 'transparent' }}
+                      onMouseEnter={(e) => { if (i18n.language !== lang.code) (e.currentTarget as HTMLElement).style.background = 'var(--accent-dim)' }}
+                      onMouseLeave={(e) => { if (i18n.language !== lang.code) (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      <span>{lang.native}</span>
+                      <span className="text-[11px] opacity-60">{lang.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button
               onClick={toggleTheme}
@@ -147,6 +204,21 @@ export default function Navbar() {
                   ))}
                 </>
               )}
+              {/* Mobile Language Selector */}
+              <div className="py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Language</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {allLanguages.map(lang => (
+                    <button key={lang.code}
+                      onClick={() => { i18n.changeLanguage(lang.code); localStorage.setItem('biznex-lang', lang.code) }}
+                      className="px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-colors"
+                      style={{ background: i18n.language === lang.code ? 'var(--accent-dim)' : 'var(--bg-surface)', color: i18n.language === lang.code ? 'var(--accent-bright)' : 'var(--text-secondary)', border: `1px solid ${i18n.language === lang.code ? 'var(--accent-bright)' : 'var(--border)'}` }}
+                    >
+                      {lang.native}
+                    </button>
+                  ))}
+                </div>
+              </div>
               {user ? (
                 <>
                   <Link to="/dashboard" className="block" onClick={() => setIsOpen(false)}>
